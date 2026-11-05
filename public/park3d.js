@@ -45,6 +45,31 @@ const SPOTS=[
  [5.5,9.6,10,'长椅','chángyǐ','ghế dài',24],[10.5,6.6,10,'长椅','chángyǐ','ghế dài',24],[11.6,3.5,50,'遮阳伞','zhēyángsǎn','dù che nắng',36],[13.6,5,50,'遮阳伞','zhēyángsǎn','dù che nắng',36],[12.5,11.5,20,'舞台','wǔtái','sân khấu mini',46],[9.75,12.6,3,'野餐垫','yěcāndiàn','thảm picnic',34],
  [9.8,4,30,'冰淇淋车','bīngqílín chē','quầy kem',40],[13.2,7.5,50,'气球','qìqiú','bóng bay',34],[9.6,7.6,30,'路灯','lùdēng','đèn đường',20],[1.6,3.4,50,'樱花树','yīnghuā shù','cây anh đào',40]]
  .map(s=>({x:s[0],y:s[1],z:s[2],zh:s[3],py:s[4],vi:s[5],pr:s[6],fo:s[7]==='fount'}));
+
+const ACT={'冰淇淋车':'ice','气球':'bal','舞台':'stage','滑梯':'play','摇摇乐':'play','桥':'pond','荷花':'pond','凉亭':'gaz'};
+const QB={
+ ice:{t:'🍦 Quầy kem · 冰淇淋',w:[['草莓','cǎoméi','dâu tây'],['巧克力','qiǎokèlì','sô-cô-la'],['香草','xiāngcǎo','vani'],['芒果','mángguǒ','xoài'],['抹茶','mǎchá','matcha'],['牛奶','niúnǎi','sữa']]},
+ bal:{t:'🎈 Bóng bay · 气球',w:[['红色','hóngsè','màu đỏ'],['蓝色','lánsè','màu xanh dương'],['黄色','huángsè','màu vàng'],['绿色','lǜsè','màu xanh lá'],['粉色','fěnsè','màu hồng'],['紫色','zǐsè','màu tím']]},
+ stage:{t:'🎤 Sân khấu mini · 舞台',w:[['我喜欢唱歌','Wǒ xǐhuan chànggē','Tôi thích hát'],['谢谢大家','Xièxie dàjiā','Cảm ơn mọi người'],['欢迎来公园','Huānyíng lái gōngyuán','Chào mừng đến công viên'],['请坐这里','Qǐng zuò zhèlǐ','Mời ngồi ở đây'],['今天很开心','Jīntiān hěn kāixīn','Hôm nay rất vui'],['再唱一首','Zài chàng yī shǒu','Hát thêm một bài nữa']]},
+ play:{t:'🛝 Khu vui chơi · 儿童乐园',w:[['滑梯','huátī','cầu trượt'],['秋千','qiūqiān','xích đu'],['跷跷板','qiāoqiāobǎn','bập bênh'],['沙坑','shākēng','hố cát'],['孩子','háizi','trẻ em'],['玩','wán','chơi']]},
+ pond:{t:'🪷 Hồ sen · 荷花池',w:[['荷花','héhuā','hoa sen'],['鱼','yú','cá'],['桥','qiáo','cái cầu'],['水','shuǐ','nước'],['青蛙','qīngwā','con ếch'],['红色的桥','hóngsè de qiáo','cây cầu màu đỏ']]},
+ gaz:{t:'🏮 Chòi nghỉ · 凉亭',w:[['茶','chá','trà'],['桌子','zhuōzi','cái bàn'],['椅子','yǐzi','cái ghế'],['休息','xiūxi','nghỉ ngơi'],['聊天','liáotiān','trò chuyện'],['喝茶','hē chá','uống trà']]}};
+const sh=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
+function quiz(act,p,hero){const b=QB[act];window.__parkPos=[hero.gx,hero.gy];const qs=sh(b.w).slice(0,5);let i=0,ok=0;
+ const back=()=>{enterPark(p)};
+ const show=()=>{if(i>=qs.length)return end();const q=qs[i],zh2vi=i%2===0,opts=sh([q,...sh(b.w.filter(x=>x!==q)).slice(0,2)]);
+  modal(`<h2>${b.t}</h2><p class="sub">Câu ${i+1}/${qs.length}</p><div style="text-align:center;margin:10px 0"><div style="font-size:34px;font-weight:800">${zh2vi?q[0]:esc(q[2])}</div><div class="sub">${zh2vi?q[1]:''}</div><button class="btn" id="spk">🔊 Nghe</button></div><div class="row" style="flex-direction:column;gap:8px">${opts.map((o,j)=>`<button class="btn" data-j="${j}">${zh2vi?esc(o[2]):o[0]+'  '+o[1]}</button>`).join('')}</div><div class="row"><button class="btn" id="bk">← Về công viên</button></div>`);
+  $('pm').classList.remove('wide');
+  $('spk').onclick=()=>{try{rwSay(q[0])}catch(e){}};try{rwSay(q[0])}catch(e){}
+  $('bk').onclick=back;
+  document.querySelectorAll('[data-j]').forEach(bt=>bt.onclick=()=>{const good=opts[+bt.dataset.j]===q;if(good){ok++;bt.style.background='#bff0c8'}else{bt.style.background='#ffc9c9'}document.querySelectorAll('[data-j]').forEach(x=>x.disabled=true);setTimeout(()=>{i++;show()},700)})};
+ const end=()=>{const day=new Date().toISOString().slice(0,10);ST.pk=ST.pk&&ST.pk.d===day?ST.pk:{d:day,a:{}};let msg='';
+  if(!ST.pk.a[act]){ST.pk.a[act]=1;const gc=ok*4,gx=ok*3;ST.coins+=gc;ST.exp+=gx;msg=`Nhận +${gc} 🪙 và +${gx} EXP (lần đầu hôm nay)`;
+   if(Object.keys(ST.pk.a).length>=6&&!ST.pk.bonus){ST.pk.bonus=1;ST.tickets=(ST.tickets||0)+1;msg+='<br>🎟️ Hoàn thành cả 6 hoạt động công viên hôm nay: +1 vé quay!'}}
+  else msg='Hôm nay bạn đã nhận thưởng hoạt động này rồi, vẫn luyện tập thoải mái nhé!';
+  saveState();const done=Object.keys(ST.pk.a).length;
+  modal(`<h2>${b.t}</h2><div style="text-align:center;margin:12px 0"><div style="font-size:38px">${ok>=4?'🌟':ok>=2?'👍':'💪'}</div><p><b>Đúng ${ok}/${qs.length}</b></p><p class="sub">${msg}</p><p class="sub">Hoạt động công viên hôm nay: ${done}/6 🌳</p></div><div class="row"><button class="btn gold" id="bk">← Về công viên</button></div>`);$('bk').onclick=back}
+ show()}
 function enterPark(p){
  const sc=seasonCols(),{T,bl,add}=build();
  const tree=(x,y,s,c,blk)=>{if(blk!==false)add(Math.floor(x),Math.floor(y));return{d:x+y+.2,f:()=>{cyl(x,y,0,.1,26*s,'#8a6244');for(const[a,b,z,r]of[[0,0,58,24],[-.22,.05,46,19],[.22,-.05,48,19],[0,.12,38,16]])ball(x+a*s,y+b*s,z*s,r*s,c)}}};
@@ -97,10 +122,10 @@ function enterPark(p){
  const blocked=bl;
  /* nhân vật */
  const npcs=NPCS.map(n=>({...n,li:0,gx:n.x,gy:n.y,ang:0}));
- const hero={gx:13.5,gy:13.5,view:2,path:[],moving:false,after:null},pet={gx:12.6,gy:13.9};
+ const sp0=window.__parkPos;window.__parkPos=null;const hero={gx:sp0?sp0[0]:13.5,gy:sp0?sp0[1]:13.5,view:2,path:[],moving:false,after:null},pet={gx:12.6,gy:13.9};
  let last=0,zone='',banner=0,bannerTxt=null;
  const ph=p;
- modal(`<h2>${esc(p.name)} · ${p.zh||''}</h2><canvas id="park3" width="${W}" height="${H}" style="display:block;margin:0 auto;width:min(100%,calc(58vh*${W/H}));border-radius:18px;background:#d8f0ff"></canvas><p class="sub" style="margin:6px 0">Chạm để đi dạo · chạm vào đồ vật hoặc người để học từ 👆 · cổng 公园 ở góc dưới là lối ra</p><div class="row">${p.words?'<button class="btn gold" id="learn">📘 Bắt đầu nhiệm vụ</button>':''}${p.words?'<button class="btn" id="talk2">💬 Trò chuyện</button>':''}<button class="btn" id="leave">Ra phố</button></div>`);
+ modal(`<h2>${esc(p.name)} · ${p.zh||''}</h2><canvas id="park3" width="${W}" height="${H}" style="display:block;margin:0 auto;width:min(100%,calc(58vh*${W/H}));border-radius:18px;background:#d8f0ff"></canvas><p class="sub" style="margin:6px 0">Chạm để đi dạo · chạm vào đồ vật hoặc người để học từ 👆 · quầy kem, bóng bay, sân khấu, cầu trượt, hồ sen, chòi có mini-game thưởng 🪙 · cổng 公园 ở góc dưới là lối ra</p><div class="row">${p.words?'<button class="btn gold" id="learn">📘 Bắt đầu nhiệm vụ</button>':''}${p.words?'<button class="btn" id="talk2">💬 Trò chuyện</button>':''}<button class="btn" id="leave">Ra phố</button></div>`);
  $('pm').classList.add('wide');$('leave').onclick=closeM;if(p.words)$('learn').onclick=()=>{closeM();openBoard(p)};if($('talk2'))$('talk2').onclick=()=>{closeM();openNpc(p)};
  const c=$('park3');k=c.getContext('2d');
  const tileFree=(x,y)=>x>=0&&y>=0&&x<M&&y<M&&!blocked.has(x+','+y);
@@ -113,7 +138,7 @@ function enterPark(p){
   let best=null,bd=1e9;for(const s of SPOTS){const q=pt(s.x,s.y,s.z);const d=Math.hypot(sx-q[0],sy-q[1]);if(d<(s.pr||30)&&d<bd){bd=d;best=s}}
   if(best){goNear(best.x,best.y,{spot:best});return}
   const a=(sx-cam[0])/(TW/2),b=(sy-cam[1])/(TH/2),gx=Math.floor((a+b)/2),gy=Math.floor((b-a)/2);if(!tileFree(gx,gy))return;const pa=bfs(Math.floor(hero.gx),Math.floor(hero.gy),gx,gy);if(pa){hero.path=pa;hero.after=null}};
- const fire=a=>{if(!a)return;if(a.npc){const n=a.npc;if(n.main){closeM();if(p.words)openNpc(p);else say('欢迎来公园！','Huānyíng lái gōngyuán!','Chào mừng đến công viên!');return}const l=n.lines[n.li++%n.lines.length];say(l[0],l[1],`${n.n} (${n.vi}): ${l[2]}`)}else if(a.spot){const s=a.spot;if(s.fo){window.__parkFount=((window.__parkFount||0)+1)%3;say(s.zh,s.py,s.vi+['  · trạng thái: tĩnh','  · trạng thái: phun nước','  · trạng thái: vui vẻ ❤️'][window.__parkFount])}else say(s.zh,s.py,s.vi)}};
+ const fire=a=>{if(!a)return;if(a.npc){const n=a.npc;if(n.main){closeM();if(p.words)openNpc(p);else say('欢迎来公园！','Huānyíng lái gōngyuán!','Chào mừng đến công viên!');return}const l=n.lines[n.li++%n.lines.length];say(l[0],l[1],`${n.n} (${n.vi}): ${l[2]}`)}else if(a.spot){const s=a.spot;if(s.fo){window.__parkFount=((window.__parkFount||0)+1)%3;say(s.zh,s.py,s.vi+['  · trạng thái: tĩnh','  · trạng thái: phun nước','  · trạng thái: vui vẻ ❤️'][window.__parkFount])}else{say(s.zh,s.py,s.vi);if(ACT[s.zh])setTimeout(()=>quiz(ACT[s.zh],p,hero),1200)}}};
  const draw=t=>{const dt=Math.min(.05,(t-(last||t))/1000);last=t;TT=t;
   if(!$('park3')||!$('ovm').classList.contains('on'))return;
   /* di chuyển */
@@ -140,6 +165,7 @@ function enterPark(p){
   /* vật thể + người */
   const list=O.filter(o=>o.f).map(o=>o);
   for(const n of npcs)list.push({d:n.gx+n.gy+.35,f:()=>{const q=pt(n.gx,n.gy,0);drawPerson(k,q[0],q[1],{variant:n.v,scale:n.sc||.9,view:n.jog?n.vw:0,time:t,moving:!!n.mv});if(!n.jog&&!n.sc){}if(n.main||n.lines){const f=pt(n.gx,n.gy,0);emo(n.main?'❗':'💬',f[0],f[1]-(n.sc?60:78)+Math.sin(t/300)*2,15)}}});
+  for(const sp of SPOTS)if(ACT[sp.zh]&&sp.zh!=='摇摇乐'&&sp.zh!=='荷花')list.push({d:sp.x+sp.y+3,f:()=>{const q=pt(sp.x,sp.y,sp.z+32);emo('⭐',q[0],q[1]+Math.sin(t/260+sp.x)*3,17)}});
   const hz=(hero.gy>=11&&hero.gy<12&&hero.gx>=1&&hero.gx<7)?bz(hero.gx):0;
   list.push({d:hero.gx+hero.gy+.35,f:()=>{const q=pt(hero.gx,hero.gy,hz);drawPerson(k,q[0],q[1],{hero:true,time:t,scale:.95,view:hero.view,moving:hero.moving})}});
   list.push({d:pet.gx+pet.gy+.5,f:()=>{const q=pt(pet.gx,pet.gy,0);if(window.drawPetAt)drawPetAt(k,q[0],q[1]-58+Math.sin(t/420)*4,1,40,null,true)}});
