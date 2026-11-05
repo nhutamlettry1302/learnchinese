@@ -241,7 +241,7 @@ window.PKX=new Image();PKX.src='img/park-ext.webp';PKX.onload=()=>{try{BG=null}c
 function drawPlace(k,p,dk){const x=p.x-p.w/2,y=p.y-p.h/2,w=p.w,h=p.h,st=p.st,c=p.c,fx=p.x;
  // bóng
  k.fillStyle='rgba(0,0,0,.28)';k.beginPath();k.ellipse(fx+8,y+h+3,w*.55,11,0,0,7);k.fill();
- if(st==='park'&&window.PKX&&PKX.complete&&PKX.naturalWidth){ // công viên (tranh thiết kế)
+ if(false){ // công viên (tranh thiết kế)
   const bx=x-6,by=y-6,bw=w+12,bh=h+12;k.save();rr(k,bx,by,bw,bh,30);k.clip();const sw=PKX.naturalHeight*bw/bh,sx0=(PKX.naturalWidth-sw)/2;k.drawImage(PKX,sx0,0,sw,PKX.naturalHeight,bx,by,bw,bh);if(dk){k.fillStyle='rgba(10,20,60,.38)';k.fillRect(bx,by,bw,bh)}k.restore();rr(k,bx,by,bw,bh,30);k.lineWidth=3;k.strokeStyle=dk?'#2f8a58':'#3c8a47';k.stroke();
  } else if(st==='park'){ // công viên (dự phòng) (theo thiết kế)
   const E=(cx,cy,rx,ry,col)=>{k.fillStyle=col;k.beginPath();k.ellipse(cx,cy,rx,ry,0,0,7);k.fill()};
@@ -837,4 +837,4 @@ function startFlow(){if(ST.done)return;openProfile(true,()=>openLevel(true,()=>{
 syncUnlocks();syncProg();refreshHud();fit();setTimeout(startFlow,350);requestAnimationFrame(frame);
 window.__tp={P,PLACES,walkTo,NODES,openQ,openPlace,enterRoom,NPC,drawPerson,stepNpc,get Q(){return Q},get ST(){return ST},openHome,openWheel,awardWheel,get prog(){return prog},get S(){return S},CAM};
 </script>
-<script src="tasks.js"></script><script src="npc.js"></script><script src="pets.js"></script><script src="home3d.js"></script><script src="rooms3d.js"></script><script src="park3d.js"></script></body></html>
+<script src="tasks.js"></script><script src="npc.js"></script><script src="pets.js"></script><script src="home3d.js"></script><script src="rooms3d.js"></script><script src="park2d.js"></script></body></html>
