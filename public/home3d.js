@@ -58,7 +58,7 @@ function walkTile(tx,ty,after){if(G.pose!=='stand'){const o=G.on!=null?ST.home.p
  const sx=Math.min(N-1,Math.max(0,Math.floor(G.gx))),sy=Math.min(N-1,Math.max(0,Math.floor(G.gy)));const p=bfs(sx,sy,tx,ty);if(!p){return false}G.path=p;G.after=after||null;return true}
 /* ---- vẽ ---- */
 function inv(sx,sy){const a=(sx-OX)/(TW/2),b=(sy-OY)/(TH/2);return[(a+b)/2,(b-a)/2]}
-function drawRoom(k,t){const F=FLOORS[ST.home.floor]||FLOORS.f0,Wl=WALLS[ST.home.wall]||WALLS.w0;k.clearRect(0,0,CW,CH);
+function drawRoom(k,t){const PV=window.__pv||{},F=FLOORS[PV.floor||ST.home.floor]||FLOORS.f0,Wl=WALLS[PV.wall||ST.home.wall]||WALLS.w0;k.clearRect(0,0,CW,CH);
  const top=P(0,0,0),r=P(N,0,0),l=P(0,N,0),b=P(N,N,0),up=z=>[0,-z];
  // tường trái (gx=0) và phải (gy=0)
  const wp=(A,B,fill,line)=>{poly(k,[A,B,[B[0],B[1]-WH],[A[0],A[1]-WH]],fill,false)};
@@ -107,10 +107,12 @@ function hitItem(sx,sy){let best=null,bd=-1;for(const o of items()){let box;if(o
   if(sx>=box[0]&&sx<=box[2]&&sy>=box[1]&&sy<=box[3]){const dd=o.g?o.g[0]+o.g[1]:-1;if(dd>bd){bd=dd;best=o}}}return best}
 function wallAt(sx,sy){for(const side of['L','R']){const[u,z]=side==='L'?[(OX-sx)/(TW/2),OY+((OX-sx)/(TW/2))*TH/2-sy]:[(sx-OX)/(TW/2),OY+((sx-OX)/(TW/2))*TH/2-sy];if(u>.3&&u<N-.3&&z>20&&z<WH)return{w:side,u,z}}return null}
 function bind(){const pm=$('pm');
- pm.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{hTab=b.dataset.tab;hSel=null;drag=null;renderHome()});
+ pm.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{hTab=b.dataset.tab;if(hTab!=='shop')window.__pv=null;hSel=null;drag=null;renderHome()});
  pm.querySelectorAll('[data-hm]').forEach(b=>b.onclick=()=>{hMode=b.dataset.hm;hSel=null;drag=null;renderHome()});
  pm.querySelectorAll('[data-put]').forEach(b=>b.onclick=()=>{hSel=hSel===b.dataset.put?null:b.dataset.put;hMode='walk';drag=null;renderHome()});
  pm.querySelectorAll('[data-wall]').forEach(b=>b.onclick=()=>{ST.home.wall=b.dataset.wall;saveState();renderHome()});
+ pm.querySelectorAll('[data-try]').forEach(b=>b.onclick=()=>{const it=ITEM[b.dataset.try];window.__pv=Object.assign({},window.__pv,it.k==='wp'?{wall:it.id}:{floor:it.id});renderHome();const c=$('hc');if(c)c.scrollIntoView({block:'nearest'})});
+ pm.querySelectorAll('[data-untry]').forEach(b=>b.onclick=()=>{window.__pv=null;renderHome()});
  pm.querySelectorAll('[data-floor]').forEach(b=>b.onclick=()=>{ST.home.floor=b.dataset.floor;saveState();renderHome()});
  pm.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const it=ITEM[b.dataset.buy];if(ST.coins<it.p){toast('Chưa đủ xu, làm thêm nhiệm vụ nhé!');return}ST.coins-=it.p;ST.inv[it.id]=(ST.inv[it.id]||0)+1;saveState();toast('Đã mua '+(it.e||'')+' '+it.n);renderHome()});
  const c=$('hc');if(c){c.onpointermove=e=>{const[sx,sy]=pointer(c,e);G.hov=inv(sx,sy)};c.onpointerleave=()=>{G.hov=null};
@@ -137,6 +139,6 @@ window.openHome=function(tab){
  // chuyển nhà cũ (2D) sang nhà 3D: trả đồ cũ về kho
  let migrated=false;ST.home.placed=ST.home.placed.filter(p=>{if(p.g||p.w)return true;migrated=true;ST.inv[p.id]=(ST.inv[p.id]||0)+1;return false});
  if(!ST.s3d||migrated){ST.s3d=1;if(!ST.home.placed.length){const put=(id,g)=>{if(!ITEM[id])return;if((ST.inv[id]||0)>0)ST.inv[id]--;ST.home.placed.push({id,g})};put('bed',[0,0]);put('sofa',[4,0]);put('chair',[6,3]);put('plant',[0,5]);toast('Cô tặng bạn giường, sofa, ghế và chậu cây cho căn nhà 3D!')}saveState()}
- hTab=tab||'inv';hSel=null;hMode='walk';drag=null;G.gx=5.5;G.gy=5.5;G.view=0;resetHero();renderHome()};
+ window.__pv=null;hTab=tab||'inv';hSel=null;hMode='walk';drag=null;G.gx=5.5;G.gy=5.5;G.view=0;resetHero();renderHome()};
 window.__home3d={G,occ,fits};window.__iso={P,box,ball,cyl,poly,mix,C,DRAW,N,TW,TH,WH,CW,CH,OX,OY};
 })();
