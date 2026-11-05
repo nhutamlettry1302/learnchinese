@@ -66,7 +66,7 @@ select{width:100%;font:700 15px var(--f-b);padding:10px 12px;border-radius:14px;
 @media(max-width:560px){.pill{min-width:104px}.sk .th{width:70px;height:70px}.menu{grid-template-columns:1fr}}
 </style></head><body>
 <div id="app">
- <div class="top"><button class="btn" id="bMenu" aria-label="Menu">☰</button><h1><svg viewBox="0 0 64 36" width="46" height="26" style="vertical-align:-5px;margin-right:6px"><path d="M4 22c0-10 9-17 21-17 10 0 16 5 21 10 2 3 5 3 8 1l5-8c2 6 1 14-5 17-4 3-9 3-14 4-8 3-22 4-29 1-4-2-7-5-7-8z" fill="#7cc6ee" stroke="#1f5d86" stroke-width="2.4"/><circle cx="16" cy="18" r="2" fill="#12424f"/><path d="M24 5q-2-5 2-8M30 5q1-5 6-7" fill="none" stroke="#7cc6ee" stroke-width="2.4" stroke-linecap="round"/></svg>Thành Phố Cá Voi</h1><span class="pill" id="sc"></span><button class="btn" id="bLvl" aria-label="Cấp và bài">📚<span class="lb"> Cấp/Bài</span></button><button class="btn" id="bHome" aria-label="Nhà">🏠<span class="lb"> Nhà</span></button><button class="btn" id="bWheel" aria-label="Vòng quay">🎡<span class="lb"> Quay</span><em id="tkBadge" class="bd" hidden></em></button><button class="btn" id="bList" aria-label="Địa điểm">📍<span class="lb"> Địa điểm</span></button><button class="btn" id="bN" hidden>🌙</button></div>
+ <div class="top"><button class="btn" id="bMenu" aria-label="Menu">☰</button><h1><svg viewBox="0 0 64 36" width="46" height="26" style="vertical-align:-5px;margin-right:6px"><path d="M4 22c0-10 9-17 21-17 10 0 16 5 21 10 2 3 5 3 8 1l5-8c2 6 1 14-5 17-4 3-9 3-14 4-8 3-22 4-29 1-4-2-7-5-7-8z" fill="#7cc6ee" stroke="#1f5d86" stroke-width="2.4"/><circle cx="16" cy="18" r="2" fill="#12424f"/><path d="M24 5q-2-5 2-8M30 5q1-5 6-7" fill="none" stroke="#7cc6ee" stroke-width="2.4" stroke-linecap="round"/></svg>Thành Phố Cá Voi</h1><span class="pill" id="sc"></span><button class="btn" id="bLvl" aria-label="Cấp và bài">📚<span class="lb"> Cấp/Bài</span></button><button class="btn" id="bHome" aria-label="Nhà">🏠<span class="lb"> Nhà</span></button><button class="btn" id="bWheel" aria-label="Vòng quay">🎡<span class="lb"> Quay</span><em id="tkBadge" class="bd" hidden></em></button><button class="btn" id="bList" aria-label="Địa điểm">📍<span class="lb"> Địa điểm</span></button><button class="btn" id="bN" aria-label="Sáng tối">🌙</button></div>
  <div id="stage"><canvas id="cv"></canvas><canvas id="mm" width="280" height="220"></canvas>
   <div class="zoom"><button class="btn" id="zi" aria-label="Phóng to">＋</button><button class="btn" id="zo" aria-label="Thu nhỏ">－</button></div>
   <div class="hint" id="hint">Bấm vào một tòa nhà hoặc con đường để đi</div><div class="toast" id="toast"></div>
@@ -398,8 +398,8 @@ function dijkstra(a,b){const dist=new Map([[a,0]]),prev=new Map(),open=[a];while
  const path=[];let c=b;while(c&&c!==a){path.unshift(c);c=prev.get(c)}return path}
 function nearestNode(x,y,max){let b=null,d=max;for(const k in NODES){const n=NODES[k],dd=Math.hypot(n.x-x,n.y-y);if(dd<d){d=dd;b=n}}return b}
 function walkTo(n,after){P.go=after||null;const from=P.cur||nearestNode(P.x,P.y,1e9);P.path=dijkstra(from,n);if(P.path.length===0){P.cur=from;if(after){const f=P.go;P.go=null;f()}}else P.cur=null}
-function openPlace(p){walkTo(p.door,()=>enterRoom(p));$('hint').textContent='Đang đi đến '+p.name+' '+p.zh}
-function tap(sx,sy){const r=cv.getBoundingClientRect(),x=(sx-r.left)/S+CAM.x,y=(sy-r.top)/S+CAM.y;
+function openPlace(p){walkTo(p.door,()=>window.openNpc?openNpc(p):enterRoom(p));$('hint').textContent='Đang đi đến '+p.name+' '+p.zh}
+function tap(sx,sy){const r=cv.getBoundingClientRect(),x=(sx-r.left)/S+CAM.x,y=(sy-r.top)/S+CAM.y;{const np=window.npcAt&&npcAt(x,y);if(np){walkTo(np.door,()=>openNpc(np));$('hint').textContent='Đang đến gặp '+np.zh;return}}
  for(const [hx,ry] of HOUSES)for(let i=0;i<2;i++){const xx=hx-100+i*120;if(x>xx-8&&x<xx+92&&y>ry-205&&y<ry-115){walkTo(NODES[hx+','+ry],()=>(ry===ROADS_Y[2]&&i===0)?openHome('inv'):enterRoom({id:'home',name:(i===0?'林先生的家':'杏奶奶的家'),c:i===0?'#91baa0':'#e994a6'}));return}}
  for(const p of PLACES)if(Math.abs(x-p.x)<p.w/2+10&&y>p.y-p.h/2-30&&y<p.y+p.h/2+34){openPlace(p);return}
  const n=nearestNode(x,y,170);if(n){walkTo(n);$('hint').textContent='Bấm vào tòa nhà để vào làm nhiệm vụ'}}
@@ -560,6 +560,7 @@ function frame(t){const dt=Math.min(.05,(t-last)/1000);last=t;
  if(n.visualX===undefined){n.visualX=x;n.visualY=y}
  const ease=1-Math.exp(-12*dt);n.visualX+=(x-n.visualX)*ease;n.visualY+=(y-n.visualY)*ease;
  drawPerson(cx,n.visualX,n.visualY,{variant:n.k,face:Math.sign(dx)||1,scale:.9,moving:!(n.pause>0),view:n.view||0,time:t,phase:n.walkPhase??n.k*1.7});}
+ if(window.drawGate)drawGate(cx,t);
  // Hover glow and a welcoming open doorway near the player.
  for(const p of PLACES){if(p===hoverPlace){cx.save();cx.strokeStyle='#ffe59b';cx.lineWidth=5;cx.shadowColor='#fff0ae';cx.shadowBlur=16;rr(cx,p.x-p.w/2-5,p.y-p.h/2-8,p.w+10,p.h+16,20);cx.stroke();cx.restore()}
  if(Math.hypot(P.x-p.x,P.y-p.road)<65){cx.fillStyle='#795c54';rr(cx,p.x-10,p.y+p.h/2-28,20,28,4);cx.fill();cx.fillStyle='#ffdfa0';cx.fillRect(p.x-7,p.y+p.h/2-25,6,23)}}
@@ -791,4 +792,4 @@ function startFlow(){if(ST.done)return;openProfile(true,()=>openLevel(true,()=>{
 syncUnlocks();syncProg();refreshHud();fit();setTimeout(startFlow,350);requestAnimationFrame(frame);
 window.__tp={P,PLACES,walkTo,NODES,openQ,openPlace,enterRoom,NPC,drawPerson,stepNpc,get Q(){return Q},get ST(){return ST},openHome,openWheel,awardWheel,get prog(){return prog},get S(){return S},CAM};
 </script>
-<script src="tasks.js"></script></body></html>
+<script src="tasks.js"></script><script src="npc.js"></script></body></html>
