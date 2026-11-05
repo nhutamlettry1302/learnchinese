@@ -79,7 +79,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 /* mỗi từ: [chữ Hán, pinyin, nghĩa, câu có từ đó, nghĩa của câu] */
 const PLACES=[
- {id:'truong',name:'Trường học',zh:'学校',st:'cn2',c:'#d9534f',col:0,row:1,words:[
+ {id:'truong',name:'xuéxiào',zh:'学校',st:'cn2',c:'#d9534f',col:0,row:1,words:[
   ['老师','lǎoshī','giáo viên','我们的老师今天教新课。','Hôm nay cô giáo dạy bài mới.'],
   ['学生','xuésheng','học sinh','这个班有二十个学生。','Lớp này có hai mươi học sinh.'],
   ['教室','jiàoshì','phòng học','学生们都在教室里上课。','Học sinh đều học trong phòng học.'],
@@ -88,7 +88,7 @@ const PLACES=[
   ['图书馆','túshūguǎn','thư viện','我在学校的图书馆借了三本书。','Tôi mượn ba cuốn sách ở thư viện trường.'],
   ['同学','tóngxué','bạn học','他是我的大学同学。','Anh ấy là bạn học đại học của tôi.'],
   ['复习','fùxí','ôn tập','考试以前要认真复习。','Trước kỳ thi phải ôn tập cẩn thận.']]},
- {id:'thuvien',name:'Thư viện',zh:'图书馆',st:'cn',c:'#8a6bc4',col:1,row:1,words:[
+ {id:'thuvien',name:'túshūguǎn',zh:'图书馆',st:'cn',c:'#8a6bc4',col:1,row:1,words:[
   ['借','jiè','mượn','我想借两本书。','Tôi muốn mượn hai cuốn sách.'],
   ['还','huán','trả','借的书要按时还。','Sách mượn phải trả đúng hạn.'],
   ['杂志','zázhì','tạp chí','这本杂志里有很多漂亮的照片。','Cuốn tạp chí này có nhiều ảnh đẹp.'],
@@ -97,7 +97,7 @@ const PLACES=[
   ['小说','xiǎoshuō','tiểu thuyết','我最喜欢看爱情小说。','Tôi thích đọc tiểu thuyết tình yêu nhất.'],
   ['查','chá','tra cứu','我想在电脑上查一下这本书。','Tôi muốn tra cuốn sách này trên máy tính.'],
   ['座位','zuòwèi','chỗ ngồi','这里没有座位了,我们去别的地方吧。','Ở đây hết chỗ ngồi rồi, mình đi chỗ khác nhé.']]},
- {id:'rap',name:'Rạp phim',zh:'电影院',st:'cinema',c:'#e0654f',col:2,row:1,words:[
+ {id:'rap',name:'diànyǐngyuàn',zh:'电影院',st:'cinema',c:'#e0654f',col:2,row:1,words:[
   ['电影','diànyǐng','phim','我们晚上去看电影吧。','Tối nay mình đi xem phim nhé.'],
   ['演员','yǎnyuán','diễn viên','这个演员演得很好。','Diễn viên này diễn rất hay.'],
   ['好看','hǎokàn','hay, đẹp','这部电影真好看,我还想再看一次。','Bộ phim này hay quá, tôi còn muốn xem lại.'],
@@ -106,7 +106,7 @@ const PLACES=[
   ['结束','jiéshù','kết thúc','电影十点结束,我们可以回家了。','Phim kết thúc lúc mười giờ, chúng ta có thể về nhà.'],
   ['故事','gùshi','câu chuyện','这个故事很有意思。','Câu chuyện này rất thú vị.'],
   ['感动','gǎndòng','cảm động','看到最后,我被深深地感动了。','Xem đến cuối, tôi rất cảm động.']]},
- {id:'congvien',name:'Công viên',zh:'公园',st:'park',c:'#4fb783',col:3,row:1,words:[
+ {id:'congvien',name:'gōngyuán',zh:'公园',st:'park',c:'#4fb783',col:3,row:1,words:[
   ['花','huā','hoa','春天,公园里开了很多花。','Mùa xuân, công viên nở nhiều hoa.'],
   ['树','shù','cây','那棵大树下面很凉快。','Dưới gốc cây lớn kia rất mát.'],
   ['散步','sànbù','đi dạo','晚饭后我们常常去散步。','Sau bữa tối chúng tôi hay đi dạo.'],
@@ -115,7 +115,7 @@ const PLACES=[
   ['湖','hú','hồ','公园中间有一个大湖,里面有鱼。','Giữa công viên có một cái hồ lớn, trong đó có cá.'],
   ['拍照','pāizhào','chụp ảnh','这里风景很美,我们来拍照吧。','Phong cảnh ở đây đẹp, chúng ta chụp ảnh đi.'],
   ['草','cǎo','cỏ','请不要踩草。','Xin đừng giẫm lên cỏ.']]},
- {id:'nganhang',name:'Ngân hàng',zh:'银行',st:'bank',c:'#3f7fbf',col:0,row:2,words:[
+ {id:'nganhang',name:'yínháng',zh:'银行',st:'bank',c:'#3f7fbf',col:0,row:2,words:[
   ['钱','qián','tiền','我身上没带钱。','Tôi không mang theo tiền.'],
   ['存','cún','gửi (tiền)','他每个月存一千块,准备买车。','Mỗi tháng anh ấy gửi một nghìn tệ để mua xe.'],
   ['取','qǔ','rút (tiền)','我钱包空了,要去取一些钱。','Ví tôi hết tiền rồi, phải đi rút một ít.'],
@@ -124,7 +124,7 @@ const PLACES=[
   ['换','huàn','đổi','我想把美元换成人民币。','Tôi muốn đổi đô la sang nhân dân tệ.'],
   ['人民币','rénmínbì','nhân dân tệ','中国用的钱叫人民币。','Tiền Trung Quốc dùng gọi là nhân dân tệ.'],
   ['排队','páiduì','xếp hàng','人很多,请大家排队。','Người đông, xin mọi người xếp hàng.']]},
- {id:'benhvien',name:'Bệnh viện',zh:'医院',st:'hosp',c:'#4aa8d0',col:1,row:2,words:[
+ {id:'benhvien',name:'yīyuàn',zh:'医院',st:'hosp',c:'#4aa8d0',col:1,row:2,words:[
   ['医生','yīshēng','bác sĩ','医生给我开了药。','Bác sĩ kê thuốc cho tôi.'],
   ['护士','hùshi','y tá','护士在帮病人打针。','Y tá đang tiêm cho bệnh nhân.'],
   ['生病','shēngbìng','bị ốm','他生病了,住在医院里。','Anh ấy bị ốm, đang nằm viện.'],
@@ -133,7 +133,7 @@ const PLACES=[
   ['药','yào','thuốc','这个药一天吃三次。','Thuốc này uống ngày ba lần.'],
   ['休息','xiūxi','nghỉ ngơi','你太累了,应该休息一下。','Bạn mệt quá, nên nghỉ một chút.'],
   ['感冒','gǎnmào','cảm cúm','天气变冷,小心别感冒。','Trời lạnh rồi, cẩn thận đừng bị cảm.']]},
- {id:'khachsan',name:'Khách sạn',zh:'酒店',st:'cn2',c:'#c9953a',col:2,row:2,words:[
+ {id:'khachsan',name:'jiǔdiàn',zh:'酒店',st:'cn2',c:'#c9953a',col:2,row:2,words:[
   ['房间','fángjiān','phòng','我的房间在十楼。','Phòng của tôi ở tầng mười.'],
   ['预订','yùdìng','đặt trước','我想预订一个双人间。','Tôi muốn đặt một phòng đôi.'],
   ['前台','qiántái','quầy lễ tân','有问题请找前台。','Có vấn đề xin tìm quầy lễ tân.'],
@@ -142,7 +142,7 @@ const PLACES=[
   ['早餐','zǎocān','bữa sáng','酒店的早餐有面包和牛奶。','Bữa sáng của khách sạn có bánh mì và sữa.'],
   ['退房','tuìfáng','trả phòng','我们明天中午十二点前退房。','Chúng tôi trả phòng trước 12 giờ trưa mai.'],
   ['干净','gānjìng','sạch sẽ','这个房间很干净,我很满意。','Phòng này rất sạch, tôi rất hài lòng.']]},
- {id:'cho',name:'Chợ',zh:'市场',st:'market',c:'#e9a23b',col:0,row:3,words:[
+ {id:'cho',name:'shìchǎng',zh:'市场',st:'market',c:'#e9a23b',col:0,row:3,words:[
   ['苹果','píngguǒ','quả táo','红红的苹果很甜,我最爱吃。','Táo đỏ rất ngọt, tôi thích ăn nhất.'],
   ['香蕉','xiāngjiāo','chuối','这个香蕉是黄色的,已经熟了。','Quả chuối này màu vàng, chín rồi.'],
   ['西瓜','xīguā','dưa hấu','夏天吃冰西瓜最舒服。','Mùa hè ăn dưa hấu ướp lạnh là sướng nhất.'],
@@ -151,7 +151,7 @@ const PLACES=[
   ['贵','guì','đắt','这个太贵了,我买不起。','Cái này đắt quá, tôi không mua nổi.'],
   ['多少钱','duōshao qián','bao nhiêu tiền','这个苹果多少钱?三块。','Quả táo này bao nhiêu tiền? Ba tệ.'],
   ['买','mǎi','mua','我想去超市买东西。','Tôi muốn đi siêu thị mua đồ.']]},
- {id:'quan',name:'Quán ăn',zh:'餐厅',st:'cn',c:'#d94f3d',col:1,row:3,words:[
+ {id:'quan',name:'cānguǎn',zh:'餐厅',st:'cn',c:'#d94f3d',col:1,row:3,words:[
   ['菜单','càidān','thực đơn','请给我看看菜单。','Cho tôi xem thực đơn.'],
   ['服务员','fúwùyuán','nhân viên phục vụ','服务员,请给我一杯水。','Phục vụ ơi, cho tôi một ly nước.'],
   ['米饭','mǐfàn','cơm','请再来一碗白米饭。','Cho thêm một bát cơm trắng.'],
@@ -160,7 +160,7 @@ const PLACES=[
   ['辣','là','cay','我不能吃辣的,太难受了。','Tôi không ăn được đồ cay, khó chịu lắm.'],
   ['喝','hē','uống','请问,您想喝什么?','Xin hỏi, quý khách muốn uống gì?'],
   ['结账','jiézhàng','thanh toán','吃完了,请结账。','Ăn xong rồi, xin tính tiền.']]},
- {id:'cuahang',name:'Cửa hàng',zh:'商店',st:'shop',c:'#e05a9a',col:2,row:3,words:[
+ {id:'cuahang',name:'shāngdiàn',zh:'商店',st:'shop',c:'#e05a9a',col:2,row:3,words:[
   ['衣服','yīfu','quần áo','这件衣服是新买的。','Chiếc áo này mới mua.'],
   ['裤子','kùzi','quần','这条裤子太长了。','Chiếc quần này dài quá.'],
   ['鞋','xié','giày','我的鞋坏了,要买一双新的。','Giày tôi hỏng rồi, phải mua đôi mới.'],
@@ -169,7 +169,7 @@ const PLACES=[
   ['合适','héshì','vừa vặn','这件衣服大小正好,很合适。','Chiếc áo này vừa size, rất hợp.'],
   ['打折','dǎzhé','giảm giá','现在这里打折,只要五折。','Bây giờ ở đây giảm giá, chỉ còn một nửa.'],
   ['帽子','màozi','mũ','天气很热,我戴一顶帽子。','Trời nóng, tôi đội một chiếc mũ.']]},
- {id:'ga',name:'Ga tàu',zh:'火车站',st:'train',c:'#7b6fd6',col:0,row:4,words:[
+ {id:'ga',name:'huǒchēzhàn',zh:'火车站',st:'train',c:'#7b6fd6',col:0,row:4,words:[
   ['火车','huǒchē','tàu hỏa','我坐火车去北京。','Tôi đi tàu hỏa đến Bắc Kinh.'],
   ['票','piào','vé','请出示您的票。','Xin xuất trình vé của bạn.'],
   ['地铁','dìtiě','tàu điện ngầm','上海的地铁很方便,不会堵车。','Tàu điện ngầm Thượng Hải rất tiện, không tắc đường.'],
@@ -178,7 +178,7 @@ const PLACES=[
   ['旅游','lǚyóu','du lịch','暑假我想去云南旅游。','Kỳ nghỉ hè tôi muốn đi Vân Nam du lịch.'],
   ['行李','xíngli','hành lý','我的行李很重,有两个箱子。','Hành lý của tôi rất nặng, có hai chiếc vali.'],
   ['站','zhàn','ga, trạm','下一站是北京站。','Ga tiếp theo là ga Bắc Kinh.']]},
- {id:'sanbay',name:'Sân bay',zh:'机场',st:'air',c:'#35a7a0',col:1,row:4,words:[
+ {id:'sanbay',name:'jīchǎng',zh:'机场',st:'air',c:'#35a7a0',col:1,row:4,words:[
   ['飞机','fēijī','máy bay','坐飞机去上海只要两个小时。','Đi máy bay đến Thượng Hải chỉ mất hai tiếng.'],
   ['机票','jīpiào','vé máy bay','我在网上买了一张机票。','Tôi mua một vé máy bay trên mạng.'],
   ['护照','hùzhào','hộ chiếu','我的护照放在包里,别丢了。','Hộ chiếu của tôi để trong túi, đừng làm mất.'],
@@ -202,8 +202,8 @@ PLACES.forEach(p=>{p.w=p.st==='park'?300:240;p.h=p.st==='park'?150:140;p.x=COLX[
 const HOUSES=[[1500,ROADS_Y[1]],[1500,ROADS_Y[2]]]; // khu nhà dân
 /* ---------- Trạng thái ---------- */
 const RW=window.RW||{},ON=!!(RW.url&&RW.key);let me=null;try{me=JSON.parse(localStorage.getItem('rw_me')||'null')}catch(e){}
-const SKF=['Áo khoác hồng','Thủy thủ','Học bá','Nông trại','Mùa đông','Ngôi sao'],SKM=['Áo len xanh','Thủy thủ','Học bá','Nông trại','Mùa đông','Ngôi sao'],SKINS=SKF.slice(),SKIN_LV=[1,1,3,5,7,9];
-const RANKS=[[1,'Khách mới'],[3,'Cư dân'],[5,'Người dẫn đường'],[8,'Công dân ưu tú'],[12,'Thị trưởng Cá Voi']];
+const SKF=['粉外套 fěn wàitào','水手服 shuǐshǒufú','学霸 xuébà','农场装 nóngchǎngzhuāng','冬装 dōngzhuāng','明星 míngxīng'],SKM=['蓝毛衣 lán máoyī','水手服 shuǐshǒufú','学霸 xuébà','农场装 nóngchǎngzhuāng','冬装 dōngzhuāng','明星 míngxīng'],SKINS=SKF.slice(),SKIN_LV=[1,1,3,5,7,9];
+const RANKS=[[1,'新客 xīnkè'],[3,'居民 jūmín'],[5,'向导 xiàngdǎo'],[8,'优秀市民 yōuxiù shìmín'],[12,'鲸鱼市长 jīngyú shìzhǎng']];
 const defState=()=>({name:'',sex:'f',skin:0,lv:'city',lesson:0,exp:0,coins:0,tickets:1,unl:{f:[0,1],m:[0,1]},inv:{w0:1,f0:1},home:{wall:'w0',floor:'f0',placed:[]},ws:{},prog:{},done:false});
 let ST=defState();try{const o=JSON.parse(localStorage.getItem('tp_state')||'null');if(o)ST=Object.assign(defState(),o)}catch(e){}
 if(!ST.prog.city){try{const old=JSON.parse(localStorage.getItem('tp_prog')||'null');if(old)ST.prog.city=old}catch(e){}}
@@ -308,7 +308,7 @@ function drawPlace(k,p,dk){const x=p.x-p.w/2,y=p.y-p.h/2,w=p.w,h=p.h,st=p.st,c=p
   plaque(k,fx-6,y+h*.31,p.zh,64,18,'#1f6b66');rr(k,fx-18,y+h-38,36,38,5);k.fillStyle=dk?'#2a4a52':'#9bd0cb';k.fill();k.stroke();
  }
  // biển tên
- k.font='800 16px system-ui,sans-serif';k.textAlign='center';k.textBaseline='middle';const tw=k.measureText(p.name).width+26;rr(k,fx-tw/2,p.road-74,tw,24,12);k.fillStyle=dk?'rgba(8,30,28,.85)':'rgba(255,255,255,.92)';k.fill();k.lineWidth=2;k.strokeStyle=dk?'#5db39f':'#0f2f2a';k.stroke();k.fillStyle=dk?'#eaf4ee':'#0f2f2a';k.fillText(p.name,fx,p.road-62);
+ k.font='800 16px system-ui,sans-serif';k.textAlign='center';k.textBaseline='middle';const LB=p.zh?p.zh+' '+p.name:p.name;const tw=k.measureText(LB).width+26;rr(k,fx-tw/2,p.road-74,tw,24,12);k.fillStyle=dk?'rgba(8,30,28,.85)':'rgba(255,255,255,.92)';k.fill();k.lineWidth=2;k.strokeStyle=dk?'#5db39f':'#0f2f2a';k.stroke();k.fillStyle=dk?'#eaf4ee':'#0f2f2a';k.fillText(LB,fx,p.road-62);
  // vỉa hè nối ra đường
  }
 /* ---------- Dựng nền ---------- */
@@ -399,7 +399,7 @@ function nearestNode(x,y,max){let b=null,d=max;for(const k in NODES){const n=NOD
 function walkTo(n,after){P.go=after||null;const from=P.cur||nearestNode(P.x,P.y,1e9);P.path=dijkstra(from,n);if(P.path.length===0){P.cur=from;if(after){const f=P.go;P.go=null;f()}}else P.cur=null}
 function openPlace(p){walkTo(p.door,()=>enterRoom(p));$('hint').textContent='Đang đi đến '+p.name+' '+p.zh}
 function tap(sx,sy){const r=cv.getBoundingClientRect(),x=(sx-r.left)/S+CAM.x,y=(sy-r.top)/S+CAM.y;
- for(const [hx,ry] of HOUSES)for(let i=0;i<2;i++){const xx=hx-100+i*120;if(x>xx-8&&x<xx+92&&y>ry-205&&y<ry-115){walkTo(NODES[hx+','+ry],()=>(ry===ROADS_Y[2]&&i===0)?openHome('inv'):enterRoom({id:'home',name:'Nhà '+(i===0?'Ông Lâm':'Bà Hạnh'),c:i===0?'#91baa0':'#e994a6'}));return}}
+ for(const [hx,ry] of HOUSES)for(let i=0;i<2;i++){const xx=hx-100+i*120;if(x>xx-8&&x<xx+92&&y>ry-205&&y<ry-115){walkTo(NODES[hx+','+ry],()=>(ry===ROADS_Y[2]&&i===0)?openHome('inv'):enterRoom({id:'home',name:(i===0?'林先生的家':'杏奶奶的家'),c:i===0?'#91baa0':'#e994a6'}));return}}
  for(const p of PLACES)if(Math.abs(x-p.x)<p.w/2+10&&y>p.y-p.h/2-30&&y<p.y+p.h/2+34){openPlace(p);return}
  const n=nearestNode(x,y,170);if(n){walkTo(n);$('hint').textContent='Bấm vào tòa nhà để vào làm nhiệm vụ'}}
 cv.addEventListener('pointerdown',e=>{if(ovOpen())return;tap(e.clientX,e.clientY)});
@@ -408,10 +408,10 @@ const npcTurnAtlas=new Image();npcTurnAtlas.src='img/npc-turn-atlas.webp';
 const peopleAtlas=new Image();peopleAtlas.src='img/people-atlas.webp';
 let happyUntil=0,hoverPlace=null;
 const skinImg={f:new Image(),m:new Image()};skinImg.f.src='img/skin-f.webp';skinImg.m.src='img/skin-m.webp';
-const roomNames=['Bé Minh · Học sinh','Bé Nhi · Học sinh','Chị Mai · Cửa hàng','Anh Bảo · Phục vụ','Chị Vân · Sân bay','Anh Minh · Ga tàu','Bác sĩ An','Chị Linh · Lễ tân','Chị Ngân · Ngân hàng','Ông Lâm · Cư dân','Bà Hạnh · Cư dân','Bạn An · Du khách'];
+const roomNames=['小明 · 学生','小妮 · 学生','小梅 · 店员','小宝 · 服务员','小云 · 机场职员','阿明 · 火车站','安医生','小玲 · 前台','小银 · 银行职员','林先生 · 居民','杏奶奶 · 居民','小安 · 游客'];
 const staff={truong:0,thuvien:1,rap:11,congvien:9,nganhang:8,benhvien:6,khachsan:7,cho:2,quan:3,cuahang:2,ga:5,sanbay:4};
 function enterRoom(p){
- const i=p.id==='home'?(p.name.includes('Ông')?9:10):(staff[p.id]??10);
+ const i=p.id==='home'?(p.name.includes('林')?9:10):(staff[p.id]??10);
  modal(`<h2>${esc(p.name)} · ${p.zh||'欢迎'}</h2><p class="sub">Chào mừng bạn ghé thăm!</p><canvas id="room" width="880" height="420" style="width:100%;border-radius:18px;background:#fff0dc"></canvas><p><b>${roomNames[i]}</b></p><p class="sub">${p.words?'Nhiệm vụ: '+modeTitle():'Mời bạn nghỉ chân và trò chuyện. 你好！Nǐ hǎo — Xin chào!'}</p><div class="row">${p.words?'<button class="btn gold" id="learn">📘 Bắt đầu nhiệm vụ</button>':''}${p.id==='cuahang'?'<button class="btn" id="shopb">🛍️ Mua đồ trang trí</button>':''}<button class="btn" id="leave">Ra phố</button></div>`);
  $('leave').onclick=closeM;if($('shopb'))$('shopb').onclick=()=>openHome('shop');if(p.words)$('learn').onclick=()=>{closeM();openQ(p)};
  const k=$('room').getContext('2d'),c=p.c||'#c59bc6';
@@ -569,7 +569,7 @@ function frame(t){const dt=Math.min(.05,(t-last)/1000);last=t;
  // dấu ! hoặc sao trên mỗi nơi
  for(const p of PLACES){const st=(prog[p.id]||{}).stars||0,top=p.y-p.h/2-(p.st==='cn2'?44:p.st==='air'||p.st==='hosp'?30:16);cx.textAlign='center';cx.textBaseline='middle';
   if(st){cx.font='22px sans-serif';cx.fillText('⭐'.repeat(st),p.x,top-8)}else{const by=top-10-Math.abs(Math.sin(t/300+p.x))*7;cx.fillStyle='#f2c14e';cx.beginPath();cx.arc(p.x,by,14,0,7);cx.fill();cx.strokeStyle='#0f2f2a';cx.lineWidth=2.5;cx.stroke();cx.fillStyle='#0f2f2a';cx.font='800 18px system-ui,sans-serif';cx.fillText('!',p.x,by+1)}}
- {const hx=HOUSES[1][0]-100+42,hy=HOUSES[1][1]-190-30,txt='🏠 Nhà của bạn';cx.font='800 15px system-ui,sans-serif';const tw=cx.measureText(txt).width+24;cx.fillStyle='#fff';cx.strokeStyle='#0f2f2a';cx.lineWidth=2.5;rr(cx,hx-tw/2,hy-14,tw,28,14);cx.fill();cx.stroke();cx.fillStyle='#0f2f2a';cx.textAlign='center';cx.textBaseline='middle';cx.fillText(txt,hx,hy+1)}
+ {const hx=HOUSES[1][0]-100+42,hy=HOUSES[1][1]-190-30,txt='🏠 我的家';cx.font='800 15px system-ui,sans-serif';const tw=cx.measureText(txt).width+24;cx.fillStyle='#fff';cx.strokeStyle='#0f2f2a';cx.lineWidth=2.5;rr(cx,hx-tw/2,hy-14,tw,28,14);cx.fill();cx.stroke();cx.fillStyle='#0f2f2a';cx.textAlign='center';cx.textBaseline='middle';cx.fillText(txt,hx,hy+1)}
  // khói nhà dân + khói ga
  for(const [hx,ry] of HOUSES){for(let i=0;i<3;i++){const ph=(t/1600+i/3)%1;cx.fillStyle=`rgba(${dk?'180,200,200':'255,255,255'},${.35*(1-ph)})`;cx.beginPath();cx.arc(hx-60+ph*14,ry-216-ph*40,6+ph*10,0,7);cx.fill()}}
  // cá voi bạn đồng hành
@@ -674,19 +674,19 @@ function openLevel(first,after){let lv=ST.lv,ls=ST.lesson;
 /* ---------- Vòng quay may mắn ---------- */
 let wheelBusy=false;
 const ITEMS=[
- {id:'bed',n:'Giường',e:'🛏️',p:120,k:'f',s:74},{id:'sofa',n:'Ghế sofa',e:'🛋️',p:100,k:'f',s:70},{id:'chair',n:'Ghế gỗ',e:'🪑',p:35,k:'f',s:52},
- {id:'plant',n:'Chậu cây',e:'🪴',p:30,k:'f',s:50},{id:'cactus',n:'Xương rồng',e:'🌵',p:25,k:'f',s:46},{id:'tv',n:'Ti vi',e:'📺',p:150,k:'f',s:62},
- {id:'books',n:'Chồng sách',e:'📚',p:45,k:'f',s:48},{id:'bear',n:'Gấu bông',e:'🧸',p:35,k:'f',s:48},{id:'cat',n:'Mèo con',e:'🐱',p:90,k:'f',s:50},
- {id:'whale',n:'Cá voi bông',e:'🐋',p:200,k:'f',s:74},{id:'piano',n:'Đàn piano',e:'🎹',p:250,k:'f',s:68},{id:'bike',n:'Xe đạp',e:'🚲',p:80,k:'f',s:60},
- {id:'fish',n:'Bể cá',e:'🐠',p:110,k:'f',s:54},{id:'tea',n:'Ấm trà',e:'🫖',p:25,k:'f',s:40},
- {id:'pic',n:'Tranh phong cảnh',e:'🖼️',p:50,k:'w',s:56},{id:'clock',n:'Đồng hồ',e:'🕰️',p:45,k:'w',s:48},{id:'mirror',n:'Gương',e:'🪞',p:60,k:'w',s:56},
- {id:'lantern',n:'Đèn lồng',e:'🏮',p:40,k:'w',s:48},{id:'koi',n:'Cờ cá chép',e:'🎏',p:55,k:'w',s:52},{id:'win',n:'Cửa sổ',e:'🪟',p:80,k:'w',s:68},{id:'cup',n:'Cúp vàng',e:'🏆',p:120,k:'w',s:48},
- {id:'w1',n:'Tường xanh bạc hà',k:'wp',p:60,c:['#d8f0e4','#bfe3d0']},{id:'w2',n:'Tường hồng',k:'wp',p:60,c:['#ffe3ea','#f7c8d4']},{id:'w3',n:'Tường xanh trời',k:'wp',p:80,c:['#d6eafb','#b9d8f2']},
- {id:'w4',n:'Tường tím nhạt',k:'wp',p:80,c:['#e9defa','#d4c4f0']},{id:'w5',n:'Tường hoàng hôn',k:'wp',p:120,c:['#ffe9c7','#ffc9a3']},
- {id:'f1',n:'Sàn gỗ sáng',k:'fl',p:40,c:['#f0d9b0','#e2c291']},{id:'f2',n:'Sàn gạch xanh',k:'fl',p:60,c:['#cfe3ee','#b4cfdf']},{id:'f3',n:'Thảm xám',k:'fl',p:60,c:['#cfcfd6','#b8b8c2']},{id:'f4',n:'Sàn cỏ xanh',k:'fl',p:90,c:['#b9e08f','#9cca74']}];
+ {id:'bed',n:'床 chuáng',e:'🛏️',p:120,k:'f',s:74},{id:'sofa',n:'沙发 shāfā',e:'🛋️',p:100,k:'f',s:70},{id:'chair',n:'木椅 mùyǐ',e:'🪑',p:35,k:'f',s:52},
+ {id:'plant',n:'盆栽 pénzāi',e:'🪴',p:30,k:'f',s:50},{id:'cactus',n:'仙人掌 xiānrénzhǎng',e:'🌵',p:25,k:'f',s:46},{id:'tv',n:'电视 diànshì',e:'📺',p:150,k:'f',s:62},
+ {id:'books',n:'书 shū',e:'📚',p:45,k:'f',s:48},{id:'bear',n:'玩具熊 wánjùxióng',e:'🧸',p:35,k:'f',s:48},{id:'cat',n:'小猫 xiǎomāo',e:'🐱',p:90,k:'f',s:50},
+ {id:'whale',n:'鲸鱼玩偶 jīngyú wán’ǒu',e:'🐋',p:200,k:'f',s:74},{id:'piano',n:'钢琴 gāngqín',e:'🎹',p:250,k:'f',s:68},{id:'bike',n:'自行车 zìxíngchē',e:'🚲',p:80,k:'f',s:60},
+ {id:'fish',n:'鱼缸 yúgāng',e:'🐠',p:110,k:'f',s:54},{id:'tea',n:'茶壶 cháhú',e:'🫖',p:25,k:'f',s:40},
+ {id:'pic',n:'风景画 fēngjǐnghuà',e:'🖼️',p:50,k:'w',s:56},{id:'clock',n:'钟 zhōng',e:'🕰️',p:45,k:'w',s:48},{id:'mirror',n:'镜子 jìngzi',e:'🪞',p:60,k:'w',s:56},
+ {id:'lantern',n:'灯笼 dēnglong',e:'🏮',p:40,k:'w',s:48},{id:'koi',n:'鲤鱼旗 lǐyúqí',e:'🎏',p:55,k:'w',s:52},{id:'win',n:'窗户 chuānghu',e:'🪟',p:80,k:'w',s:68},{id:'cup',n:'奖杯 jiǎngbēi',e:'🏆',p:120,k:'w',s:48},
+ {id:'w1',n:'薄荷绿墙 bòhelǜ qiáng',k:'wp',p:60,c:['#d8f0e4','#bfe3d0']},{id:'w2',n:'粉色墙 fěnsè qiáng',k:'wp',p:60,c:['#ffe3ea','#f7c8d4']},{id:'w3',n:'天蓝墙 tiānlán qiáng',k:'wp',p:80,c:['#d6eafb','#b9d8f2']},
+ {id:'w4',n:'淡紫墙 dànzǐ qiáng',k:'wp',p:80,c:['#e9defa','#d4c4f0']},{id:'w5',n:'晚霞墙 wǎnxiá qiáng',k:'wp',p:120,c:['#ffe9c7','#ffc9a3']},
+ {id:'f1',n:'浅木地板 qiǎnmù dìbǎn',k:'fl',p:40,c:['#f0d9b0','#e2c291']},{id:'f2',n:'蓝瓷砖 lán cízhuān',k:'fl',p:60,c:['#cfe3ee','#b4cfdf']},{id:'f3',n:'灰地毯 huī dìtǎn',k:'fl',p:60,c:['#cfcfd6','#b8b8c2']},{id:'f4',n:'草地 cǎodì',k:'fl',p:90,c:['#b9e08f','#9cca74']}];
 const WALLS={w0:['#fff5e5','#fdeacc'],...Object.fromEntries(ITEMS.filter(x=>x.k==='wp').map(x=>[x.id,x.c]))},FLOORS={f0:['#e7cfae','#dcbf98'],...Object.fromEntries(ITEMS.filter(x=>x.k==='fl').map(x=>[x.id,x.c]))};
 const ITEM=Object.fromEntries(ITEMS.map(x=>[x.id,x]));
-const WHEEL=[{t:'10 🪙',k:'c',v:10,w:20,c:'#ffe0a3'},{t:'+30 EXP',k:'e',v:30,w:14,c:'#c9ecd9'},{t:'50 🪙',k:'c',v:50,w:12,c:'#ffd0dc'},{t:'Đồ nhà 🎁',k:'i',w:14,c:'#d3e5fb'},{t:'20 🪙',k:'c',v:20,w:20,c:'#fff0b8'},{t:'Skin mới 👗',k:'s',w:5,c:'#e5d6f7'},{t:'100 🪙',k:'c',v:100,w:5,c:'#ffc8a8'},{t:'Thêm 1 vé 🎡',k:'t',v:1,w:10,c:'#bfe9ee'}];
+const WHEEL=[{t:'10 🪙',k:'c',v:10,w:20,c:'#ffe0a3'},{t:'+30 EXP',k:'e',v:30,w:14,c:'#c9ecd9'},{t:'50 🪙',k:'c',v:50,w:12,c:'#ffd0dc'},{t:'家具 jiājù 🎁',k:'i',w:14,c:'#d3e5fb'},{t:'20 🪙',k:'c',v:20,w:20,c:'#fff0b8'},{t:'新装 xīnzhuāng 👗',k:'s',w:5,c:'#e5d6f7'},{t:'100 🪙',k:'c',v:100,w:5,c:'#ffc8a8'},{t:'+1 券 quàn 🎡',k:'t',v:1,w:10,c:'#bfe9ee'}];
 function drawWheel(c,rot){const g=c.getContext('2d'),R=c.width/2-8,N=WHEEL.length;g.clearRect(0,0,c.width,c.height);g.save();g.translate(c.width/2,c.height/2);g.rotate(rot);
  for(let i=0;i<N;i++){g.beginPath();g.moveTo(0,0);g.arc(0,0,R,i*2*Math.PI/N,(i+1)*2*Math.PI/N);g.closePath();g.fillStyle=WHEEL[i].c;g.fill();g.lineWidth=3;g.strokeStyle='#0f2f2a';g.stroke();
   g.save();g.rotate((i+.5)*2*Math.PI/N);g.fillStyle='#0f2f2a';g.font='800 17px system-ui,sans-serif';g.textAlign='right';g.textBaseline='middle';g.fillText(WHEEL[i].t,R-16,0);g.restore()}
