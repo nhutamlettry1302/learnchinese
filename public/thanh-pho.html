@@ -593,8 +593,8 @@ function frame(t){const dt=Math.min(.05,(t-last)/1000);last=t;
  for(const b of BIRDS){const f=Math.sin(t/90+b.p)*5;cx.strokeStyle=dk?'rgba(200,230,220,.5)':'rgba(40,60,50,.6)';cx.lineWidth=2;cx.beginPath();cx.moveTo(b.x-7,b.y-f);cx.quadraticCurveTo(b.x,b.y+2,b.x+7,b.y-f);cx.stroke()}
  // đêm: ánh đèn đường, đom đóm
  if(dk){cx.fillStyle='rgba(2,12,18,.24)';cx.fillRect(CAM.x,CAM.y,VW/S,VH/S);cx.globalCompositeOperation='lighter';
-  for(const [x,y] of LAMPS){if(x<CAM.x-80||x>CAM.x+VW/S+80||y<CAM.y-80||y>CAM.y+VH/S+80)continue;const g=cx.createRadialGradient(x,y-32,0,x,y-32,70);g.addColorStop(0,'rgba(255,226,140,.35)');g.addColorStop(1,'rgba(255,226,140,0)');cx.fillStyle=g;cx.beginPath();cx.arc(x,y-32,70,0,7);cx.fill()}
-  for(const f of FF){const px=(f.x+Math.sin(t/1000*f.s+f.p)*40+W)%W,py=(f.y+Math.cos(t/1300*f.s+f.p)*30+H)%H,a=.25+.6*Math.abs(Math.sin(t/900*f.s+f.p));const g=cx.createRadialGradient(px,py,0,px,py,12);g.addColorStop(0,`rgba(255,226,150,${a})`);g.addColorStop(1,'rgba(255,226,150,0)');cx.fillStyle=g;cx.beginPath();cx.arc(px,py,12,0,7);cx.fill()}cx.globalCompositeOperation='source-over'}
+  for(const [x,y] of LAMPS){if(x<CAM.x-80||x>CAM.x+VW/S+80||y<CAM.y-80||y>CAM.y+VH/S+80)continue;const g=cx.createRadialGradient(x,y-32,0,x,y-32,46);g.addColorStop(0,'rgba(255,214,130,.13)');g.addColorStop(1,'rgba(255,214,130,0)');cx.fillStyle=g;cx.beginPath();cx.arc(x,y-32,46,0,7);cx.fill()}
+  for(const f of FF){const px=(f.x+Math.sin(t/1000*f.s+f.p)*40+W)%W,py=(f.y+Math.cos(t/1300*f.s+f.p)*30+H)%H,a=.25+.6*Math.abs(Math.sin(t/900*f.s+f.p));const g=cx.createRadialGradient(px,py,0,px,py,12);g.addColorStop(0,`rgba(255,226,150,${a*.6})`);g.addColorStop(1,'rgba(255,226,150,0)');cx.fillStyle=g;cx.beginPath();cx.arc(px,py,12,0,7);cx.fill()}cx.globalCompositeOperation='source-over'}
  // bản đồ nhỏ
  if(++tick%3===0)drawMini(dk);
  requestAnimationFrame(frame)}
@@ -802,4 +802,4 @@ function startFlow(){if(ST.done)return;openProfile(true,()=>openLevel(true,()=>{
 syncUnlocks();syncProg();refreshHud();fit();setTimeout(startFlow,350);requestAnimationFrame(frame);
 window.__tp={P,PLACES,walkTo,NODES,openQ,openPlace,enterRoom,NPC,drawPerson,stepNpc,get Q(){return Q},get ST(){return ST},openHome,openWheel,awardWheel,get prog(){return prog},get S(){return S},CAM};
 </script>
-<script src="tasks.js"></script><script src="npc.js"></script></body></html>
+<script src="tasks.js"></script><script src="npc.js"></script><script src="home3d.js"></script></body></html>
