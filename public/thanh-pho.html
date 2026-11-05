@@ -706,6 +706,11 @@ function awardWheel(w){let msg='';const u=ST.unl[ST.sex]||(ST.unl[ST.sex]=[0,1])
  saveState();postScore();const r=$('wres');if(r)r.textContent=msg;const b=$('wgo');if(b)b.textContent=`Quay (còn ${ST.tickets||0} vé)`}
 /* ---------- Nhà riêng và cửa hàng ---------- */
 const HW=880,HH=420;let hSel=null,hTab='inv';
+const SLI={f:new Image(),m:new Image()};SLI.f.src='img/sitlie-f.webp';SLI.m.src='img/sitlie-m.webp';
+const SLR=[[40,210],[380,220],[660,330]];
+function drawSL(k,x,y,col){const im=SLI[ST.sex==='m'?'m':'f'];if(!im.naturalWidth)return;const r=SLR[col],row=Math.min(5,ST.skin|0);
+ if(col===2){const sy=row*256+60,sh=180,sc=.42,w=r[1]*sc,h=sh*sc;k.drawImage(im,r[0],sy,r[1],sh,x-w/2,y-h*.62,w,h)}
+ else{const sc=.5,w=r[1]*sc,h=256*sc;k.drawImage(im,r[0],row*256,r[1],256,x-w/2,y-h,w,h)}}
 const SIT=['sofa','chair'],LIE=['bed'];let hMode='walk',homeLoop=false;
 const HR={x:HW-110,y:HH-16,tx:null,ty:null,view:0,pose:'stand',on:null,after:null,moving:false};
 function resetHero(){HR.pose='stand';HR.on=null;HR.after=null;HR.tx=null}
@@ -722,10 +727,9 @@ function drawHome(t){const c=$('hc');if(!c)return;t=t||performance.now();const k
   if(d.hero){drawPerson(k,HR.x,HR.y,heroOpt);continue}
   const p=d.p;itemDraw(k,p);
   if(seated&&p.i===seated.i){const s=p.it.s*1.25;
-   if(HR.pose==='sit'){k.save();drawPerson(k,p.x,p.y+s*.3,{hero:true,time:t,scale:1.55,view:0,moving:false});k.restore();
-    k.save();k.beginPath();k.rect(p.x-s,p.y-s*.02,s*2,s);k.clip();itemDraw(k,p);k.restore()}
-   else{k.save();k.translate(p.x+s*.02,p.y-s*.08);k.rotate(-Math.PI/2);drawPerson(k,0,38,{hero:true,time:t,scale:1.1,view:0,moving:false});k.restore();
-    k.save();k.beginPath();k.rect(p.x-s*.12,p.y-s,s*1.2,s*2);k.clip();itemDraw(k,p);k.restore();
+   if(HR.pose==='sit'){drawSL(k,p.x,p.y+s*.46,p.it.id==='chair'?0:1);
+    k.save();k.beginPath();k.rect(p.x-s,p.y+s*.1,s*2,s);k.clip();itemDraw(k,p);k.restore()}
+   else{drawSL(k,p.x+s*.02,p.y+s*.1,2);
     const f=Math.floor(t/600)%3;k.fillStyle='#3a5a8a';k.font='800 '+(18+f*3)+'px system-ui,sans-serif';k.textAlign='left';k.fillText('Z'.repeat(f+1),p.x-s*.35,p.y-s*.75-f*5)}}}
  k.textAlign='center';k.textBaseline='middle';
  k.fillStyle='rgba(20,60,50,.85)';k.font='700 17px system-ui,sans-serif';
