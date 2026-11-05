@@ -48,11 +48,11 @@ function qst(p){ST.qs=ST.qs||{};let q=ST.qs[p.id];const d=day();if(!q||q.d!==d){
  if(!(q.need>=1))q.need=1;return q}
 const avail=p=>{const q=qst(p);return!q.talk||!q.claimed};
 /* vẽ NPC đứng cửa */
-window.drawGate=function(cx,t){for(const p of PLACES){const x=p.x+48,y=p.road-12;
+window.drawGate=function(cx,t){for(const p of PLACES){const x=p.x+104,y=p.road-12;
   drawPerson(cx,x,y,{variant:VAR[p.id]??0,scale:.95,moving:false,view:0,time:t,phase:0});
   if(avail(p)){const by=y-78-Math.abs(Math.sin(t/260+p.x))*5;cx.font='22px sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.fillText('💬',x,by)}
   else{cx.font='18px sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.fillText('✅',x,y-78)}}};
-window.npcAt=function(x,y){for(const p of PLACES)if(Math.abs(x-(p.x+48))<28&&y>p.road-86&&y<p.road+6)return p;return null};
+window.npcAt=function(x,y){for(const p of PLACES)if(Math.abs(x-(p.x+104))<28&&y>p.road-86&&y<p.road+6)return p;return null};
 /* hộp thoại */
 function face(p){const c=document.createElement('canvas');c.width=90;c.height=110;c.style.cssText='width:70px;height:86px;flex:none';const k=c.getContext('2d');drawPerson(k,45,104,{variant:VAR[p.id]??0,scale:1.45,moving:false,view:0,time:0});return c}
 function say2(p,html,extra){$('pm').className='panel';$('pm').innerHTML=`<div style="display:flex;gap:10px;align-items:flex-end;text-align:left"><div id="fc"></div><div style="flex:1"><div class="sub" style="margin:0"><b>${NAME[p.id]||'NPC'}</b> · ${p.zh} ${esc(p.name)}</div><div class="bub">${html}</div></div></div>${extra||''}`;$('ovm').classList.add('on');$('fc').appendChild(face(p))}
