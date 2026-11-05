@@ -42,6 +42,7 @@ const IC={listen:'🎧',speak:'🗣️',type:'⌨️',write:'✍️',pic:'🖼�
 const day=()=>{const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()};
 const hash=s=>{let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h};
 const VAR={truong:0,thuvien:1,rap:11,congvien:9,nganhang:8,benhvien:6,khachsan:7,cho:2,quan:3,cuahang:5,ga:5,sanbay:4};
+window.npcVar=p=>VAR[p.id]??10;
 const NAME={truong:'小明',thuvien:'图书管理员',rap:'小安',congvien:'林先生',nganhang:'小银',benhvien:'安医生',khachsan:'小玲',cho:'小梅',quan:'小宝',cuahang:'小梅',ga:'阿明',sanbay:'小云'};
 function qst(p){ST.qs=ST.qs||{};let q=ST.qs[p.id];const d=day();if(!q||q.d!==d){const T=(ST.lv==='HSK1'||ST.lv==='city')?['listen','speak','type','write','pic','qa']:['listen','speak','type','write','pic','qa','read','order','mix'];const h=hash(p.id+d);q=ST.qs[p.id]={d,tag:T[h%T.length],need:1+(h>>3)%2,got:0,claimed:false,talk:false,coin:30+(h%3)*10,exp:40+(h%3)*10,tk:h%4===0};}
  return q}
