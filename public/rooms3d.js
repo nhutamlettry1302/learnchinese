@@ -50,11 +50,23 @@ sanbay:{w:'#dff2f8',f:['#d0e2ea','#c4d8e2'],wall:(k)=>{wrect(k,'R',.8,6.2,45,160
  obj:(k)=>[[1,3,()=>bench(k,1,3.2,2.4,'#35a7a0')],[4,3,()=>bench(k,4,3.2,2.4,'#35a7a0')],[1,1,()=>counter(k,1,1.1,2.4,.8,'#35a7a0','#eafaf8')],[4,1,()=>counter(k,3.9,1.1,2.4,.8,'#35a7a0','#eafaf8')],[5,5,()=>{box(k,5.2,5,0,.8,.5,40,'#d9534f');box(k,6,5.2,0,.7,.5,30,'#4a8fd0')}]],npc:[2.6,2.6]},
 home:{w:'#fdeccf',f:['#e7cfae','#dcbf98'],wall:(k)=>{wemoji(k,'L',3,115,'🖼️',56);wemoji(k,'R',3,120,'🪟',60)},
  obj:(k)=>[[0,0,()=>DRAW.bed(k,.2,3.8,0)],[4,0,()=>DRAW.sofa(k,4,.4,0)],[4,2,()=>DRAW.tv(k,4,2.2)],[1,0,()=>DRAW.plant(k,.3,.6)],[3,4,()=>table(k,3,3.6,1.2,.9,'#d9a96a')]],npc:[3,4.6]}};
+const BLK={"truong": [[1, 2, 1, 3], [3, 2, 3, 3], [5, 2, 5, 3], [1, 4, 1, 5], [3, 4, 3, 5], [5, 4, 5, 5], [2, 0, 3, 0]], "thuvien": [[0, 0, 5, 0], [0, 1, 0, 3], [3, 3, 4, 4], [5, 5, 5, 5]], "rap": [[1, 2, 5, 5], [5, 5, 6, 5]], "congvien": [[1, 1, 1, 1], [5, 1, 5, 1], [1, 5, 1, 5], [3, 3, 3, 4], [4, 4, 5, 4]], "nganhang": [[1, 1, 5, 2], [4, 4, 6, 5], [1, 5, 1, 5], [2, 4, 3, 5]], "benhvien": [[0, 0, 3, 1], [0, 2, 3, 3], [4, 0, 6, 0], [4, 3, 5, 4], [5, 5, 5, 5]], "khachsan": [[1, 0, 4, 1], [4, 4, 5, 5], [0, 4, 2, 5], [5, 2, 5, 2], [6, 3, 6, 3]], "cho": [[0, 0, 2, 1], [2, 0, 4, 1], [4, 0, 6, 1], [1, 4, 1, 4], [3, 4, 3, 4], [5, 4, 5, 4]], "quan": [[1, 0, 5, 1], [0, 3, 2, 4], [3, 3, 5, 4], [2, 5, 4, 6], [6, 5, 6, 5]], "cuahang": [[3, 0, 6, 0], [0, 2, 1, 2], [2, 2, 3, 3], [3, 4, 5, 5]], "ga": [[1, 3, 3, 3], [4, 3, 6, 3], [1, 5, 3, 5], [1, 0, 3, 1], [5, 5, 6, 6]], "sanbay": [[1, 3, 3, 3], [4, 3, 6, 3], [1, 1, 3, 1], [3, 1, 6, 1], [5, 5, 6, 5]], "home": [[0, 3, 3, 5], [4, 0, 5, 1], [4, 2, 5, 2], [0, 0, 0, 0], [3, 3, 4, 4]]};
 window.enterRoom=function(p){const spec=ROOMS[p.id]||ROOMS.home,id=p.id,named=window.PLACES&&PLACES.find(x=>x.id===id);
  const npcName=(window.roomNames&&roomNames[id==='home'?(String(p.name).includes('林')?9:10):(window.staff?staff[id]:10)])||'';
  modal(`<h2>${esc(p.name)} · ${p.zh||'欢迎'}</h2><canvas id="room3" width="${CW}" height="${CH-60}" style="display:block;margin:0 auto;width:min(100%,calc(52vh*${CW/(CH-60)}));border-radius:18px;background:#fff0dc"></canvas><p style="margin:4px 0"><b>${esc(npcName)}</b></p><p class="sub">${p.words?'Nhiệm vụ: '+esc(modeTitle()):'Mời bạn nghỉ chân và trò chuyện. 你好！Nǐ hǎo — Xin chào!'}</p><div class="row">${p.words?'<button class="btn gold" id="learn">📘 Bắt đầu nhiệm vụ</button>':''}${p.words?'<button class="btn" id="talk2">💬 Trò chuyện</button>':''}${id==='cuahang'?'<button class="btn" id="shopb">🛍️ Mua đồ trang trí</button>':''}<button class="btn" id="leave">Ra phố</button></div>`);
  $('pm').classList.add('wide');$('leave').onclick=closeM;if($('shopb'))$('shopb').onclick=()=>openHome('shop');if(p.words)$('learn').onclick=()=>{closeM();openBoard(p)};if($('talk2'))$('talk2').onclick=()=>{closeM();openNpc(p)};
- const c=$('room3'),k=c.getContext('2d'),OYR=OY-50;const draw=t=>{if(!$('room3')||!$('ovm').classList.contains('on'))return;k.clearRect(0,0,CW,CH);k.save();k.translate(0,-50);
+ const c=$('room3'),k=c.getContext('2d');const blocked=new Set();for(const r of (BLK[id]||BLK.home))for(let a=r[0];a<=r[2];a++)for(let b=r[1];b<=r[3];b++)blocked.add(a+','+b);blocked.add(Math.floor(spec.npc[0])+','+Math.floor(spec.npc[1]));
+ let st0=[5,5],bd=99;for(let a=0;a<N;a++)for(let b=0;b<N;b++){if(blocked.has(a+','+b))continue;const d=Math.hypot(a-5,b-5);if(d<bd){bd=d;st0=[a,b]}}
+ const H={gx:st0[0]+.5,gy:st0[1]+.5,view:2,path:[],moving:false},PT={gx:H.gx-.8,gy:H.gy+.4};let last=0;
+ const bfs=(sx,sy,tx,ty)=>{const key=(x,y)=>x+','+y,q=[[sx,sy]],pv={[key(sx,sy)]:null};while(q.length){const[x,y]=q.shift();if(x===tx&&y===ty)break;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=N||ny>=N||pv[key(nx,ny)]!==undefined||blocked.has(key(nx,ny)))continue;pv[key(nx,ny)]=[x,y];q.push([nx,ny])}}if(pv[key(tx,ty)]===undefined)return null;const pa=[];let cc=[tx,ty];while(cc){pa.unshift(cc);cc=pv[key(cc[0],cc[1])]}pa.shift();return pa};
+ c.onclick=e=>{const r=c.getBoundingClientRect(),sx=(e.clientX-r.left)*CW/r.width,sy=(e.clientY-r.top)*(CH-60)/r.height+50;const nq=P(spec.npc[0],spec.npc[1],0);
+  if(Math.abs(sx-nq[0])<42&&sy>nq[1]-110&&sy<nq[1]+10){closeM();if(p.words)openNpc(p);else toast('你好！Nǐ hǎo!');return}
+  const a=(sx-OX)/(TW/2),b=(sy-OY)/(TH/2),gx=Math.floor((a+b)/2),gy=Math.floor((b-a)/2);if(gx<0||gy<0||gx>=N||gy>=N)return;
+  const pa=bfs(Math.floor(H.gx),Math.floor(H.gy),gx,gy);if(!pa)return;H.path=pa};
+ const draw=t=>{const dt=Math.min(.05,(t-(last||t))/1000);last=t;H.moving=false;
+  if(H.path.length){const tx=H.path[0][0]+.5,ty=H.path[0][1]+.5,dx=tx-H.gx,dy=ty-H.gy,d=Math.hypot(dx,dy),sp=2.6*dt;if(d<=sp){H.gx=tx;H.gy=ty;H.path.shift()}else{H.gx+=dx/d*sp;H.gy+=dy/d*sp;H.moving=true;const sx2=(dx-dy)*TW/2,sy2=(dx+dy)*TH/2;H.view=Math.abs(sx2)>Math.abs(sy2)*1.3?(sx2>0?1:3):(sy2<0?2:0)}}
+  const tg=[H.gx-.85,H.gy+.35];PT.gx+=(tg[0]-PT.gx)*Math.min(1,dt*3);PT.gy+=(tg[1]-PT.gy)*Math.min(1,dt*3);
+  if(!$('room3')||!$('ovm').classList.contains('on'))return;k.clearRect(0,0,CW,CH);k.save();k.translate(0,-50);
   const Wc=spec.w,F=spec.f,top=P(0,0,0),r=P(N,0,0),l=P(0,N,0),b=P(N,N,0);
   poly(k,[l,top,[top[0],top[1]-WH],[l[0],l[1]-WH]],mix(Wc,'#000',.1),false);poly(k,[top,r,[r[0],r[1]-WH],[top[0],top[1]-WH]],Wc,false);
   k.strokeStyle='rgba(60,40,20,.35)';k.lineWidth=2;k.beginPath();k.moveTo(l[0],l[1]-WH);k.lineTo(top[0],top[1]-WH);k.lineTo(r[0],r[1]-WH);k.moveTo(top[0],top[1]);k.lineTo(top[0],top[1]-WH);k.stroke();
@@ -64,6 +76,6 @@ window.enterRoom=function(p){const spec=ROOMS[p.id]||ROOMS.home,id=p.id,named=wi
   spec.wall(k);
   const list=spec.obj(k).map(o=>({d:o[0]+o[1],f:o[2]}));
   const nx=spec.npc[0],ny=spec.npc[1];list.push({d:nx+ny+.3,f:()=>{const q=P(nx,ny,0);drawPerson(k,q[0],q[1],{variant:window.npcVar?npcVar(p):0,scale:1.2,view:0,time:t,moving:false})}});
-  list.push({d:11,f:()=>{const q=P(5.6,5.8,0);drawPerson(k,q[0],q[1],{hero:true,time:t,scale:1.2,view:2,moving:false});const w=P(4.9,6.2,0);if(window.drawPetAt)drawPetAt(k,w[0],w[1]-Math.abs(Math.sin(t/380))*4,1,64)}});
+  list.push({d:H.gx+H.gy+.35,f:()=>{const q=P(H.gx,H.gy,0);drawPerson(k,q[0],q[1],{hero:true,time:t,scale:1.2,view:H.view,moving:H.moving})}});list.push({d:PT.gx+PT.gy+.5,f:()=>{const w=P(PT.gx,PT.gy,0);if(window.drawPetAt)drawPetAt(k,w[0],w[1]-Math.abs(Math.sin(t/380))*4,1,64)}});
   list.sort((a,b)=>a.d-b.d);for(const o of list)o.f();k.restore();requestAnimationFrame(draw)};requestAnimationFrame(draw)};
 })();
