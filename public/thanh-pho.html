@@ -414,7 +414,7 @@ const staff={truong:0,thuvien:1,rap:11,congvien:9,nganhang:8,benhvien:6,khachsan
 function enterRoom(p){
  const i=p.id==='home'?(p.name.includes('林')?9:10):(staff[p.id]??10);
  modal(`<h2>${esc(p.name)} · ${p.zh||'欢迎'}</h2><p class="sub">Chào mừng bạn ghé thăm!</p><canvas id="room" width="880" height="420" style="width:100%;border-radius:18px;background:#fff0dc"></canvas><p><b>${roomNames[i]}</b></p><p class="sub">${p.words?'Nhiệm vụ: '+modeTitle():'Mời bạn nghỉ chân và trò chuyện. 你好！Nǐ hǎo — Xin chào!'}</p><div class="row">${p.words?'<button class="btn gold" id="learn">📘 Bắt đầu nhiệm vụ</button>':''}${p.id==='cuahang'?'<button class="btn" id="shopb">🛍️ Mua đồ trang trí</button>':''}<button class="btn" id="leave">Ra phố</button></div>`);
- $('leave').onclick=closeM;if($('shopb'))$('shopb').onclick=()=>openHome('shop');if(p.words)$('learn').onclick=()=>{closeM();openQ(p)};
+ $('leave').onclick=closeM;if($('shopb'))$('shopb').onclick=()=>openHome('shop');if(p.words)$('learn').onclick=()=>{closeM();openBoard(p)};
  const k=$('room').getContext('2d'),c=p.c||'#c59bc6';
  k.fillStyle='#fff5e5';k.fillRect(0,0,880,420);k.fillStyle='#e7cfae';k.fillRect(0,280,880,140);
  k.strokeStyle='#d5b58e';k.lineWidth=2;for(let y=300;y<420;y+=30){k.beginPath();k.moveTo(0,y);k.lineTo(880,y);k.stroke()}
@@ -790,4 +790,5 @@ addEventListener('keydown',e=>{if(e.key==='Escape'){Q=null;$('ovq').classList.re
 function startFlow(){if(ST.done)return;openProfile(true,()=>openLevel(true,()=>{ST.done=true;saveState();toast('Chào '+ST.name+'! Bấm vào tòa nhà có dấu ! để bắt đầu')}))}
 syncUnlocks();syncProg();refreshHud();fit();setTimeout(startFlow,350);requestAnimationFrame(frame);
 window.__tp={P,PLACES,walkTo,NODES,openQ,openPlace,enterRoom,NPC,drawPerson,stepNpc,get Q(){return Q},get ST(){return ST},openHome,openWheel,awardWheel,get prog(){return prog},get S(){return S},CAM};
-</script></body></html>
+</script>
+<script src="tasks.js"></script></body></html>
