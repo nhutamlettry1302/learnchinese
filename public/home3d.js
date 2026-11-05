@@ -22,8 +22,8 @@ const DRAW={
  bed(k,x,y,ph){if(ph===1)return;
   box(k,x+.04,y+.04,0,2.92,1.92,16,WOOD);box(k,x+.04,y+.04,16,.2,1.92,50,DWOOD);box(k,x+.24,y+.14,16,2.7,1.72,13,'#f6f4fa');box(k,x+.3,y+.36,29,.62,1.28,8,'#ffffff');
   box(k,x+1.15,y+.12,16,1.75,1.76,16,'#5aa9e6')},
- sofa(k,x,y,ph){if(ph===1){box(k,x+.02,y+.3,20,.26,.7,18,'#3f86c2');box(k,x+1.72,y+.3,20,.26,.7,18,'#3f86c2');return}
-  box(k,x,y,0,2,1,20,'#4a9ad8');box(k,x,y,20,2,.3,38,'#3f86c2');if(!DRAW._occ){box(k,x+.02,y+.3,20,.26,.7,18,'#3f86c2');box(k,x+1.72,y+.3,20,.26,.7,18,'#3f86c2')}
+ sofa(k,x,y,ph){if(ph===1)return;
+  box(k,x,y,0,2,1,20,'#4a9ad8');box(k,x,y,20,2,.3,38,'#3f86c2');box(k,x+.02,y+.3,20,.26,.7,18,'#3f86c2');box(k,x+1.72,y+.3,20,.26,.7,18,'#3f86c2');
   box(k,x+.28,y+.3,20,1.44,.7,9,'#6bb8f0')},
  chair(k,x,y,ph){if(ph===1)return;for(const[a,b]of[[.14,.14],[.76,.14],[.14,.76],[.76,.76]])box(k,x+a,y+b,0,.1,.1,24,DWOOD);box(k,x+.1,y+.1,24,.8,.8,7,'#d49a5e');box(k,x+.1,y+.1,31,.8,.12,36,WOOD)},
  plant(k,x,y){cyl(k,x+.5,y+.5,0,.26,24,'#c9653f');for(const[a,b,z,r]of[[0,0,52,16],[-.15,.05,40,13],[.15,-.05,42,13],[0,.14,32,11],[.05,-.14,60,11]])ball(k,x+.5+a,y+.5+b,z,r,'#46b062')},
@@ -84,7 +84,7 @@ function drawRoom(k,t){const F=FLOORS[ST.home.floor]||FLOORS.f0,Wl=WALLS[ST.home
  for(const e of L){if(e.hero){const p=P(G.gx,G.gy,0);drawPerson(k,p[0],p[1],{hero:true,time:t,scale:1.2,view:G.view,moving:G.moving});continue}
   const o=e.o,f=DRAW[o.id];if(f)f(k,o.g[0],o.g[1],0);else{const p=P(o.g[0]+.5,o.g[1]+.5,20);k.font='60px serif';k.textAlign='center';k.fillText(o.it.e,p[0],p[1])}
   if(seated&&seated===ST.home.placed[o.i]){const[w,h]=fp(o.id),cx=o.g[0]+w/2,cy=o.g[1]+h/2;
-   if(G.pose==='sit'){const p=P(cx,cy+.12,o.id==='chair'?30:26);drawSL(k,p[0],p[1],o.id==='chair'?0:1)}
+   if(G.pose==='sit'){const p=P(cx,cy+(o.id==='chair'?.12:.3),o.id==='chair'?30:15);drawSL(k,p[0],p[1],o.id==='chair'?0:1)}
    else{const p=P(cx+.15,cy,36);k.save();k.translate(p[0],p[1]);k.rotate(Math.atan2(TH,TW));k.translate(-p[0],-p[1]);drawSL(k,p[0],p[1]+18,2);k.restore();
     const f2=Math.floor(t/600)%3;k.fillStyle='#3a5a8a';k.font='800 '+(20+f2*4)+'px system-ui,sans-serif';k.textAlign='left';const q=P(cx-1.1,cy-.2,95+f2*8);k.fillText('Z'.repeat(f2+1),q[0],q[1])}
    if(f)f(k,o.g[0],o.g[1],1)}}
