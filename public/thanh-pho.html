@@ -237,10 +237,13 @@ function roofCN(k,cx0,y,w,hh,col){const x=cx0-w/2;k.fillStyle='rgba(0,0,0,.22)';
 function lantern(k,x,y,r){k.strokeStyle='#7a2a1a';k.lineWidth=2;k.beginPath();k.moveTo(x,y-r*1.4);k.lineTo(x,y-r);k.stroke();k.fillStyle=lg(k,x-r,y,x+r,y,['#a8281e','#ff5a3c','#a8281e']);k.beginPath();k.ellipse(x,y,r*.85,r,0,0,7);k.fill();k.strokeStyle='#7a2a1a';k.stroke();k.fillStyle='#e6c25a';k.fillRect(x-r*.4,y-r-2,r*.8,3);k.fillRect(x-r*.4,y+r-1,r*.8,3)}
 function plaque(k,x,y,t,w,fs,col){const h=fs+12;rr(k,x-w/2,y-h/2,w,h,6);k.fillStyle=col||'#7a1f18';k.fill();k.lineWidth=3;k.strokeStyle='#e6c25a';k.stroke();k.font=`700 ${fs}px "Songti SC","STSong","Noto Serif CJK SC","SimSun",serif`;k.textAlign='center';k.textBaseline='middle';k.fillStyle='#ffe9a8';k.fillText(t,x,y+1)}
 function windowsRow(k,x0,y0,n,w,h,gap,dk,lit){for(let i=0;i<n;i++){const wx=x0+i*(w+gap);rr(k,wx,y0,w,h,4);k.fillStyle=dk&&lit?'#ffd578':(dk?'#2a4a52':'#bfe3f2');k.fill();k.lineWidth=2;k.strokeStyle='rgba(0,0,0,.45)';k.stroke();if(dk&&lit){k.fillStyle='rgba(255,213,120,.22)';k.fillRect(wx-3,y0-3,w+6,h+6)}}}
+window.PKX=new Image();PKX.src='img/park-ext.webp';PKX.onload=()=>{try{BG=null}catch(e){}};
 function drawPlace(k,p,dk){const x=p.x-p.w/2,y=p.y-p.h/2,w=p.w,h=p.h,st=p.st,c=p.c,fx=p.x;
  // bóng
  k.fillStyle='rgba(0,0,0,.28)';k.beginPath();k.ellipse(fx+8,y+h+3,w*.55,11,0,0,7);k.fill();
- if(st==='park'){ // công viên (theo thiết kế)
+ if(st==='park'&&window.PKX&&PKX.complete&&PKX.naturalWidth){ // công viên (tranh thiết kế)
+  const bx=x-6,by=y-6,bw=w+12,bh=h+12;k.save();rr(k,bx,by,bw,bh,30);k.clip();const sw=PKX.naturalHeight*bw/bh,sx0=(PKX.naturalWidth-sw)/2;k.drawImage(PKX,sx0,0,sw,PKX.naturalHeight,bx,by,bw,bh);if(dk){k.fillStyle='rgba(10,20,60,.38)';k.fillRect(bx,by,bw,bh)}k.restore();rr(k,bx,by,bw,bh,30);k.lineWidth=3;k.strokeStyle=dk?'#2f8a58':'#3c8a47';k.stroke();
+ } else if(st==='park'){ // công viên (dự phòng) (theo thiết kế)
   const E=(cx,cy,rx,ry,col)=>{k.fillStyle=col;k.beginPath();k.ellipse(cx,cy,rx,ry,0,0,7);k.fill()};
   rr(k,x-6,y-6,w+12,h+12,34);k.fillStyle=dk?'#14502f':'#7fcf7a';k.fill();k.lineWidth=3;k.strokeStyle=dk?'#2f8a58':'#3c8a47';k.stroke();
   rr(k,x+10,y+8,w-20,h-16,26);k.fillStyle=dk?'#1a6a3d':'#97dd8c';k.fill();
