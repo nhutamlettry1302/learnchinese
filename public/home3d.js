@@ -81,7 +81,7 @@ function drawRoom(k,t){const F=FLOORS[ST.home.floor]||FLOORS.f0,Wl=WALLS[ST.home
  // vật thể + nhân vật theo độ sâu
  const seated=G.on!=null&&G.pose!=='stand'?ST.home.placed[G.on]:null;DRAW._occ=!!seated;
  const L=floorItems().filter(o=>!(drag&&drag.i===o.i)).map(o=>({d:o.g[0]+fp(o.id)[0]+o.g[1]+fp(o.id)[1]-.01,o}));if(!seated)L.push({d:G.gx+G.gy+.35,hero:1});L.push({d:G.gx+G.gy+.9,pet:1});L.sort((a,b)=>a.d-b.d);
- for(const e of L){if(e.pet){const pp=P(G.gx-.85,G.gy+.35,0);if(window.drawPetAt)drawPetAt(k,pp[0],pp[1]-Math.abs(Math.sin(t/380))*4,1,64);continue}if(e.hero){const p=P(G.gx,G.gy,0);drawPerson(k,p[0],p[1],{hero:true,time:t,scale:1.2,view:G.view,moving:G.moving});continue}
+ for(const e of L){if(e.pet){const pp=P(G.gx-.85,G.gy+.35,0);if(window.drawPetAt)drawPetAt(k,pp[0],pp[1]-70+Math.sin(t/420)*5,1,50,null,true);continue}if(e.hero){const p=P(G.gx,G.gy,0);drawPerson(k,p[0],p[1],{hero:true,time:t,scale:1.2,view:G.view,moving:G.moving});continue}
   const o=e.o,f=DRAW[o.id];if(f)f(k,o.g[0],o.g[1],0);else{const p=P(o.g[0]+.5,o.g[1]+.5,20);k.font='60px serif';k.textAlign='center';k.fillText(o.it.e,p[0],p[1])}
   if(seated&&seated===ST.home.placed[o.i]){const[w,h]=fp(o.id),cx=o.g[0]+w/2,cy=o.g[1]+h/2;
    if(G.pose==='sit'){const p=P(cx,cy+(o.id==='chair'?.12:.3),o.id==='chair'?30:15);drawSL(k,p[0],p[1],o.id==='chair'?0:1)}

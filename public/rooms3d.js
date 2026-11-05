@@ -76,6 +76,6 @@ window.enterRoom=function(p){const spec=ROOMS[p.id]||ROOMS.home,id=p.id,named=wi
   spec.wall(k);
   const list=spec.obj(k).map(o=>({d:o[0]+o[1],f:o[2]}));
   const nx=spec.npc[0],ny=spec.npc[1];list.push({d:nx+ny+.3,f:()=>{const q=P(nx,ny,0);drawPerson(k,q[0],q[1],{variant:window.npcVar?npcVar(p):0,scale:1.2,view:0,time:t,moving:false})}});
-  list.push({d:H.gx+H.gy+.35,f:()=>{const q=P(H.gx,H.gy,0);drawPerson(k,q[0],q[1],{hero:true,time:t,scale:1.2,view:H.view,moving:H.moving})}});list.push({d:PT.gx+PT.gy+.5,f:()=>{const w=P(PT.gx,PT.gy,0);if(window.drawPetAt)drawPetAt(k,w[0],w[1]-Math.abs(Math.sin(t/380))*4,1,64)}});
+  list.push({d:H.gx+H.gy+.35,f:()=>{const q=P(H.gx,H.gy,0);drawPerson(k,q[0],q[1],{hero:true,time:t,scale:1.2,view:H.view,moving:H.moving})}});list.push({d:PT.gx+PT.gy+.5,f:()=>{const w=P(PT.gx,PT.gy,0);if(window.drawPetAt)drawPetAt(k,w[0],w[1]-70+Math.sin(t/420)*5,1,50,null,true)}});
   list.sort((a,b)=>a.d-b.d);for(const o of list)o.f();k.restore();requestAnimationFrame(draw)};requestAnimationFrame(draw)};
 })();

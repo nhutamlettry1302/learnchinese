@@ -585,7 +585,7 @@ function frame(t){const dt=Math.min(.05,(t-last)/1000);last=t;
  // khói nhà dân + khói ga
  for(const [hx,ry] of HOUSES){for(let i=0;i<3;i++){const ph=(t/1600+i/3)%1;cx.fillStyle=`rgba(${dk?'180,200,200':'255,255,255'},${.35*(1-ph)})`;cx.beginPath();cx.arc(hx-60+ph*14,ry-216-ph*40,6+ph*10,0,7);cx.fill()}}
  // cá voi bạn đồng hành
- {const bob=Math.sin(t/420)*5;if(window.drawPetC)drawPetC(cx,WH.x,WH.y+bob+34,P.face)}
+ {const bob=Math.sin(t/420)*5;if(window.drawPetC)drawPetC(cx,WH.x,WH.y+bob+10,P.face)}
  // Roxie: straw hat, flowing brown hair, ivory dress and coral backpack.
  drawPerson(cx,P.x,P.y,{variant:0,face:P.face,scale:1.25,moving:P.path.length>0,time:t,hero:true,view:P.view||0,happy:t<happyUntil});
  // mây (bóng) ban ngày, chim
