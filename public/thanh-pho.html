@@ -706,37 +706,66 @@ function awardWheel(w){let msg='';const u=ST.unl[ST.sex]||(ST.unl[ST.sex]=[0,1])
  saveState();postScore();const r=$('wres');if(r)r.textContent=msg;const b=$('wgo');if(b)b.textContent=`Quay (còn ${ST.tickets||0} vé)`}
 /* ---------- Nhà riêng và cửa hàng ---------- */
 const HW=880,HH=420;let hSel=null,hTab='inv';
-function drawHome(){const c=$('hc');if(!c)return;const k=c.getContext('2d'),W0=ST.home.wall,F0=FLOORS[ST.home.floor]||FLOORS.f0,Wl=WALLS[W0]||WALLS.w0;
+const SIT=['sofa','chair'],LIE=['bed'];let hMode='walk',homeLoop=false;
+const HR={x:HW-110,y:HH-16,tx:null,ty:null,view:0,pose:'stand',on:null,after:null,moving:false};
+function resetHero(){HR.pose='stand';HR.on=null;HR.after=null;HR.tx=null}
+function itemDraw(k,p){const s=p.it.s*1.25;k.font=`${s}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;k.textAlign='center';k.textBaseline='middle';if(p.it.k==='f'){k.fillStyle='rgba(0,0,0,.14)';k.beginPath();k.ellipse(p.x,p.y+s*.42,s*.42,s*.1,0,0,7);k.fill()}k.fillStyle='#000';k.fillText(p.it.e,p.x,p.y)}
+function drawHome(t){const c=$('hc');if(!c)return;t=t||performance.now();const k=c.getContext('2d'),F0=FLOORS[ST.home.floor]||FLOORS.f0,Wl=WALLS[ST.home.wall]||WALLS.w0;
  k.clearRect(0,0,HW,HH);k.fillStyle=lg(k,0,0,0,260,[Wl[0],Wl[1]]);k.fillRect(0,0,HW,262);k.fillStyle=F0[0];k.fillRect(0,262,HW,HH-262);
  k.strokeStyle=F0[1];k.lineWidth=2;for(let y=290;y<HH;y+=34){k.beginPath();k.moveTo(0,y);k.lineTo(HW,y);k.stroke()}
  k.fillStyle='rgba(0,0,0,.08)';k.fillRect(0,252,HW,12);
- const items=ST.home.placed.map(p=>({...p,it:ITEM[p.id]})).filter(x=>x.it).sort((a,b)=>a.y-b.y);
+ const list=ST.home.placed.map((p,i)=>({...p,i,it:ITEM[p.id]})).filter(x=>x.it);
+ const seated=HR.on!=null&&HR.pose!=='stand'?list.find(x=>x.i===HR.on):null;
+ const draws=list.map(p=>({y:p.y,p}));if(!seated)draws.push({y:HR.y,hero:true});draws.sort((a,b)=>a.y-b.y);
+ const heroOpt={hero:true,time:t,scale:2.1,view:HR.view,moving:HR.moving};
+ for(const d of draws){
+  if(d.hero){drawPerson(k,HR.x,HR.y,heroOpt);continue}
+  const p=d.p;itemDraw(k,p);
+  if(seated&&p.i===seated.i){const s=p.it.s*1.25;
+   if(HR.pose==='sit'){k.save();drawPerson(k,p.x,p.y+s*.3,{hero:true,time:t,scale:1.55,view:0,moving:false});k.restore();
+    k.save();k.beginPath();k.rect(p.x-s,p.y-s*.02,s*2,s);k.clip();itemDraw(k,p);k.restore()}
+   else{k.save();k.translate(p.x+s*.02,p.y-s*.08);k.rotate(-Math.PI/2);drawPerson(k,0,38,{hero:true,time:t,scale:1.1,view:0,moving:false});k.restore();
+    k.save();k.beginPath();k.rect(p.x-s*.12,p.y-s,s*1.2,s*2);k.clip();itemDraw(k,p);k.restore();
+    const f=Math.floor(t/600)%3;k.fillStyle='#3a5a8a';k.font='800 '+(18+f*3)+'px system-ui,sans-serif';k.textAlign='left';k.fillText('Z'.repeat(f+1),p.x-s*.35,p.y-s*.75-f*5)}}}
  k.textAlign='center';k.textBaseline='middle';
- for(const p of items){const s=p.it.s*1.25;k.font=`${s}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;if(p.it.k==='f'){k.fillStyle='rgba(0,0,0,.14)';k.beginPath();k.ellipse(p.x,p.y+s*.42,s*.42,s*.1,0,0,7);k.fill()}k.fillStyle='#000';k.fillText(p.it.e,p.x,p.y)}
- drawPerson(k,HW-110,HH-16,{hero:true,view:0,scale:2.1,time:0});
- if(hSel){k.fillStyle='rgba(255,255,255,.85)';k.font='700 18px system-ui,sans-serif';k.fillText('Bấm vào phòng để đặt '+ITEM[hSel].e,HW/2,24)}}
+ k.fillStyle='rgba(20,60,50,.85)';k.font='700 17px system-ui,sans-serif';
+ if(hSel)k.fillText('Bấm vào phòng để đặt '+ITEM[hSel].e,HW/2,24);else if(hMode==='remove')k.fillText('Bấm vào món đồ để cất lại',HW/2,24);else if(HR.pose!=='stand')k.fillText('Bấm vào sàn để đứng dậy',HW/2,24);else k.fillText('Bấm ghế/giường để ngồi/nằm, bấm sàn để đi',HW/2,24)}
+function homeTick(t){const c=$('hc');if(!c||!$('ovm').classList.contains('on')){homeLoop=false;return}
+ const dt=Math.min(.05,(t-(homeTick.l||t))/1000);homeTick.l=t;HR.moving=false;
+ if(HR.tx!=null){const dx=HR.tx-HR.x,dy=HR.ty-HR.y,d=Math.hypot(dx,dy),st=300*dt;
+  if(d<=st){HR.x=HR.tx;HR.y=HR.ty;HR.tx=null;const f=HR.after;HR.after=null;if(f)f()}
+  else{HR.x+=dx/d*st;HR.y+=dy/d*st;HR.moving=true;HR.view=Math.abs(dy)>Math.abs(dx)?(dy<0?2:0):(dx>0?1:3)}}
+ drawHome(t);requestAnimationFrame(homeTick)}
+function heroGo(x,y,after){if(HR.pose!=='stand'){HR.pose='stand';HR.on=null}HR.tx=Math.max(40,Math.min(HW-40,x));HR.ty=Math.max(235,Math.min(HH-16,y));HR.after=after||null}
 function homeBody(){const inv=Object.entries(ST.inv).filter(([id,n])=>n>0&&ITEM[id]),own=id=>(ST.inv[id]||0)>0;
  if(hTab==='inv'){const dec=inv.filter(([id])=>ITEM[id].k==='f'||ITEM[id].k==='w'),wp=ITEMS.filter(x=>x.k==='wp'&&own(x.id)),fl=ITEMS.filter(x=>x.k==='fl'&&own(x.id));
   return `<div class="tray">${dec.length?dec.map(([id,n])=>`<button class="chipi${hSel===id?' on':''}" data-put="${id}"><span>${ITEM[id].e}</span><b>${esc(ITEM[id].n)}</b><small>x${n}</small></button>`).join(''):'<p class="sub" style="margin:6px">Chưa có đồ nào. Ghé Cửa hàng để mua nhé!</p>'}</div>
   <div class="tray"><span class="lbl">Tường:</span><button class="chipi${ST.home.wall==='w0'?' on':''}" data-wall="w0"><b>Mặc định</b></button>${wp.map(x=>`<button class="chipi${ST.home.wall===x.id?' on':''}" data-wall="${x.id}"><i class="sw" style="background:${x.c[0]}"></i><b>${esc(x.n)}</b></button>`).join('')}</div>
   <div class="tray"><span class="lbl">Sàn:</span><button class="chipi${ST.home.floor==='f0'?' on':''}" data-floor="f0"><b>Mặc định</b></button>${fl.map(x=>`<button class="chipi${ST.home.floor===x.id?' on':''}" data-floor="${x.id}"><i class="sw" style="background:${x.c[0]}"></i><b>${esc(x.n)}</b></button>`).join('')}</div>
-  <p class="sub">Chọn một món rồi bấm vào phòng để đặt. Bấm vào món đã đặt để cất lại.</p>`}
+  <p class="sub">Chọn một món rồi bấm vào phòng để đặt. Muốn cất lại thì chọn "Cất đồ".</p>`}
  return `<p class="sub">Bạn có <b>${ST.coins} 🪙</b>. Làm nhiệm vụ để kiếm thêm xu.</p><div class="shop">${ITEMS.map(x=>`<div class="si"><span class="ie">${x.e||`<i class="sw" style="background:${x.c[0]};width:30px;height:30px"></i>`}</span><b>${esc(x.n)}</b><small>${x.k==='wp'||x.k==='fl'?(own(x.id)?'Đã mua':'Trang trí'):(x.k==='w'?'Treo tường':'Đặt sàn')}</small><button class="btn${ST.coins>=x.p&&!((x.k==='wp'||x.k==='fl')&&own(x.id))?' gold':''}" data-buy="${x.id}"${((x.k==='wp'||x.k==='fl')&&own(x.id))?' disabled':''}>${((x.k==='wp'||x.k==='fl')&&own(x.id))?'Đã có':x.p+' 🪙'}</button></div>`).join('')}</div>`}
 function bindHome(){const pm=$('pm');
  pm.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{hTab=b.dataset.tab;hSel=null;renderHome()});
- pm.querySelectorAll('[data-put]').forEach(b=>b.onclick=()=>{hSel=hSel===b.dataset.put?null:b.dataset.put;renderHome(true)});
- pm.querySelectorAll('[data-wall]').forEach(b=>b.onclick=()=>{ST.home.wall=b.dataset.wall;saveState();renderHome(true)});
- pm.querySelectorAll('[data-floor]').forEach(b=>b.onclick=()=>{ST.home.floor=b.dataset.floor;saveState();renderHome(true)});
- pm.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const it=ITEM[b.dataset.buy];if(ST.coins<it.p){toast('Chưa đủ xu, làm thêm nhiệm vụ nhé!');return}ST.coins-=it.p;ST.inv[it.id]=(ST.inv[it.id]||0)+1;saveState();toast('Đã mua '+(it.e||'')+' '+it.n);renderHome(true)});
+ pm.querySelectorAll('[data-hm]').forEach(b=>b.onclick=()=>{hMode=b.dataset.hm;hSel=null;renderHome()});
+ pm.querySelectorAll('[data-put]').forEach(b=>b.onclick=()=>{hSel=hSel===b.dataset.put?null:b.dataset.put;hMode='walk';renderHome()});
+ pm.querySelectorAll('[data-wall]').forEach(b=>b.onclick=()=>{ST.home.wall=b.dataset.wall;saveState();renderHome()});
+ pm.querySelectorAll('[data-floor]').forEach(b=>b.onclick=()=>{ST.home.floor=b.dataset.floor;saveState();renderHome()});
+ pm.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const it=ITEM[b.dataset.buy];if(ST.coins<it.p){toast('Chưa đủ xu, làm thêm nhiệm vụ nhé!');return}ST.coins-=it.p;ST.inv[it.id]=(ST.inv[it.id]||0)+1;saveState();toast('Đã mua '+(it.e||'')+' '+it.n);renderHome()});
  const c=$('hc');if(c)c.onclick=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)*HW/r.width,y=(e.clientY-r.top)*HH/r.height;
+  const near=()=>{let bi=-1,bd=62;ST.home.placed.forEach((p,i)=>{const d=Math.hypot(p.x-x,p.y-y);if(d<bd){bd=d;bi=i}});return bi};
   if(hSel){const it=ITEM[hSel],py=it.k==='w'?Math.max(50,Math.min(200,y)):Math.max(215,Math.min(HH-30,y));if(ST.home.placed.length>=40){toast('Phòng đã đầy');return}
-   ST.home.placed.push({id:hSel,x:Math.max(40,Math.min(HW-40,x)),y:py});ST.inv[hSel]--;if(ST.inv[hSel]<=0)hSel=null;saveState();renderHome(true);return}
-  let bi=-1,bd=60;ST.home.placed.forEach((p,i)=>{const d=Math.hypot(p.x-x,p.y-y);if(d<bd){bd=d;bi=i}});
-  if(bi>=0){const p=ST.home.placed.splice(bi,1)[0];ST.inv[p.id]=(ST.inv[p.id]||0)+1;saveState();renderHome(true);toast('Đã cất '+(ITEM[p.id]||{}).n)}};
+   ST.home.placed.push({id:hSel,x:Math.max(40,Math.min(HW-40,x)),y:py});ST.inv[hSel]--;if(ST.inv[hSel]<=0)hSel=null;resetHero();saveState();renderHome();return}
+  const bi=near();
+  if(hMode==='remove'){if(bi>=0){const p=ST.home.placed.splice(bi,1)[0];ST.inv[p.id]=(ST.inv[p.id]||0)+1;resetHero();saveState();renderHome();toast('Đã cất '+(ITEM[p.id]||{}).n)}return}
+  if(bi>=0){const p=ST.home.placed[bi],it=ITEM[p.id],s=it.s*1.25;
+   if(SIT.includes(p.id)){heroGo(p.x,p.y+s*.45,()=>{HR.pose='sit';HR.on=bi;HR.x=p.x;HR.y=p.y+s*.45});return}
+   if(LIE.includes(p.id)){heroGo(p.x,p.y+s*.5,()=>{HR.pose='lie';HR.on=bi;HR.x=p.x;HR.y=p.y+s*.5});return}
+   toast(it.n);return}
+  if(y>=225)heroGo(x,y)};
  const cl=$('cl');if(cl)cl.onclick=closeM}
-function renderHome(keep){const body=homeBody();modal(`<h2>Nhà của ${esc(ST.name||'bạn')} 🏠</h2><canvas id="hc" width="${HW}" height="${HH}" style="display:block;margin:0 auto;width:min(100%,calc(44vh*2.095));border-radius:18px;background:#fff0dc"></canvas><div class="seg"><button class="${hTab==='inv'?'on':''}" data-tab="inv">🎒 Đồ của tôi</button><button class="${hTab==='shop'?'on':''}" data-tab="shop">🛍️ Cửa hàng</button></div>${body}<div class="row"><button class="btn" id="cl">Ra phố</button></div>`);
- $('pm').classList.add('wide');drawHome();bindHome()}
-function openHome(tab){hTab=tab||'inv';hSel=null;renderHome()}
+function renderHome(){const body=homeBody();modal(`<h2>Nhà của ${esc(ST.name||'bạn')} 🏠</h2><canvas id="hc" width="${HW}" height="${HH}" style="display:block;margin:0 auto;width:min(100%,calc(44vh*2.095));border-radius:18px;background:#fff0dc"></canvas>${hTab==='inv'?`<div class="seg"><button class="${hMode==='walk'&&!hSel?'on':''}" data-hm="walk">🚶 Đi lại, ngồi, nằm</button><button class="${hMode==='remove'?'on':''}" data-hm="remove">🧹 Cất đồ</button></div>`:''}<div class="seg"><button class="${hTab==='inv'?'on':''}" data-tab="inv">🎒 Đồ của tôi</button><button class="${hTab==='shop'?'on':''}" data-tab="shop">🛍️ Cửa hàng</button></div>${body}<div class="row"><button class="btn" id="cl">Ra phố</button></div>`);
+ $('pm').classList.add('wide');drawHome();bindHome();if(!homeLoop){homeLoop=true;requestAnimationFrame(homeTick)}}
+function openHome(tab){hTab=tab||'inv';hSel=null;hMode='walk';HR.x=HW-110;HR.y=HH-16;resetHero();renderHome()}
 /* ---------- Menu, đăng nhập lớp, xếp hạng ---------- */
 function syncMe(){}
 async function rpc(fn,body){const r=await fetch(RW.url+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:RW.key,Authorization:'Bearer '+RW.key,'Content-Type':'application/json'},body:JSON.stringify(body||{})});if(!r.ok)throw new Error(r.status);const t=await r.text();return t?JSON.parse(t):null}
