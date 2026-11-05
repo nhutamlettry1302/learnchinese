@@ -6,6 +6,7 @@
 <meta name="description" content="Đi dạo thành phố, vào 12 địa điểm làm nhiệm vụ tiếng Trung với từ vựng HSK.">
 
 <script src="vocab.js"></script>
+<script src="audio.js"></script>
 <script>try{document.documentElement.dataset.theme=localStorage.getItem('tp_night')==='1'?'dark':'light'}catch(e){}</script>
 <style>
 :root,[data-theme=light]{--bg:#bfe6f5;--panel:#fff;--panel2:#f3faf6;--ink:#0f2f2a;--muted:#3f625a;--outline:#0f2f2a;--accent:#0b6b5c;--gold:#f2c14e;--on-gold:#0f2f2a;--good:#1f9d6a;--bad:#d9534f;--shadow:0 5px 0 var(--outline);--glass:rgba(255,255,255,.88);color-scheme:light}
@@ -596,8 +597,9 @@ const lessonObj=()=>{const L=levelObj();return L&&ST.lesson?L.ls.find(x=>x.n===S
 function modeTitle(){if(ST.lv==='city'||!levelObj())return 'Chủ đề thành phố';const L=levelObj(),l=lessonObj();return L.n+(l?' · Bài '+l.n:' · Tất cả các bài')}
 /* ---------- Nhiệm vụ ---------- */
 let Q=null;const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
-const canSay='speechSynthesis' in window;
-function say(t){try{const u=new SpeechSynthesisUtterance(t);u.lang='zh-CN';u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+const canSay=true;
+function say(t){rwSay(t)}
+addEventListener('rw-nosound',()=>toast('Máy chưa phát được âm thanh. Hãy bật loa, tắt chế độ im lặng hoặc thử trình duyệt Chrome.'));
 function makeCity(p){const words=shuffle(p.words).slice(0,6),types=shuffle(['mean','hanzi','cloze','cloze','listen','hanzi']).map(t=>t==='listen'&&!canSay?'mean':t);
  return words.map((w,i)=>{const type=types[i];let pool;
   if(type==='cloze')pool=shuffle(p.words.filter(x=>x[0]!==w[0]&&!w[3].includes(x[0]))).slice(0,3);else if(type==='mean')pool=shuffle(ALL.filter(x=>x[2]!==w[2]&&!x[2].includes(w[2]))).slice(0,3);else pool=shuffle(p.words.filter(x=>x[0]!==w[0])).slice(0,3);
