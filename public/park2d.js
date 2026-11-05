@@ -128,15 +128,27 @@ const NPCS=[{id:'mgr',x:760,y:845,v:9,n:'林先生',vi:'Quản lý công viên',
 const WORDS={B:'play',C:'gaz',D:'pond',E:'ice',F:'stage',A:'fount'};
 function enterPark(p){
  const old0=document.getElementById('parkov');if(old0)old0.remove();const tok=window.__parkTok={};
- const sc=seasonC(),host=$('ovm').parentNode,ovp=document.createElement('div');ovp.id='parkov';
+ let sc=seasonC();const host=$('ovm').parentNode,ovp=document.createElement('div');ovp.id='parkov';
  ovp.style.cssText='position:absolute;inset:0;z-index:8;overflow:hidden;background:'+sc.g2+';touch-action:manipulation';
  ovp.innerHTML=`<canvas id="park3" style="position:absolute;inset:0;width:100%;height:100%;display:block"></canvas><canvas id="pmm" width="280" height="200" style="position:absolute;right:10px;top:96px;width:140px;height:100px;border:3px solid #1d4a3a;border-radius:14px;background:rgba(255,255,255,.8)"></canvas>
- <div style="position:absolute;left:0;right:0;top:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px"><button class="btn" id="leave">← Ra phố</button><b style="font-size:20px;color:#1d4a3a;background:rgba(255,255,255,.85);border-radius:14px;padding:3px 12px">🌳 公园 · Công viên</b><span style="flex:1"></span><span class="pill" id="pkCoin">🪙 0</span>${p.words?'<button class="btn gold" id="learn">📘 Nhiệm vụ</button><button class="btn" id="talk2">💬</button>':''}</div>
+ <div style="position:absolute;left:0;right:0;top:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px"><button class="btn" id="leave">← Ra phố</button><b style="font-size:20px;color:#1d4a3a;background:rgba(255,255,255,.85);border-radius:14px;padding:3px 12px">🌳 公园 · Công viên</b><span style="flex:1"></span><span id="pkCtl" style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;background:rgba(255,255,255,.85);border-radius:16px;padding:3px 6px;border:2px solid #1d4a3a"></span><span class="pill" id="pkCoin">🪙 0</span>${p.words?'<button class="btn gold" id="learn">📘 Nhiệm vụ</button><button class="btn" id="talk2">💬</button>':''}</div>
  <div style="position:absolute;right:12px;bottom:70px;display:flex;flex-direction:column;gap:8px"><button class="btn" id="zin" style="width:46px;height:46px;font-size:24px;border-radius:50%">+</button><button class="btn" id="zout" style="width:46px;height:46px;font-size:24px;border-radius:50%">−</button></div>
  <div style="position:absolute;left:0;right:0;bottom:8px;text-align:center;pointer-events:none"><span style="display:inline-block;background:rgba(255,255,255,.92);border-radius:14px;padding:6px 14px;font-size:13px;font-weight:700;color:#2a4a6a">Chạm vào một khu hoặc con đường để đi · ❗ khu có bài tập thưởng 🪙 · cổng 公园 phía dưới là lối ra</span></div>`;
  host.appendChild(ovp);
  const exitPark=()=>{window.__parkTok=null;ovp.remove()};
  $('leave').onclick=exitPark;if(p.words)$('learn').onclick=()=>{exitPark();openBoard(p)};if($('talk2'))$('talk2').onclick=()=>{exitPark();openNpc(p)};
+ /* điều khiển ngày/đêm + bốn mùa (chữ Hán) */
+ const SE=[['xuan','春','chūn','🌸'],['ha','夏','xià','☀️'],['thu','秋','qiū','🍂'],['dong','冬','dōng','❄️']];
+ const isDark=()=>document.documentElement.dataset.theme==='dark';
+ const rv=()=>{let v='auto';try{v=localStorage.getItem('tp_season')||'auto'}catch(e){}return v};
+ const ctl=()=>{const box=$('pkCtl');if(!box)return;const v=rv(),d=isDark();
+  const bt=(id,on,txt,tt)=>`<button class="btn${on?' gold':''}" id="${id}" title="${tt}" style="padding:4px 9px;font-size:15px;min-height:0">${txt}</button>`;
+  box.innerHTML=bt('pkN',false,d?'🌙 夜晚':'☀️ 白天',d?'yèwǎn · ban đêm (bấm để sang ban ngày)':'báitiān · ban ngày (bấm để sang ban đêm)')+'<span style="width:2px;height:22px;background:#c9d8cf;border-radius:2px"></span>'
+   +SE.map(m=>bt('pks_'+m[0],v===m[0],m[3]+' '+m[1],m[1]+' '+m[2])).join('')+bt('pks_auto',v==='auto','自动','zìdòng · tự động theo tháng');
+  $('pkN').onclick=()=>{try{$('bN').click()}catch(e){}ctl()};
+  for(const m of SE)$('pks_'+m[0]).onclick=()=>setSe(m[0]);$('pks_auto').onclick=()=>setSe('auto')};
+ const setSe=v=>{try{localStorage.setItem('tp_season',v)}catch(e){}try{BG=null}catch(e){}try{refS()}catch(e){}sc=seasonC();ovp.style.background=sc.g2;ctl();const m=SE.find(x=>x[0]===v);toast(m?m[3]+' '+m[1]+' · '+m[2]:'自动 · zìdòng')};
+ ctl();
  const coinEl=()=>{const e=$('pkCoin');if(e)e.textContent='🪙 '+(ST.coins||0)};coinEl();window.__parkCoin=coinEl;
  const c=$('park3'),k=c.getContext('2d'),mm=$('pmm'),mk=mm.getContext('2d');let VW=800,VH=600,DPR=1,Z=1,zUser=null;
  const fit=()=>{const r=ovp.getBoundingClientRect();DPR=window.devicePixelRatio||1;VW=r.width;VH=r.height;c.width=Math.round(VW*DPR);c.height=Math.round(VH*DPR);if(zUser==null)Z=Math.max(.5,Math.min(1,VW/1450))};fit();window.addEventListener('resize',fit);
@@ -206,7 +218,7 @@ function enterPark(p){
   L.push({y:pet.y,f:()=>{if(window.drawPetC)drawPetC(k,pet.x,pet.y+Math.sin(t/420)*4+10,hero.face)}});
   L.sort((a,b)=>a.y-b.y);for(const o of L)o.f();
   for(let i=0;i<24;i++){const x=(i*113+Math.sin(t/1700+i)*22)%WW,y=70+(t/38+i*79)%780;k.save();k.translate(x,y);k.rotate(t/1200+i);ell(k,0,0,3,1.5,sc.sn?'#fff':'#ffd1df');k.restore()}
-  if(window.__parkDark){k.fillStyle='rgba(16,35,65,.16)';k.fillRect(0,0,WW,WH)}
+  if(window.__parkDark){k.fillStyle='rgba(10,20,52,.5)';k.fillRect(0,0,WW,WH);k.save();k.globalCompositeOperation='lighter';for(const lx of[100,500,900,1300])for(const ly of[160,400,560,730]){const gx=lx+36,gy=ly-46,g=k.createRadialGradient(gx,gy,4,gx,gy,120);g.addColorStop(0,'rgba(255,210,110,.55)');g.addColorStop(.4,'rgba(255,190,90,.2)');g.addColorStop(1,'rgba(255,190,90,0)');k.fillStyle=g;k.fillRect(gx-120,gy-120,240,240)}k.restore();for(let i=0;i<26;i++){const sx=(i*173)%WW,sy=(i*97)%110+8,tw=.5+.5*Math.sin(t/500+i);k.fillStyle='rgba(255,255,230,'+(.35+.4*tw)+')';k.fillRect(sx,sy,2.2,2.2)}}
   /* minimap */
   mk.clearRect(0,0,280,200);const ms=280/WW;mk.fillStyle=sc.g;mk.fillRect(0,0,280,200);mk.fillStyle=cobble;for(const pr of PATHS)mk.fillRect(pr[0]*ms,pr[1]*ms,(pr[2]-pr[0])*ms,(pr[3]-pr[1])*ms);const zc={B:'#e6a23c',C:'#d9534f',E:'#ff8aa8',D:'#4aa0c0',A:'#8fd8f0',F:'#e8a0c0'};for(const z of ZONES){mk.fillStyle=zc[z.k];mk.fillRect(z.x*ms,z.y*ms,z.w*ms,z.h*ms)}mk.fillStyle='#c00';mk.beginPath();mk.arc(hero.x*ms,hero.y*ms,5,0,7);mk.fill();mk.strokeStyle='#fff';mk.lineWidth=2;mk.stroke();
   requestAnimationFrame(draw)};
