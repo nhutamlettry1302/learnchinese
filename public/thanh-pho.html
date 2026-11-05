@@ -769,7 +769,7 @@ function bindHome(){const pm=$('pm');
  const cl=$('cl');if(cl)cl.onclick=closeM}
 function renderHome(){const body=homeBody();modal(`<h2>Nhà của ${esc(ST.name||'bạn')} 🏠</h2><canvas id="hc" width="${HW}" height="${HH}" style="display:block;margin:0 auto;width:min(100%,calc(44vh*2.095));border-radius:18px;background:#fff0dc"></canvas>${hTab==='inv'?`<div class="seg"><button class="${hMode==='walk'&&!hSel?'on':''}" data-hm="walk">🚶 Đi lại, ngồi, nằm</button><button class="${hMode==='remove'?'on':''}" data-hm="remove">🧹 Cất đồ</button></div>`:''}<div class="seg"><button class="${hTab==='inv'?'on':''}" data-tab="inv">🎒 Đồ của tôi</button><button class="${hTab==='shop'?'on':''}" data-tab="shop">🛍️ Cửa hàng</button></div>${body}<div class="row"><button class="btn" id="cl">Ra phố</button></div>`);
  $('pm').classList.add('wide');drawHome();bindHome();if(!homeLoop){homeLoop=true;requestAnimationFrame(homeTick)}}
-function openHome(tab){hTab=tab||'inv';hSel=null;hMode='walk';HR.x=HW-110;HR.y=HH-16;resetHero();renderHome()}
+function openHome(tab){if(!ST.starter){ST.starter=1;if(!ST.home.placed.length)ST.home.placed.push({id:'bed',x:190,y:330},{id:'sofa',x:560,y:340},{id:'chair',x:720,y:330});saveState();toast('Cô tặng bạn giường, sofa và ghế để thử ngồi, nằm!')}hTab=tab||'inv';hSel=null;hMode='walk';HR.x=HW-110;HR.y=HH-16;resetHero();renderHome()}
 /* ---------- Menu, đăng nhập lớp, xếp hạng ---------- */
 function syncMe(){}
 async function rpc(fn,body){const r=await fetch(RW.url+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:RW.key,Authorization:'Bearer '+RW.key,'Content-Type':'application/json'},body:JSON.stringify(body||{})});if(!r.ok)throw new Error(r.status);const t=await r.text();return t?JSON.parse(t):null}
