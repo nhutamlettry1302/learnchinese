@@ -36,7 +36,7 @@ const GAMES=[
  {k:'fall',ic:'🌧️',n:'Mưa chữ',d:'Chữ rơi xuống, chọn nghĩa đúng trước khi chạm đáy. Có 3 mạng.',need:'q'},
  {k:'onet',ic:'🐙',n:'Nối đường (kiểu Pikachu)',d:'Nối 2 thẻ cùng cặp bằng đường đi không quá 2 góc rẽ. Có gợi ý và xáo trộn.',need:'v'},
  {k:'gold',ic:'⛏️',n:'Đào vàng',d:'Móc câu đung đưa, chạm để thả. Móc đúng viên vàng có nghĩa ở trên cùng!',need:'v'},
- {k:'flap',ic:'🐳',n:'Cá voi bay',d:'Chạm để cá voi vỗ bay, bay qua cổng có đáp án đúng. Có 3 mạng.',need:'q'},
+ {k:'flap',ic:'🐳',n:'Cá voi bay',d:'Chạm để cá voi vỗ bay, bay qua cổng có đáp án đúng. Có 5 mạng, bay chậm và cổng rộng.',need:'q'},
  {k:'snake',ic:'🎲',n:'Thang và rắn',d:'Trả lời đúng để được đổ xúc xắc. Đua với cá mập tới ô 30!',need:'q'}];
 const best=k=>+(C.ls.get('rw_best_'+k)||0);
 async function load(){CT=await C.Ctx.load()}
@@ -168,20 +168,20 @@ function gold(R,end){R.innerHTML=`<div class="stat"><span class="pill"><b id="tm
  const iv=setInterval(()=>{$('tm').textContent=--T;if(T<=0){dead=true;cleanup();cleanup=()=>{};end(sc*10)}},1000);cleanup=()=>{dead=true;clearInterval(iv);cancelAnimationFrame(raf);removeEventListener('keydown',kd)};loop()}
 /* 9. Cá voi bay */
 function flap(R,end){R.innerHTML=`<div class="stat"><span class="pill">Điểm <b id="sc">0</b></span><span class="heart" id="hr"></span><span class="muted">Chạm vào màn hình để vỗ bay</span></div><div style="text-align:center;font:800 20px var(--f-d);min-height:54px" id="qq"></div><canvas id="cv" width="440" height="360" style="width:100%;border:3px solid var(--outline);border-radius:18px;background:linear-gradient(#bfe6f2,#6fb6d0);touch-action:manipulation"></canvas>`;
- const cv=$('cv'),k=cv.getContext('2d'),img=new Image();img.src='img/pets.webp';const pi=RWL.myPet();let y=180,vy=0,hearts=3,sc=0,q,gate,raf,dead=false,inv=60,hit=false;
- const hr=()=>$('hr').innerHTML=RWL.HEARTS(hearts,3);
+ const cv=$('cv'),k=cv.getContext('2d'),img=new Image();img.src='img/pets.webp';const pi=RWL.myPet();let y=180,vy=0,hearts=5,sc=0,q,gate,raf,dead=false,inv=120,hit=false;
+ const hr=()=>$('hr').innerHTML=RWL.HEARTS(hearts,5);
  const mk=()=>{q=C.makeQ(CT);const wrong=S(q.opts.filter(o=>o!==q.ans))[0],up=Math.random()<.5;$('qq').innerHTML=E(q.prompt)+'<br><small class="muted">'+E(q.sub||'')+'</small>';gate={x:460,top:up?q.ans:wrong,bot:up?wrong:q.ans,ok:up?0:1,done:false}};
- const flapUp=()=>{vy=-6.2};cv.onclick=flapUp;const kd=e=>{if(e.code==='Space'){e.preventDefault();flapUp()}};addEventListener('keydown',kd);
- const GH=96,Y1=70,Y2=250,GW=84;
+ const flapUp=()=>{vy=-5.2};cv.onclick=flapUp;const kd=e=>{if(e.code==='Space'){e.preventDefault();flapUp()}};addEventListener('keydown',kd);
+ const GH=124,Y1=55,Y2=232,GW=84;
  const lose=()=>{hearts--;hr();C.beep(false);inv=70;if(hearts<=0){dead=true;cleanup();cleanup=()=>{};end(sc*10)}};
- const loop=()=>{vy+=.32;y+=vy;k.clearRect(0,0,440,360);
-  if(y<20||y>340){if(inv<=0)lose();y=Math.max(30,Math.min(330,y));vy=y>200?-5:1}
-  gate.x-=2.1;const gx=gate.x;
+ const loop=()=>{vy+=.22;y+=vy;k.clearRect(0,0,440,360);
+  if(y<12||y>348){if(inv<=0)lose();y=Math.max(30,Math.min(330,y));vy=y>200?-4:1}
+  gate.x-=1.5;const gx=gate.x;
   [[Y1,gate.top],[Y2,gate.bot]].forEach(([gy,t],i)=>{k.fillStyle='rgba(15,70,90,.85)';k.fillRect(gx,i?gy+GH:0,GW,i?360-gy-GH:gy);if(!i)k.fillRect(gx,Y1+GH,GW,Y2-Y1-GH);
    k.fillStyle='#fff';k.fillRect(gx-6,gy,GW+12,GH);k.fillStyle='#0f3a46';k.font='800 '+(t.length<=4?20:t.length<=8?14:12)+'px "Noto Serif SC",Nunito,sans-serif';k.textAlign='center';k.textBaseline='middle';const cap=t.length<=4?4:8,lines=[];for(let s=0;s<t.length&&lines.length<4;s+=cap)lines.push(t.slice(s,s+cap));lines.forEach((ln,j)=>k.fillText(ln,gx+GW/2,gy+GH/2+(j-(lines.length-1)/2)*15))});
   if(img.complete){const w=70,h=w*112/190;if(inv>0&&Math.floor(inv/6)%2)k.globalAlpha=.4;k.save();k.translate(90,y);k.rotate(Math.max(-.5,Math.min(.5,vy*.06)));k.drawImage(img,pi*190,0,190,112,-w/2,-h/2,w,h);k.restore();k.globalAlpha=1}
   if(inv>0)inv--;
-  if(!gate.done&&gate.x<125&&gate.x+GW>55){const inTop=y>Y1+10&&y<Y1+GH-10,inBot=y>Y2+10&&y<Y2+GH-10;if(!inTop&&!inBot&&inv<=0){gate.done=true;lose();y=gate.ok===0?Y1+GH/2:Y2+GH/2;vy=0}
+  if(!gate.done&&gate.x<125&&gate.x+GW>55){const inTop=y>Y1+2&&y<Y1+GH-2,inBot=y>Y2+2&&y<Y2+GH-2;if(!inTop&&!inBot&&inv<=0){gate.done=true;lose();y=gate.ok===0?Y1+GH/2:Y2+GH/2;vy=0}
    else if(gate.x+GW<95&&!gate.done){gate.done=true;const idx=inTop?0:1;if(idx===gate.ok){C.beep(true);sc++;if(window.rwSay&&q.say)rwSay(q.say);$('sc').textContent=sc*10}else{lose()}}}
   if(gate.x<-GW-10){mk()}
   if(!dead)raf=requestAnimationFrame(loop)};
