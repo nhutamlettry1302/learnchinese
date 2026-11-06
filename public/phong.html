@@ -11,7 +11,7 @@
 <script src="config.js"></script><script src="audio.js"></script><script src="rwcore.js"></script>
 <script>
 const C=RWC,A=C.Auth,$=id=>document.getElementById(id),E=C.esc;
-let page='mine',users=[],allRooms=[],myScores=null,rooms=[],edit=null,msg='',err='',tab='vocab',lvSel={vocab:'HSK1',gram:'HSK1'},mode='in',open=null,results={};
+let hasOwner=true,page='mine',users=[],allRooms=[],myScores=null,rooms=[],edit=null,msg='',err='',tab='vocab',lvSel={vocab:'HSK1',gram:'HSK1'},mode='in',open=null,results={};
 const say=(m,e)=>{msg=m||'';err=e||'';render()};
 const sumSel=cfg=>{const n=o=>Object.values(o||{}).reduce((a,l)=>a+l.length,0);return n(cfg.vocab)+' bài từ vựng · '+n(cfg.gram)+' bài ngữ pháp'};
 const joinLink=c=>new URL('live.html?phong='+c,location.href).href;
@@ -22,6 +22,7 @@ function teacherGate(){const sc=myScores;const G={'live-quiz':'Đấu trường'
  return`<div class="card" style="max-width:560px;margin:20px auto"><h2>Xin chào ${E(A.profile&&A.profile.name||'')} 👋</h2><p class="muted">Bạn đang đăng nhập với vai trò <b>học sinh</b>. Muốn vào phòng học, hãy nhập mã do giáo viên gửi.</p>
  <div class="row"><a class="btn pri" href="live.html">Vào phòng bằng mã</a><button class="btn sm" id="out">Đăng xuất</button></div></div>
  <div class="card" style="max-width:560px;margin:14px auto"><h3>Điểm của tôi</h3>${sc?(sc.length?`<table class="res"><tr><th>Phòng</th><th>Trò</th><th>Cao nhất</th><th>Lượt</th></tr>${sc.map(x=>`<tr><td>${E(x.room||x.code)}</td><td>${E(G[x.game]||x.game)}</td><td>${x.best}</td><td>${x.plays}</td></tr>`).join('')}</table>`:'<p class="muted">Chưa có điểm. Khi vào phòng lúc đã đăng nhập, điểm sẽ lưu vào đây.</p>'):'<p class="muted">Đang tải…</p>'}</div>
+${hasOwner?'':`<div class="card" style="max-width:560px;margin:14px auto"><h3>Chủ web</h3><p class="muted">Web chưa có chủ web. Nếu bạn là cô Roxie, nhập mật khẩu giáo viên rồi bấm nhận quyền chủ web (chỉ làm được một lần).</p><label>Mật khẩu giáo viên</label><input id="op" type="password"><p class="err">${E(err)}</p><button class="btn gold" id="ogo">Nhận quyền chủ web</button></div>`}
  <div class="card" style="max-width:560px;margin:14px auto"><h3>Dành cho giáo viên</h3><p class="muted">Nhập mật khẩu giáo viên (cô Roxie cung cấp) để mở tính năng tạo phòng.</p>
  <label>Mật khẩu giáo viên</label><input id="tp" type="password"><p class="err">${E(err)}</p><button class="btn pri" id="tgo">Mở quyền giáo viên</button></div>`}
 /* quản trị (chủ web) */
@@ -58,6 +59,7 @@ function wire(){
  on('asw',()=>{mode=mode==='in'?'up':'in';err='';msg='';render()});
  on('ago',async()=>{const em=$('ae').value.trim(),pw=$('ap').value,nm=$('an')?$('an').value.trim():'';err='';msg='';if(!em||pw.length<6){say('','Nhập email và mật khẩu (từ 6 ký tự).');return}
   try{if(mode==='in')await A.signIn(em,pw);else{const r=await A.signUp(em,pw,nm);if(r.confirm){say('Đã tạo tài khoản. Hãy mở email để bấm xác nhận, rồi quay lại đăng nhập.');mode='in';return}}await boot()}catch(e){say('',e.message)}});
+ on('ogo',async()=>{try{await C.rpc('rw_claim_owner',{p_pass:$('op').value});err='';hasOwner=true;await boot()}catch(e){say('',/mat khau/.test(e.message)?'Mật khẩu chưa đúng.':e.message)}});
  on('tgo',async()=>{try{await A.becomeTeacher($('tp').value);err='';await boot()}catch(e){say('','Mật khẩu giáo viên chưa đúng.')}});
  on('out',()=>{A.signOut();render()});on('out2',e=>{A.signOut();location.reload()});const o2=$('out2');if(o2)o2.onclick=e=>{e.preventDefault();A.signOut();location.reload()};
  on('newr',()=>{edit={code:'',name:'',config:{vocab:{},gram:{}}};err='';msg='';render()});
@@ -75,6 +77,6 @@ function wire(){
  document.querySelectorAll('[data-rs]').forEach(b=>b.onclick=async()=>{const c=b.dataset.rs;if(open===c){open=null;return render()}open=c;results[c]=null;render();try{results[c]=await C.rpc('room_results',{p_code:c})}catch(e){results[c]=[]}render()});
  document.querySelectorAll('[data-cl]').forEach(b=>b.onclick=async()=>{const r=rooms.find(x=>x.code===b.dataset.cl);try{await C.rpc('room_update',{p_code:r.code,p_name:null,p_config:null,p_closed:!r.closed});await load()}catch(e){say('',e.message)}});
  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const r=rooms.find(x=>x.code===b.dataset.del);if(!confirm('Xóa phòng "'+r.name+'" cùng toàn bộ điểm của phòng? Không thể khôi phục.'))return;try{await C.rpc('room_delete',{p_code:r.code});say('Đã xóa phòng.');await load()}catch(e){say('',e.message)}})}
-async function boot(){render();if(A.loggedIn){await A.refresh();render();if(A.profile&&A.profile.role==='student'){try{myScores=await C.rpc('my_scores')||[]}catch(e){myScores=[]}render()}if(A.profile&&(A.profile.role==='teacher'||A.profile.role==='owner')){await C.Data.need(true,true);await load()}}}
+async function boot(){render();if(A.loggedIn){await A.refresh();render();if(A.profile&&A.profile.role==='student'){try{myScores=await C.rpc('my_scores')||[]}catch(e){myScores=[]}try{hasOwner=!!(await C.rpc('rw_has_owner'))}catch(e){hasOwner=true}render()}if(A.profile&&(A.profile.role==='teacher'||A.profile.role==='owner')){await C.Data.need(true,true);await load()}}}
 boot();
 </script></body></html>

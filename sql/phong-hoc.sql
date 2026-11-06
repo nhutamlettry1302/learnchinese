@@ -206,3 +206,17 @@ begin
   insert into public.scores(game,class_code,player,score,user_id) values(p_game,c,n,p_score,p_uid);
 end $$;
 grant execute on function public.submit_score_for(text,text,text,int,uuid) to authenticated;
+
+-- Nhận quyền CHỦ WEB ngay trên web (không cần gõ SQL): chỉ làm được khi CHƯA có chủ web nào, và phải nhập đúng mật khẩu giáo viên
+create or replace function public.rw_has_owner() returns boolean
+language sql security definer set search_path=public as $$ select exists(select 1 from public.rw_profiles where role='owner') $$;
+
+create or replace function public.rw_claim_owner(p_pass text) returns void
+language plpgsql security definer set search_path=public as $$
+begin
+  if auth.uid() is null then raise exception 'chua dang nhap'; end if;
+  if exists(select 1 from public.rw_profiles where role='owner') then raise exception 'da co chu web'; end if;
+  if not public.rw_is_admin(p_pass) then raise exception 'sai mat khau'; end if;
+  insert into public.rw_profiles(id,role) values(auth.uid(),'owner') on conflict(id) do update set role='owner';
+end $$;
+grant execute on function public.rw_has_owner(), public.rw_claim_owner(text) to anon, authenticated;
