@@ -108,3 +108,10 @@ img.ic{display:inline-block;vertical-align:-.3em;object-fit:contain}img.ic.off{o
 .dice3 i{border-radius:50%;margin:2px}.dice3 i.on{background:var(--ink)}
 .dice3.roll{animation:dr .34s linear infinite}@keyframes dr{0%{transform:rotate(0) translateY(0)}25%{transform:rotate(90deg) translateY(-10px)}50%{transform:rotate(180deg) translateY(0)}75%{transform:rotate(270deg) translateY(-8px)}100%{transform:rotate(360deg)}}
 #rollb{animation:pulse 1.1s ease-in-out infinite}@keyframes pulse{50%{transform:scale(1.06)}}
+.cell .tk{left:0;right:0;bottom:3px;display:flex;justify-content:center;align-items:flex-end;gap:0;pointer-events:none}
+.cell .tk .me{pointer-events:auto;cursor:pointer;display:block;line-height:0}.cell .tk .pw,.cell .tk img.ic{filter:drop-shadow(0 2px 2px #0003)}
+.cell .tk .hop{animation:hop .32s ease-out}@keyframes hop{0%{transform:translateY(0) scale(1)}45%{transform:translateY(-26px) scale(1.12,.92)}100%{transform:translateY(0) scale(1)}}
+.cell .tk .me.wait{animation:wig .7s ease-in-out infinite}@keyframes wig{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px) rotate(-4deg)}}
+.cell em{z-index:0}.cell .tk{z-index:2}
+.startbar{display:flex;align-items:center;gap:10px;min-height:64px;margin-top:6px;padding:4px 12px;border:1px dashed var(--line);border-radius:12px;background:var(--mint)}
+.startbar .tk0{display:flex;gap:6px;align-items:flex-end}.startbar .me{cursor:pointer;display:block;line-height:0}.startbar .hop{animation:hop .32s ease-out}.startbar .me.wait{animation:wig .7s ease-in-out infinite}
