@@ -26,7 +26,7 @@
 <script>
 const C=RWC,$=id=>document.getElementById(id),E=C.esc,M=$('main');
 let CT=null,cleanup=()=>{},tab='vocab',lv={vocab:'HSK1',gram:'HSK1'},msg='';
-const GI={pairs:'shell-card',flip:'card-back',mil:'pearl',bub:'bubble',fall:'star-fish',onet:'treasure',gold:'anchor-hook',flap:'coral-gate',snake:'dice',car:'dice',type:'bubble',tf:'star-fish'};
+const GI={pairs:'shell-card',flip:'card-back',mil:'pearl',bub:'bubble',fall:'star-fish',onet:'treasure',gold:'anchor-hook',flap:'coral-gate',snake:'dice',car:'dice',type:'bubble',tf:'star-fish',whack:'rock',listen:'bubble',hang:'pearl',seq:'treasure'};
 const gic=(k,w)=>RWL.IC(GI[k],w);
 const GAMES=[
  {k:'pairs',ic:'🧩',n:'Nối cặp',d:'Chạm chữ Hán rồi chạm nghĩa tương ứng. Nối hết 3 màn nhanh nhất!',need:'v'},
@@ -40,6 +40,10 @@ const GAMES=[
  {k:'car',ic:'🏎️',n:'Đua xe',d:'Lái xe qua 3 làn, chạy vào làn có đáp án đúng. Đúng thì xe tăng tốc, sai mất mạng. Có 3 mạng.',need:'q'},
  {k:'type',ic:'⌨️',n:'Gõ pinyin',d:'60 giây gõ pinyin của chữ Hán hiện ra (không cần dấu thanh). Gõ nhanh được nhiều điểm.',need:'v'},
  {k:'tf',ic:'✅',n:'Đúng hay sai',d:'45 giây: chữ Hán và nghĩa có khớp nhau không? Chọn Đúng hoặc Sai thật nhanh, chuỗi đúng liên tiếp được thưởng.',need:'v'},
+ {k:'whack',ic:'🔨',n:'Đập chuột chũi',d:'Chuột chũi thò đầu ra mang theo nghĩa. Đập đúng con có nghĩa của chữ Hán ở trên, đập nhầm bị trừ điểm.',need:'v'},
+ {k:'listen',ic:'🎧',n:'Nghe và chọn',d:'Nghe phát âm, chọn nghĩa đúng. Luyện nghe 10 từ liên tiếp. Cần bật loa.',need:'v'},
+ {k:'hang',ic:'🔤',n:'Đoán pinyin (kiểu treo cổ)',d:'Đoán từng chữ cái của pinyin. Sai 6 lần là thua từ đó. Mỗi từ đoán đúng được thêm điểm.',need:'v'},
+ {k:'seq',ic:'🧠',n:'Trí nhớ chuỗi',d:'Nhìn dãy chữ Hán sáng lên rồi bấm lại đúng thứ tự. Dãy dài dần lên.',need:'v'},
  {k:'snake',ic:'🎲',n:'Thang và rắn',d:'Trả lời đúng để lắc xúc xắc. Có thang, lươn, sao biển, đá ngầm, xoáy nước và ngọc trai. Đua với cá mập tới ô 30!',need:'q'}];
 const best=k=>+(C.ls.get('rw_best_'+k)||0);
 async function load(){CT=await C.Ctx.load()}
@@ -70,7 +74,7 @@ function picker(){const s=C.Ctx.sel;s.vocab=s.vocab||{};s.gram=s.gram||{};C.Data
 function start(k){cleanup();cleanup=()=>{};const g=GAMES.find(x=>x.k===k);
  if(g.need==='v'&&CT.vocab.length<8){msg='Trò này cần ít nhất 8 từ vựng. Hãy chọn thêm bài từ vựng.';return home()}
  if(g.need==='q'&&!C.makeQ(CT)){msg='Chưa đủ nội dung (cần ít nhất 4 từ vựng hoặc có câu ngữ pháp).';return home()}
- msg='';const G={pairs,flip,mil,bub,fall,snake,onet,gold,flap,car,type,tf}[k];
+ msg='';const G={pairs,flip,mil,bub,fall,snake,onet,gold,flap,car,type,tf,whack,listen,hang,seq}[k];
  M.innerHTML=`<div class="card"><div class="row"><b style="font:800 20px var(--f-d)">${gic(g.k,30)} ${g.n}</b><span style="flex:1"></span><button class="btn sm" id="bk">← Chọn trò khác</button></div><div id="g" style="margin-top:10px"></div></div>`;$('bk').onclick=()=>home();
  G($('g'),score=>finish(k,g,score,()=>start(k)))}
 function finish(k,g,score,again){cleanup();cleanup=()=>{};score=Math.max(0,Math.round(score));const nb=score>best(k);if(nb)C.ls.set('rw_best_'+k,String(score));
@@ -194,6 +198,34 @@ function tf(R,end){let sc=0,T=45,streak=0,cur=null,i1;
  const ans=v=>{if(v===cur.same){C.beep(true);streak++;sc+=10+Math.min(20,streak*2);$('fb').textContent='Đúng!'}else{C.beep(false);streak=0;sc=Math.max(0,sc-5);$('fb').textContent='Sai rồi!'}$('sc').textContent=sc;$('st2').textContent=streak;nx()};
  $('yes').onclick=()=>ans(true);$('no').onclick=()=>ans(false);nx();
  i1=setInterval(()=>{$('tm').textContent=--T;if(T<=0){cleanup();cleanup=()=>{};end(sc*10)}},1000);cleanup=()=>clearInterval(i1)}
+
+/* 13. Đập chuột chũi */
+function whack(R,end){let sc=0,T=60,tg=null,i1,i2,live=[];
+ R.innerHTML=`<div class="stat"><span class="pill"><b id="tm">60</b>s</span><span class="pill">Điểm <b id="sc">0</b></span></div><div style="text-align:center;font:800 24px var(--f-d);margin:6px 0">Đập con có nghĩa: <span id="tg"></span></div><div id="holes" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:420px;margin:auto"></div>`;
+ const H=$('holes');for(let i=0;i<9;i++)H.insertAdjacentHTML('beforeend',`<button class="hole" data-h="${i}" style="height:92px;border-radius:50% 50% 14px 14px;background:#8a6244;border:3px solid #5a3e28;position:relative;overflow:hidden;font:800 24px 'Noto Serif SC',serif;color:#fff"><span class="mole" style="position:absolute;inset:auto 8px -70px;height:70px;border-radius:40px 40px 0 0;background:#c9a37a;border:3px solid #5a3e28;display:flex;align-items:center;justify-content:center;transition:bottom .18s;color:#3a2a10"></span></button>`);
+ const nt=()=>{tg=CT.vocab[rnd(CT.vocab.length)];$('tg').textContent=tg.vn};nt();
+ const pop=()=>{const hs=[...H.children].filter(h=>!h.dataset.w);if(!hs.length)return;const h=hs[rnd(hs.length)],m=h.firstChild,good=Math.random()<.4,w=good?tg:CT.vocab[rnd(CT.vocab.length)];if(!good&&w.vn===tg.vn)return;h.dataset.w=w.zh;h.dataset.ok=good||w.vn===tg.vn?1:'';m.textContent=w.zh;m.style.inset='auto 8px -6px';setTimeout(()=>{m.style.inset='auto 8px -70px';delete h.dataset.w},1500)};
+ H.onclick=e=>{const h=e.target.closest('.hole');if(!h||!h.dataset.w)return;if(h.dataset.ok){C.beep(true);sc+=15;if(window.rwSay)rwSay(h.dataset.w);nt()}else{C.beep(false);sc=Math.max(0,sc-5)}h.firstChild.style.inset='auto 8px -70px';delete h.dataset.w;$('sc').textContent=sc};
+ i1=setInterval(pop,650);i2=setInterval(()=>{$('tm').textContent=--T;if(T<=0){cleanup();cleanup=()=>{};end(sc*10)}},1000);cleanup=()=>{clearInterval(i1);clearInterval(i2)}}
+/* 14. Nghe và chọn */
+function listen(R,end){let n=0,sc=0,q=null;const N=10;
+ const ask=()=>{if(n>=N)return end(sc*10);const w=CT.vocab[rnd(CT.vocab.length)];const wr=S(CT.vocab.filter(x=>x.vn!==w.vn)).slice(0,3);q={w,opts:S([w.vn,...wr.map(x=>x.vn)])};n++;
+  R.innerHTML=`<div class="stat"><span class="pill">Câu ${n}/${N}</span><span class="pill">Điểm <b id="sc">${sc}</b></span></div><div style="text-align:center;margin:16px 0"><button class="btn pri" id="pl" style="font-size:22px;padding:18px 30px">Nghe phát âm</button><p class="muted">Chưa nghe rõ? Bấm lại để nghe lần nữa.</p></div><div class="ans">${q.opts.map((o,k)=>`<button data-k="${k}">${E(o)}</button>`).join('')}</div><p id="fb" style="text-align:center;font-weight:800;min-height:26px"></p>`;
+  $('pl').onclick=()=>{if(window.rwSay)rwSay(w.zh)};setTimeout(()=>{if(window.rwSay)rwSay(w.zh)},300);
+  R.querySelectorAll('.ans button').forEach(b=>b.onclick=()=>{const ok=q.opts[+b.dataset.k]===w.vn;C.beep(ok);if(ok)sc+=10;$('fb').textContent=ok?'Đúng! '+w.zh+' · '+w.py:'Sai rồi. Đáp án: '+w.zh+' = '+w.vn;R.querySelectorAll('.ans button').forEach(x=>x.disabled=true);setTimeout(ask,1300)})};ask()}
+/* 15. Đoán pinyin kiểu treo cổ */
+function hang(R,end){let sc=0,words=0,w,shown,miss,T=120,i1;const nt=s=>(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').toLowerCase().replace(/[^a-z]/g,'');
+ const nx=()=>{const V=CT.vocab.filter(x=>nt(x.py).length>=3&&nt(x.py).length<=9);w=V[rnd(V.length)];shown=new Set();miss=0;draw()};
+ const draw=()=>{const p=nt(w.py),done=[...p].every(c=>shown.has(c));R.innerHTML=`<div class="stat"><span class="pill"><b id="tm">${T}</b>s</span><span class="pill">Điểm <b>${sc}</b></span><span class="heart">${RWL.HEARTS(6-miss,6)}</span></div><div style="text-align:center;margin:10px 0"><div class="big">${E(w.zh)}</div><div class="muted">${E(w.vn)}</div><div style="font:800 34px var(--f-d);letter-spacing:6px;margin:10px 0">${[...p].map(c=>shown.has(c)||miss>=6?c:'_').join(' ')}</div></div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">${'abcdefghijklmnopqrstuvwxyz'.split('').map(c=>`<button data-c="${c}" style="min-width:40px;padding:6px 8px" ${shown.has(c)||done||miss>=6?'disabled':''}>${c}</button>`).join('')}</div>`;
+  R.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{const c=b.dataset.c;shown.add(c);if(!p.includes(c)){miss++;C.beep(false)}else C.beep(true);const dn=[...p].every(x=>shown.has(x));if(dn){sc+=10+(6-miss)*3;words++;if(window.rwSay)rwSay(w.zh);draw();setTimeout(nx,900);return}if(miss>=6){draw();setTimeout(nx,1200);return}draw()})};
+ nx();i1=setInterval(()=>{T--;const e=$('tm');if(e)e.textContent=T;if(T<=0){cleanup();cleanup=()=>{};end(sc*10)}},1000);cleanup=()=>clearInterval(i1)}
+/* 16. Trí nhớ chuỗi */
+function seq(R,end){let len=2,sc=0,items=[],pos=0,lock=true,hearts=3,dead=false;const pool=()=>S(CT.vocab.filter(x=>x.zh.length<=2)).slice(0,6);
+ const round=async()=>{const P=pool();items=Array.from({length:len},()=>P[rnd(P.length)]);pos=0;lock=true;
+  R.innerHTML=`<div class="stat"><span class="pill">Dãy ${len} chữ</span><span class="pill">Điểm <b>${sc}</b></span><span class="heart">${RWL.HEARTS(hearts,3)}</span></div><div id="sq" style="text-align:center;font:800 56px 'Noto Serif SC',serif;min-height:90px;margin:12px 0"></div><p class="muted" id="ms" style="text-align:center">Nhìn kỹ thứ tự…</p><div class="ans" style="grid-template-columns:repeat(3,1fr)">${P.map((w,k)=>`<button data-k="${k}" style="font:800 22px 'Noto Serif SC',serif" disabled>${E(w.zh)}</button>`).join('')}</div>`;
+  for(const it of items){if(dead)return;$('sq').textContent=it.zh;await new Promise(r=>setTimeout(r,800));if(dead)return;$('sq').textContent='';await new Promise(r=>setTimeout(r,250))}
+  if(dead)return;$('ms').textContent='Bấm lại đúng thứ tự!';lock=false;R.querySelectorAll('.ans button').forEach(b=>{b.disabled=false;b.onclick=()=>{if(lock)return;const w=P[+b.dataset.k];if(w.zh===items[pos].zh){C.beep(true);pos++;$('sq').textContent=items.slice(0,pos).map(x=>x.zh).join(' ');if(pos>=items.length){sc+=len*10;len=Math.min(9,len+1);lock=true;setTimeout(round,700)}}else{C.beep(false);hearts--;lock=true;$('ms').textContent='Sai rồi! Đáp án đúng: '+items.map(x=>x.zh).join(' ');if(hearts<=0)return setTimeout(()=>end(sc*10),1500);setTimeout(round,1700)}}})};
+ cleanup=()=>{dead=true};round()}
 /* 7. Nối đường (Pikachu) */
 function onet(R,end){const RW=4,CW=6;const W=wordsN(RW*CW/2);if(W.length<RW*CW/2)return end(0);
  let T=S(W.flatMap((w,i)=>[{i,t:w.zh,z:1},{i,t:w.vn,z:0}])),alive=T.map(()=>true),sel=-1,t0=Date.now(),hints=3,shufs=3,pen=0,left=T.length;

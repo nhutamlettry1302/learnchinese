@@ -116,3 +116,12 @@ img.ic{display:inline-block;vertical-align:-.3em;object-fit:contain}img.ic.off{o
 .startbar{display:flex;align-items:center;gap:10px;min-height:64px;margin-top:6px;padding:4px 12px;border:1px dashed var(--line);border-radius:12px;background:var(--mint)}
 .startbar .tk0{display:flex;gap:6px;align-items:flex-end}.startbar .me{cursor:pointer;display:block;line-height:0}.startbar .hop{animation:hop .32s ease-out}.startbar .me.wait{animation:wig .7s ease-in-out infinite}
 .pw.car{background:none!important}.pw.car svg{display:block}
+.pw.sk{background:none!important}.pw.sk svg{display:block}
+.track[data-sk=car] .lane{background:#5d6b73;border-bottom:3px dashed #fffefa}
+.track[data-sk=rocket]{background:#17224d}.track[data-sk=rocket] .lane{background:radial-gradient(circle at 20% 30%,#fff 0 1px,#0000 2px),radial-gradient(circle at 70% 60%,#fff 0 1px,#0000 2px),radial-gradient(circle at 45% 80%,#ffe9a0 0 1.5px,#0000 2.5px),#1b2a63;border-bottom:1px dashed #6f86d8}
+.track[data-sk=climb] .lane{background:linear-gradient(#cfe7f5,#e8f3e6);border-bottom:3px solid #8aa57a}
+.track[data-sk=boat] .lane{background:linear-gradient(#bfe6f2,#6fb6d0);border-bottom:1px dashed #fff}
+.cbox{border:1px solid var(--line);border-radius:18px;padding:14px;background:var(--panel2,var(--card));text-align:center}
+.hpbar{height:22px;border:2px solid var(--outline,#244c43);border-radius:12px;overflow:hidden;background:#fff}.hpbar i{display:block;height:100%;background:linear-gradient(90deg,#e24a5a,#f08a8a);transition:width .4s}
+.tower{display:flex;flex-direction:column-reverse;align-items:center;gap:2px;min-height:60px}.tower i{display:block;width:90px;height:14px;border-radius:5px;border:2px solid #244c43}
+.hearts-s{display:inline-flex;gap:2px;vertical-align:middle}
