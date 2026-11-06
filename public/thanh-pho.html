@@ -460,6 +460,7 @@ const LAMPS=[];
 /* ---------- Xe, người đi bộ, mây, chim ---------- */
 const CARS=Array.from({length:9},(_,i)=>{const ry=ROADS_Y[i%4];return{y:ry+(i%2?13:-13),x:Math.random()*W,v:(i%2?1:-1)*(60+Math.random()*50),c:['#e0654f','#4aa8d0','#f2c14e','#7b6fd6','#4fb783','#fff'][i%6]}});
 const NPC=Array.from({length:22},(_,i)=>{const e=EDGES[Math.random()*EDGES.length|0];return{a:e[0],b:e[1],t:Math.random(),v:.04+Math.random()*.05,dir:1,c:['#d9534f','#4a8fd0','#e9a23b','#7b6fd6','#4fb783','#e05a9a'][i%6],o:(Math.random()<.5?-1:1)*(24+Math.random()*6),k:i}});
+for(let i=0;i<8;i++){const e=EDGES[Math.random()*EDGES.length|0];NPC.push({a:e[0],b:e[1],t:Math.random(),v:.04+Math.random()*.04,dir:1,o:(i%2?-1:1)*(24+Math.random()*6),k:30+i,sp:i%4})}
 function stepNpc(n,dt){
  if(n.pause>0){n.pause=Math.max(0,n.pause-dt);return}
  const dx=(n.b.x-n.a.x)*n.dir,dy=(n.b.y-n.a.y)*n.dir;
@@ -484,6 +485,7 @@ function tap(sx,sy){const r=cv.getBoundingClientRect(),x=(sx-r.left)/S+CAM.x,y=(
 cv.addEventListener('pointerdown',e=>{if(ovOpen())return;tap(e.clientX,e.clientY)});
 const ovOpen=()=>$('ovq').classList.contains('on')||$('ovm').classList.contains('on');
 const npcTurnAtlas=new Image();npcTurnAtlas.src='img/npc-turn-atlas.webp';
+const streetAtlas=new Image();streetAtlas.src='img/street-npc-atlas.webp';
 const peopleAtlas=new Image();peopleAtlas.src='img/people-atlas.webp';
 let happyUntil=0,hoverPlace=null;
 const skinImg={f:new Image(),m:new Image()};skinImg.f.src='img/skin-f.webp';skinImg.m.src='img/skin-m.webp';
@@ -639,6 +641,9 @@ function frame(t){const dt=Math.min(.05,(t-last)/1000);last=t;
  // Ease the sidewalk offset at corners instead of snapping sideways.
  if(n.visualX===undefined){n.visualX=x;n.visualY=y}
  const ease=1-Math.exp(-12*dt);n.visualX+=(x-n.visualX)*ease;n.visualY+=(y-n.visualY)*ease;
+ if(n.sp!==undefined&&streetAtlas.complete&&streetAtlas.naturalWidth){const v=n.view||0,ph=n.walkPhase||0,fr=n.pause>0?1:[0,1,2,1][Math.floor(ph*.55)&3],row=n.sp*3+fr,Z=66;
+ cx.save();cx.translate(n.visualX,n.visualY);cx.fillStyle='rgba(52,64,56,.18)';cx.beginPath();cx.ellipse(0,2,Z*.2,3.5,0,0,7);cx.fill();
+ cx.drawImage(streetAtlas,v*256,row*256,256,256,-Z/2,-Z*252/256,Z,Z);cx.restore();continue}
  drawPerson(cx,n.visualX,n.visualY,{variant:n.k,face:Math.sign(dx)||1,scale:.9,moving:!(n.pause>0),view:n.view||0,time:t,phase:n.walkPhase??n.k*1.7});}
  if(window.drawGate)drawGate(cx,t);
  // Hover glow and a welcoming open doorway near the player.
