@@ -141,13 +141,13 @@ function enterPark(p){
  const SE=[['xuan','春','chūn','🌸'],['ha','夏','xià','☀️'],['thu','秋','qiū','🍂'],['dong','冬','dōng','❄️']];
  const isDark=()=>document.documentElement.dataset.theme==='dark';
  const rv=()=>{let v='auto';try{v=localStorage.getItem('tp_season')||'auto'}catch(e){}return v};
- const ctl=()=>{const box=$('pkCtl');if(!box)return;const v=rv(),d=isDark();
-  const bt=(id,on,txt,tt)=>`<button class="btn${on?' gold':''}" id="${id}" title="${tt}" style="padding:4px 9px;font-size:15px;min-height:0">${txt}</button>`;
-  box.innerHTML=bt('pkN',false,d?'🌙 夜晚':'☀️ 白天',d?'yèwǎn · ban đêm (bấm để sang ban ngày)':'báitiān · ban ngày (bấm để sang ban đêm)')+'<span style="width:2px;height:22px;background:#c9d8cf;border-radius:2px"></span>'
-   +SE.map(m=>bt('pks_'+m[0],v===m[0],m[3]+' '+m[1],m[1]+' '+m[2])).join('')+bt('pks_auto',v==='auto','自动','zìdòng · tự động theo tháng');
+ const ctl=()=>{const box=$('pkCtl');if(!box)return;const v=rv(),d=isDark(),cur=SE.find(m=>m[0]===(v==='auto'?(window.curSeason?curSeason():'xuan'):v))||SE[0];
+  const bt=(id,txt,tt)=>`<button class="btn" id="${id}" title="${tt}" style="padding:4px 9px;font-size:15px;min-height:0">${txt}</button>`;
+  box.innerHTML=bt('pkN',d?'🌙 夜晚':'☀️ 白天',d?'yèwǎn · bấm để sang ban ngày':'báitiān · bấm để sang ban đêm')
+   +bt('pkS',cur[3]+' '+cur[1]+(v==='auto'?'·自动':''),'Bấm để đổi mùa: 春 夏 秋 冬 自动');
   $('pkN').onclick=()=>{try{$('bN').click()}catch(e){}ctl()};
-  for(const m of SE)$('pks_'+m[0]).onclick=()=>setSe(m[0]);$('pks_auto').onclick=()=>setSe('auto')};
- const setSe=v=>{try{localStorage.setItem('tp_season',v)}catch(e){}try{BG=null}catch(e){}try{refS()}catch(e){}sc=seasonC();ovp.style.background=sc.g2;ctl();const m=SE.find(x=>x[0]===v);toast(m?m[3]+' '+m[1]+' · '+m[2]:'自动 · zìdòng')};
+  $('pkS').onclick=()=>{const order=['xuan','ha','thu','dong','auto'];setSe(order[(order.indexOf(rv())+1)%5]||'xuan')}};
+ const setSe=v=>{try{localStorage.setItem('tp_season',v)}catch(e){}try{BG=null}catch(e){}try{refS()}catch(e){}sc=seasonC();ovp.style.background=sc.g2;ctl()};
  ctl();
  const coinEl=()=>{const e=$('pkCoin');if(e)e.textContent='🪙 '+(ST.coins||0)};coinEl();window.__parkCoin=coinEl;
  const c=$('park3'),k=c.getContext('2d'),mm=$('pmm'),mk=mm.getContext('2d');let VW=800,VH=600,DPR=1,Z=1,zUser=null;
