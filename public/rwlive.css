@@ -99,3 +99,12 @@ img.ic{display:inline-block;vertical-align:-.3em;object-fit:contain}img.ic.off{o
 .finish{width:34px!important;right:2px!important;background:url(assets/game/coral-gate.svg) center bottom/contain no-repeat!important;opacity:.95}
 .rope .flag img.ic{width:34px;height:34px}
 .brand .lg{display:inline-block;width:46px;height:27px;margin-right:8px;vertical-align:-6px;background:url(img/pets.webp) 0 0/322px 27px no-repeat}
+/* thang và rắn mở rộng */
+.cell{color:var(--ink)}.cell.p.good{background:var(--butter)}.cell.p.bad{background:var(--lilac)}.cell.l{background:var(--mint)}.cell.s{background:var(--peach)}
+.cell em{display:flex;align-items:center;gap:2px;font-style:normal;position:absolute;left:3px;bottom:2px;font-size:11px;color:var(--ink)}
+.sleg{display:inline-flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px}
+.dicebox{display:flex;flex-direction:column;align-items:center;gap:10px;margin:8px 0}
+.dice3{width:76px;height:76px;border-radius:18px;background:var(--card);border:2px solid var(--ink);box-shadow:0 5px 0 var(--line);display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:11px;gap:2px}
+.dice3 i{border-radius:50%;margin:2px}.dice3 i.on{background:var(--ink)}
+.dice3.roll{animation:dr .34s linear infinite}@keyframes dr{0%{transform:rotate(0) translateY(0)}25%{transform:rotate(90deg) translateY(-10px)}50%{transform:rotate(180deg) translateY(0)}75%{transform:rotate(270deg) translateY(-8px)}100%{transform:rotate(360deg)}}
+#rollb{animation:pulse 1.1s ease-in-out infinite}@keyframes pulse{50%{transform:scale(1.06)}}
