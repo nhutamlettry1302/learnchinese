@@ -17,7 +17,7 @@ function joinForm(err){$('main').innerHTML=`<div class="card"><h2>Vào phòng h�
 async function start(){$('main').innerHTML='<p class="muted">Đang vào phòng…</p>';try{room=await RWL.getRoom(code);if(room.closed)throw new Error('Phòng này đã đóng.');
  const cfg=room.config||{};await C.Data.need(true,Object.keys(cfg.gram||{}).length>0);content={vocab:C.Data.vocab(cfg.vocab),quiz:C.Data.gramQuiz(cfg.gram)};
  C.ls.set('rw_room',JSON.stringify(room));C.ls.set('rw_me',JSON.stringify({name,code:room.code,cls:room.name}));
- conn=await RWL.connect(code,onMsg);join();setInterval(()=>conn.send({t:'ping',id:ID}),3000);setInterval(()=>{if(S&&Date.now()-got>5000)render()},1000);render()}catch(e){joinForm(e.message||String(e))}}
+ conn=await RWL.connect(code,onMsg);join();setInterval(()=>conn.send({t:'ping',id:ID,cur:curQ()}),3000);setInterval(()=>{if(S&&Date.now()-got>5000)render()},1000);render()}catch(e){joinForm(e.message||String(e))}}
 const join=()=>conn.send({t:'join',id:ID,name,pet:RWL.myPet(),uid:(C.Auth.loggedIn&&C.Auth.user&&C.Auth.user.id)||null});
 function onMsg(m){if(!m||m.t!=='st')return;const first=!S;const prev=S;S=m;got=Date.now();
  if(!prev||prev.i!==m.i||prev.m!==m.m||(prev.ph==='lobby'&&m.ph!=='lobby')){mine=null;locked=false}
@@ -44,6 +44,7 @@ function giftHtml(){const g=S.gifts&&S.gifts[ID];if(g!==undefined)return`<div cl
  return`<div class="card" style="text-align:center"><h3>🎁 Trả lời đúng! Chọn 1 hộp quà may mắn</h3><div class="row" style="justify-content:center;margin-top:8px">${[0,1,2].map(i=>`<button class="btn gold gbox" data-gift="${i}" style="font-size:44px;padding:8px 18px">🎁</button>`).join('')}</div></div>`}
 function answer(k){if(!S||S.m!=='quiz'||S.ph!=='q'||mine!==null)return;mine=k;conn.send({t:'ans',id:ID,q:S.i,c:k});const q=S.q;if(window.rwSay&&q.zh)rwSay(q.prompt);render()}
 /* ---- Đua cá voi: mỗi bạn tự trả lời ---- */
+const curQ=()=>rq?rq.prompt+(rq.sub?' · '+rq.sub:''):'';
 function nextRace(){rq=C.makeQ(content);rlock=0}
 function ropeHtml(){const t=S.ts||[0,0],d=t[0]-t[1],pos=50-Math.max(-1,Math.min(1,d/S.goal))*42,mt=myTeam();return`<div class="row" style="justify-content:space-between;margin:6px 0"><span class="chip t0">Đỏ <b>${t[0]}</b></span><span class="chip t1">Xanh <b>${t[1]}</b></span></div><div class="rope"><i class="zr"></i><i class="zb"></i><span class="mid"></span><span class="flag" style="left:${pos}%">🚩</span></div><p class="muted" style="text-align:center;margin:4px 0">Bạn thuộc <b>đội ${mt?'Xanh':'Đỏ'}</b>. Trả lời đúng để kéo cờ về phía đội mình!</p>`}
 function raceHtml(left){if(!rq)nextRace();const lk=Date.now()<rlock;
@@ -59,7 +60,7 @@ document.addEventListener('click',e=>{const gb=e.target.closest&&e.target.closes
  const pb=e.target.closest&&e.target.closest('button[data-pet]');if(pb){RWL.setPet(+pb.dataset.pet);join();render();return}
  const b=e.target.closest&&e.target.closest('button[data-r]');if(!b||!S||(S.m!=='race'&&S.m!=='tug')||S.ph!=='run'||Date.now()<rlock)return;const k=+b.dataset.r;
  if(rq.opts[k]===rq.ans){steps++;ok++;C.beep(true);if(window.rwSay&&rq.say)rwSay(rq.say);const kd=S.m==='tug'?null:RWL.tiles(code,S.goal)[steps];evt='';if(kd){const K=RWL.KIND[kd];evt=K.ic+' '+K.t;evtBad=kd!=='star';evtT=Date.now()+2500;if(K.d)steps=Math.max(0,Math.min(S.goal,steps+K.d));if(K.lock){rlock=Date.now()+K.lock;setTimeout(()=>{rq=null;render()},K.lock)}C.beep(kd==='star')}}else{no++;C.beep(false);rlock=Date.now()+1000;setTimeout(()=>{rq=null;render()},1000)}
- conn.send({t:'prog',id:ID,steps,ok,no});if(rq&&rq.opts[k]===rq.ans&&Date.now()>=rlock)rq=C.makeQ(content);render()});
+ const qa={p:rq.prompt,a:rq.ans,ok:rq.opts[k]===rq.ans?1:0};if(rq&&rq.opts[k]===rq.ans&&Date.now()>=rlock)rq=C.makeQ(content);conn.send({t:'prog',id:ID,steps,ok,no,qa,cur:curQ()});render()});
 setInterval(()=>{if(S&&S.ph!=='lobby'&&(S.ph==='q'||S.ph==='run'))render()},1000);
 if(code&&name)start();else joinForm();
 </script></body></html>
