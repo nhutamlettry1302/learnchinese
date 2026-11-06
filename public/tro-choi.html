@@ -39,12 +39,17 @@ const GAMES=[
 const best=k=>+(C.ls.get('rw_best_'+k)||0);
 async function load(){CT=await C.Ctx.load()}
 function sum(s){const n=o=>Object.values(o||{}).reduce((a,l)=>a+l.length,0);return n(s.vocab)+' bài từ vựng · '+n(s.gram)+' bài ngữ pháp'}
-async function home(){cleanup();cleanup=()=>{};await load();const inR=C.Ctx.inRoom,r=C.Room.cfg;
- M.innerHTML=`<div class="card"><div class="row"><div style="flex:1;min-width:200px"><b>${inR?'Phòng '+E(r.code)+' · '+E(r.name):'Chơi tự do'}</b><div class="muted">${CT.vocab.length} từ vựng · ${CT.quiz.length} câu ngữ pháp</div>${msg?`<p class="err">${E(msg)}</p>`:''}</div>${inR?'<button class="btn sm" id="lv">Rời phòng</button>':'<button class="btn sm" id="pk">📚 Chọn bài</button>'}</div>
- ${inR?'':`<div class="row" style="margin-top:10px"><input id="rc" placeholder="Mã phòng" maxlength="8" style="max-width:170px;text-transform:uppercase"><input id="rn" placeholder="Tên của bạn" maxlength="20" style="max-width:170px" value="${E(C.J(C.ls.get('rw_live_name')||'null')||'')}"><button class="btn sm" id="rj">Vào phòng</button></div>`}</div>
+async function home(){cleanup();cleanup=()=>{};await C.Data.need(true,false);await load();const inR=C.Ctx.inRoom,r=C.Room.cfg,sel=C.Ctx.sel,LV=C.Data.vocabLevels();
+ const curLv=LV.find(l=>{const a=(sel.vocab||{})[l.k];return a&&Object.keys(sel.vocab).length===1&&a.length===l.ls.length});
+ M.innerHTML=`<div class="card">${inR?`<div class="row"><div style="flex:1;min-width:200px"><b>Đang chơi theo phòng ${E(r.code)} · ${E(r.name)}</b><div class="muted">${CT.vocab.length} từ vựng · ${CT.quiz.length} câu ngữ pháp · điểm được gửi vào phòng của cô</div></div><button class="btn sm" id="lv">Chơi tự do</button></div>`
+  :`<b style="font:800 18px var(--f-d)">Chọn cấp độ để ôn</b><div class="muted" style="margin:2px 0 10px">${curLv?'Đang chọn: '+E(curLv.n)+' (tất cả bài)':'Đang chọn: '+sum(sel)}</div>
+  <div class="pick-lv">${LV.map(l=>`<span class="pk ${curLv&&curLv.k===l.k?'on':''}" data-lvl="${E(l.k)}">${E(l.n)}</span>`).join('')}</div>
+  <div class="row" style="margin-top:10px"><button class="btn sm" id="pk">📚 Chọn bài cụ thể</button><span class="muted">${CT.vocab.length} từ vựng · ${CT.quiz.length} câu ngữ pháp</span></div>
+  <p class="muted" style="margin:10px 0 0">Đang học theo lớp của cô? Vào <a href="live.html"><b>Phòng học</b></a> bằng mã phòng.</p>`}
+  ${msg?`<p class="err">${E(msg)}</p>`:''}</div>
  <div class="grid" style="margin-top:12px">${GAMES.map(g=>`<button class="gc" data-g="${g.k}"><span class="ic">${g.ic}</span><b>${g.n}</b><small>${g.d}</small>${best(g.k)?`<div style="margin-top:6px"><span class="pill">Kỷ lục ${best(g.k)}</span></div>`:''}</button>`).join('')}</div>`;
  const lvb=$('lv');if(lvb)lvb.onclick=()=>{C.Room.leave();home()};const pk=$('pk');if(pk)pk.onclick=picker;
- const rj=$('rj');if(rj)rj.onclick=async()=>{const c=$('rc').value.trim(),n=$('rn').value.trim();if(!c||!n){msg='Nhập đủ mã phòng và tên.';return home()}try{await C.Room.join(c,n);C.ls.set('rw_live_name',JSON.stringify(n));msg=''}catch(e){msg=e.message}home()};
+ document.querySelectorAll('[data-lvl]').forEach(b=>b.onclick=async()=>{const k=b.dataset.lvl,L=LV.find(l=>l.k===k),s={vocab:{[k]:L.ls.map(x=>x.n)},gram:{}};await C.Data.need(true,true);const G=C.Data.gramLevels().find(x=>x.k===k);if(G)s.gram[k]=G.ls.map(x=>x.n);C.Ctx.setSel(s);msg='';home()});
  document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>start(b.dataset.g))}
 function picker(){const s=C.Ctx.sel;s.vocab=s.vocab||{};s.gram=s.gram||{};C.Data.need(true,true).then(()=>{const draw=()=>{const L=tab==='vocab'?C.Data.vocabLevels():C.Data.gramLevels(),cur=L.find(l=>l.k===lv[tab])||L[0],S=s[tab];S[cur.k]=S[cur.k]||[];
  M.innerHTML=`<div class="card"><h2>Chọn bài để ôn</h2><div class="tabs row"><button class="btn sm ${tab==='vocab'?'pri':''}" data-tab="vocab">Từ vựng</button><button class="btn sm ${tab==='gram'?'pri':''}" data-tab="gram">Ngữ pháp</button><span style="flex:1"></span><span class="muted">${sum(s)}</span></div>

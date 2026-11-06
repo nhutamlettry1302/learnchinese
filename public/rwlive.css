@@ -87,3 +87,4 @@ label{font-weight:700}
 .qc.ok{background:var(--mint)}.qc.no{background:var(--rose)}.chip.t0{background:var(--rose)}.chip.t1{background:var(--sky)}
 .bar i{background:linear-gradient(90deg,#8fc3b4,var(--gold))}
 .err{color:var(--bad)}
+.muted a,.card a:not(.btn){color:var(--accent);text-decoration:underline;text-underline-offset:3px}
