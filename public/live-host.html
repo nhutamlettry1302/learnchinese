@@ -29,7 +29,7 @@ function snap(){const s={t:'st',m:H.game,ph:H.ph,np:act().length,tm:{},teams:H.t
 const teamScores=(k)=>{const t=[0,0];Object.values(H.P).forEach(p=>{t[p.team]+=(k==='steps'?p.steps:p.score)});return t};
 let conn=null;const send=()=>{if(conn)conn.send(snap())};
 function onMsg(m){if(!m||!m.id)return;let p=H.P[m.id];
- if(m.t==='join'){const cnt=[0,0];Object.values(H.P).forEach(x=>cnt[x.team]++);if(!p)p=H.P[m.id]={id:m.id,name:String(m.name||'Bạn').slice(0,20),team:cnt[0]<=cnt[1]?0:1,score:0,streak:0,a:{},steps:0,ok:0,no:0,seen:0};p.name=String(m.name||p.name).slice(0,20);p.seen=Date.now();render();send();return}
+ if(m.t==='join'){const cnt=[0,0];Object.values(H.P).forEach(x=>cnt[x.team]++);if(!p)p=H.P[m.id]={id:m.id,name:String(m.name||'Bạn').slice(0,20),team:cnt[0]<=cnt[1]?0:1,score:0,streak:0,a:{},steps:0,ok:0,no:0,seen:0};p.uid=/^[0-9a-f-]{36}$/.test(m.uid||'')?m.uid:null;p.name=String(m.name||p.name).slice(0,20);p.seen=Date.now();render();send();return}
  if(!p)return;p.seen=Date.now();
  if(m.t==='ans'&&H.game==='quiz'&&H.ph==='q'&&m.q===H.i&&p.a[H.i]===undefined){p.a[H.i]={c:m.c,ms:Date.now()-H.t0};render();send();if(act().every(x=>x.a[H.i]!==undefined))setTimeout(()=>{if(H.ph==='q'&&H.i===m.q)reveal()},600)}
  if(m.t==='prog'&&H.game==='race'&&H.ph==='run'){p.steps=Math.max(p.steps,+m.steps||0);p.ok=+m.ok||0;p.no=+m.no||0;if(p.steps>=H.goal)endGame();else render()}}
@@ -44,7 +44,7 @@ function reveal(){if(H.ph!=='q')return;const q=H.qs[H.i];H.ph='rv';H.counts=q.op
 function next(){if(H.i+1>=H.n)return endGame();H.i++;nextQ()}
 function startRace(){Object.values(H.P).forEach(p=>{p.steps=0;p.ok=0;p.no=0});H.t0=Date.now();H.ph='run';render();send()}
 async function endGame(){if(H.ph==='end')return;H.ph='end';render();send();
- if(!RWL.MOCK){const key=H.game==='quiz'?'live-quiz':'live-race';await Promise.all(Object.values(H.P).filter(p=>(H.game==='quiz'?p.score:p.steps)>0).map(p=>C.rpc('submit_score',{p_game:key,p_code:code,p_player:p.name,p_score:H.game==='quiz'?p.score:p.steps}).catch(()=>{})))}}
+ if(!RWL.MOCK){const key=H.game==='quiz'?'live-quiz':'live-race';await Promise.all(Object.values(H.P).filter(p=>(H.game==='quiz'?p.score:p.steps)>0).map(p=>C.rpc('submit_score_for',{p_game:key,p_code:code,p_player:p.name,p_score:H.game==='quiz'?p.score:p.steps,p_uid:p.uid||null}).catch(()=>{})))}}
 function reset(){H.ph='lobby';render();send()}
 const medal=i=>['🥇','🥈','🥉'][i]||(i+1);
 const rankHtml=(r,k)=>'<ul class="rank">'+r.map((p,i)=>`<li><span class="n">${medal(i)}</span><b>${E(p[1])}</b>${H.teams?`<span class="chip t${p[3]}">${p[3]?'Xanh':'Đỏ'}</span>`:''}<span>${p[2]}${k||''}</span></li>`).join('')+'</ul>';
