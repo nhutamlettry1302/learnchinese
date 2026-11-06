@@ -54,7 +54,7 @@ const pick=(a,n,not)=>{const o=[];for(const x of shuf(a)){if(not&&not(x))continu
 /* câu hỏi trắc nghiệm từ nội dung: nghĩa, chữ Hán, pinyin, điền từ ngữ pháp */
 function makeQ(c,kind){const V=c.vocab,Q=c.quiz;
  const k=kind||(Q.length&&(!V.length||Math.random()<.4)?'gram':['zh2vn','vn2zh','zh2py'][Math.floor(Math.random()*3)]);
- if(k==='gram'&&Q.length){const q=Q[Math.floor(Math.random()*Q.length)],pool=q.pool.filter(x=>x!==q.a);const opts=shuf([q.a].concat(pick(pool,3)));return{type:'gram',prompt:q.s,sub:q.zh,opts,ans:q.a,say:q.s.replace('____',q.a)}}
+ if(k==='gram'&&Q.length){const q=Q[Math.floor(Math.random()*Q.length)],pool=q.pool.filter(x=>x!==q.a);const opts=shuf([q.a].concat(pick(pool,3)));return{type:'gram',prompt:q.s,sub:String(q.zh||'').split(q.a).join('＿＿'),opts,ans:q.a,say:q.s.replace('____',q.a)}}
  if(V.length<4)return null;const w=V[Math.floor(Math.random()*V.length)],o=pick(V,3,x=>x.zh===w.zh||x.vn===w.vn);
  if(k==='vn2zh')return{type:'vn2zh',prompt:w.vn,sub:'Chọn chữ Hán đúng',opts:shuf([w.zh].concat(o.map(x=>x.zh))),ans:w.zh,say:w.zh};
  if(k==='zh2py')return{type:'zh2py',prompt:w.zh,sub:'Chọn pinyin đúng',opts:shuf([w.py].concat(o.map(x=>x.py))),ans:w.py,say:w.zh,zh:true};
