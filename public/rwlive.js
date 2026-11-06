@@ -16,5 +16,13 @@ async function getRoom(code){code=String(code||'').trim().toUpperCase();
  if(MOCK)return{code,name:'Phòng thử',config:{vocab:{HSK1:[1,2,3]},gram:{HSK1:[1,2]}}};
  const r=await C.rpc('room_get',{p_code:code});if(!r)throw new Error('Mã phòng không đúng.');return r}
 const rid=()=>{let v=null;try{v=sessionStorage.getItem('rwl_id')}catch(e){}if(!v){v=Math.random().toString(36).slice(2,10);try{sessionStorage.setItem('rwl_id',v)}catch(e){}}return v};
-window.RWL={connect,getRoom,rid,MOCK};
+const PETN=['Xanh dương','Hồng','Tím','Vàng','Xanh lá','Trắng','Đen'];
+const petHtml=(i,w,cls)=>{i=((+i||0)%7+7)%7;const h=Math.round(w*112/190);return`<span class="pw ${cls||''}" style="width:${w}px;height:${h}px;background-size:${w*7}px ${h}px;background-position:-${i*w}px 0"></span>`};
+const myPet=()=>{let v=null;try{v=localStorage.getItem('rw_live_pet')}catch(e){}if(v===null){try{v=(JSON.parse(localStorage.getItem('tp_state')||'null')||{}).pet}catch(e){}}return((+v||0)%7+7)%7};
+const setPet=i=>{try{localStorage.setItem('rw_live_pet',String(i))}catch(e){}};
+/* Đường đua: phần thưởng và chướng ngại vật, cùng một dãy cho cả cô và học sinh (sinh từ mã phòng + số bước) */
+const KIND={star:{ic:'⭐',t:'Sao biển! +2 bước',d:2},rock:{ic:'🪨',t:'Đá ngầm! lùi 1 bước',d:-1},whirl:{ic:'🌀',t:'Xoáy nước! đứng 2 giây',lock:2000}};
+function tiles(code,goal){let h=0;for(const c of String(code)+':'+goal)h=(h*31+c.charCodeAt(0))>>>0;const rnd=()=>{h=(h*1664525+1013904223)>>>0;return h/4294967296};
+ const T={};let last=-9;for(let p=3;p<goal-1;p++){if(p-last<3)continue;const r=rnd();let k=null;if(r<.13)k='star';else if(r<.22)k='rock';else if(r<.29)k='whirl';if(k){T[p]=k;last=p}}return T}
+window.RWL={connect,getRoom,rid,MOCK,PETN,petHtml,myPet,setPet,KIND,tiles};
 })();
