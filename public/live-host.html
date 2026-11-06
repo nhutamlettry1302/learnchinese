@@ -11,7 +11,7 @@
 <script>
 const C=RWC,$=id=>document.getElementById(id),E=C.esc;
 const code=(new URLSearchParams(location.search).get('phong')||'').toUpperCase();
-const H={room:null,content:null,P:{},mode:'lobby',game:'quiz',ph:'lobby',i:0,n:20,dur:15,qs:[],t0:0,log:[],teams:false,gift:true,gifts:{},goal:25,rdur:240,counts:[],res:{},rank:[],tick:0,link:null};
+const H={room:null,content:null,P:{},mode:'lobby',game:'quiz',ph:'lobby',i:0,n:20,dur:15,qs:[],t0:0,log:[],showAns:false,teams:false,gift:true,gifts:{},goal:25,rdur:240,counts:[],res:{},rank:[],tick:0,link:null};
 const playerUrl=()=>new URL('live.html?phong='+code+(RWL.MOCK?'&mock=1':''),location.href).href;
 const act=()=>Object.values(H.P).filter(p=>Date.now()-p.seen<12000);
 const board=()=>act().concat(Object.values(H.P).filter(p=>Date.now()-p.seen>=12000&&p.score>0)).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'vi'));
@@ -28,7 +28,7 @@ function snap(){const s={t:'st',m:H.game,ph:H.ph,np:act().length,tm:{},teams:H.t
  return s}
 const tileHtml=()=>{const T=RWL.tiles(code,H.goal);return Object.keys(T).map(p=>`<span class="tile" style="left:calc(${p/H.goal*100}% * .86)">${RWL.KIND[T[p]].ic}</span>`).join('')};
 const rankCard=()=>{const R=Object.values(H.P).filter(p=>p.seen).sort((a,b)=>b.steps-a.steps||a.no-b.no).slice(0,12).map(p=>[p.id,p.name,p.steps,p.team]);return`<div style="margin-top:12px"><h4 style="margin:0 0 4px;font:800 16px var(--f-d)">🏆 Bảng xếp hạng</h4>${R.length?rankHtml(R,H.game==='tug'?' điểm':' bước'):'<p class="muted">Chưa có ai.</p>'}</div>`};
-const qPanel=()=>{const L=act().filter(p=>p.cur).sort((a,b)=>a.name<b.name?-1:1).slice(0,8);return`<div class="qp"><div><h4>📖 Câu các bạn đang làm</h4>${L.length?L.map(p=>`<div class="qc">${RWL.petHtml(p.pet,30)}<b>${E(p.name)}</b><span>${E(p.cur)}</span></div>`).join(''):'<p class="muted">Chưa có câu nào.</p>'}</div><div><h4>📝 Vừa trả lời</h4>${H.log.length?H.log.map(x=>`<div class="qc ${x.ok?'ok':'no'}"><b>${x.ok?'✔':'✘'} ${E(x.n)}</b><span>${E(x.p)} → <b>${E(x.a)}</b></span></div>`).join(''):'<p class="muted">Chưa có ai trả lời.</p>'}</div></div>`};
+const qPanel=()=>{const L=act().filter(p=>p.cur).sort((a,b)=>a.name<b.name?-1:1).slice(0,8);return`<div class="qp"><div><h4>📖 Câu các bạn đang làm</h4>${L.length?L.map(p=>`<div class="qc">${RWL.petHtml(p.pet,30)}<b>${E(p.name)}</b><span>${E(p.cur)}</span></div>`).join(''):'<p class="muted">Chưa có câu nào.</p>'}</div><div><h4>📝 Vừa trả lời <button class="btn sm" id="sa" style="float:right">${H.showAns?'🙈 Ẩn đáp án':'👁 Hiện đáp án'}</button></h4>${H.log.length?H.log.map(x=>`<div class="qc ${x.ok?'ok':'no'}"><b>${x.ok?'✔':'✘'} ${E(x.n)}</b><span>${E(x.p)}${H.showAns?' → <b>'+E(x.a)+'</b>':''}</span></div>`).join(''):'<p class="muted">Chưa có ai trả lời.</p>'}</div></div>`};
 const teamScores=(k)=>{const t=[0,0];Object.values(H.P).forEach(p=>{t[p.team]+=(k==='steps'?p.steps:p.score)});return t};
 let conn=null;const send=()=>{if(conn)conn.send(snap())};
 function onMsg(m){if(!m||!m.id)return;let p=H.P[m.id];
@@ -84,7 +84,7 @@ function render(){const m=$('main');if(!m||!H.room)return;if(H.ph==='lobby')save
  m.innerHTML=h;wire()}
 function wire(){const g=(id,f)=>{const e=$(id);if(e)e.onclick=f};
  document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{saveSet();H.game=b.dataset.g;if(H.game==='tug'){H.teams=true;if(H.goal>15)H.goal=10}else if(H.game==='race'&&H.goal<15)H.goal=25;render()});
- g('go',()=>{saveSet();if(H.game==='tug')H.teams=true;H.mode=H.game;H.game==='quiz'?startQuiz():startRace()});g('rv',reveal);g('nx',next);g('end',endGame);g('again',reset);
+ g('sa',()=>{H.showAns=!H.showAns;render()});g('go',()=>{saveSet();if(H.game==='tug')H.teams=true;H.mode=H.game;H.game==='quiz'?startQuiz():startRace()});g('rv',reveal);g('nx',next);g('end',endGame);g('again',reset);
  g('cpl',async()=>{try{await navigator.clipboard.writeText(playerUrl());$('cpm').textContent='Đã chép!'}catch(e){$('cpm').textContent=playerUrl()}})}
 function saveSet(){const v=id=>{const e=$(id);return e?+e.value:null};const gf=$('sgf');if(gf)H.gift=gf.checked;const t=$('stm');if(t)H.teams=t.checked;if(H.game==='tug')H.teams=true;if(v('sn'))H.n=Math.min(40,Math.max(3,v('sn')));if(v('sd'))H.dur=Math.min(60,Math.max(5,v('sd')));if(v('sg'))H.goal=Math.min(60,Math.max(5,v('sg')));if(v('sr'))H.rdur=Math.min(900,Math.max(30,v('sr')))}
 (async()=>{try{if(!code)throw new Error('Thiếu mã phòng.');
