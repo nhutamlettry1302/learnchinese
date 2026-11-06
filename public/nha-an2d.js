@@ -53,10 +53,20 @@ function drawStaff(k,n,t){
  const phase=n.mv?[0,1,2,1][Math.floor((n.distance||0)/11)%4]:1,row=n.role*3+phase,view=n.view||0,size=82*256/224;
  k.save();k.translate(n.x,n.y);ell(k,0,2,14,3,'rgba(80,48,27,.15)');k.drawImage(staffArt,view*256,row*256,256,256,-size/2,-size*252/256,size,size);k.restore();
 }
+/* khách trong nhà ăn: dùng bộ hình NPC bốn hướng của công viên */
+const visArt=[new Image(),new Image(),new Image()];visArt[0].src='img/park-npc-0.webp';visArt[1].src='img/park-npc-1.webp';visArt[2].src='img/park-npc-2.webp';
+function drawVisitor(k,n,t){
+ const im=visArt[n.mv?[0,2,1,2][Math.floor((n.distance||0)/11)%4]:2];if(!im.complete||!im.naturalWidth)return;
+ const size=(n.row===6?64:76)*256/224;
+ k.save();k.translate(n.x,n.y);ell(k,0,2,n.row===5||n.row===6?25:13,3,'rgba(80,48,27,.15)');k.drawImage(im,(n.view||0)*256,n.row*256,256,256,-size/2,-size*252/256,size,size);k.restore();
+}
 const NPCS=[
 {id:'cashier',role:1,main:1,x:300,y:412.5,n:'小宝',vi:'Tiểu Bảo · Thu ngân',lines:[['欢迎！想吃什么？','Huānyíng! Xiǎng chī shénme?','Xin chào! Bạn muốn ăn gì?']]},
 {id:'chef',role:0,fixed:1,x:1100,y:412.5,n:'大厨',vi:'Đầu bếp',lines:[['今天的饺子很好吃！','Jīntiān de jiǎozi hěn hǎochī!','Sủi cảo hôm nay rất ngon!'],['请稍等，面条马上就好。','Qǐng shāo děng, miàntiáo mǎshàng jiù hǎo.','Xin đợi chút, mì sắp xong rồi.']]},
-{id:'server',role:1,n:'小林',vi:'Tiểu Lâm · Phục vụ',lines:[['请坐这里。','Qǐng zuò zhèlǐ.','Mời bạn ngồi ở đây.'],['您想喝什么？','Nín xiǎng hē shénme?','Bạn muốn uống gì?']]}
+{id:'server',role:1,n:'小林',vi:'Tiểu Lâm · Phục vụ',lines:[['请坐这里。','Qǐng zuò zhèlǐ.','Mời bạn ngồi ở đây.'],['您想喝什么？','Nín xiǎng hē shénme?','Bạn muốn uống gì?']]},
+{id:'server2',role:1,n:'小美',vi:'Tiểu Mỹ · Phục vụ',lines:[['这是您的面条，请慢用。','Zhè shì nín de miàntiáo, qǐng màn yòng.','Mì của bạn đây, mời dùng ạ.'],['需要菜单吗？','Xūyào càidān ma?','Bạn cần thực đơn không?']]},
+{id:'tea',role:0,fixed:1,x:300,y:732.5,n:'茶师',vi:'Thợ pha trà & làm bánh',lines:[['请喝茶，小心烫。','Qǐng hē chá, xiǎoxīn tàng.','Mời uống trà, coi chừng nóng.'],['蛋糕刚做好，要来一块吗？','Dàngāo gāng zuò hǎo, yào lái yí kuài ma?','Bánh vừa làm xong, bạn dùng một miếng nhé?']]},
+{id:'guest',row:5,n:'客人',vi:'Khách · Ba và bé',lines:[['我们要两碗面条。','Wǒmen yào liǎng wǎn miàntiáo.','Chúng tôi gọi hai bát mì.'],['谢谢，很好吃！','Xièxie, hěn hǎochī!','Cảm ơn, rất ngon!']]}
 ];
 const WORDS=Object.fromEntries(ZONES.map(z=>[z.k,z.acts[0]]));
 function enterRestaurant(p){
@@ -123,7 +133,7 @@ function enterRestaurant(p){
   for(const x of[100,500,900,1300])for(const y of[165,475,800])L.push({y,f:()=>{ell(k,x+33,y-32,8,11,'#df8271');k.strokeStyle='#ad6b4c';k.lineWidth=2;k.beginPath();k.moveTo(x+33,y-53);k.lineTo(x+33,y-44);k.moveTo(x+33,y-20);k.lineTo(x+33,y-12);k.stroke()}});
   for(const x of[80,440,840,1330])L.push({y:855,f:()=>{rr(k,x-12,835,24,24,5);k.fillStyle='#bb825c';k.fill();ell(k,x,826,20,16,'#91ad72');ell(k,x-10,831,12,11,'#a6be82')}});
   L.push({y:870,f:()=>{rr(k,618,808,164,32,10);k.fillStyle='#906440';k.fill();k.strokeStyle='#ecc47d';k.lineWidth=3;k.stroke();k.fillStyle='#fff2c9';k.font='bold 20px sans-serif';k.textAlign='center';k.fillText('餐厅 · Cá Voi',700,830);pill(k,700,882,'Lối ra ↓',12)}});
-  for(const n of npcs)L.push({y:n.y,f:()=>{drawStaff(k,n,t);emo(k,n.main?'🧾':'💬',n.x,n.y-(n.sc?62:84)+Math.sin(t/300+n.ph)*2,16)}});
+  for(const n of npcs)L.push({y:n.y,f:()=>{n.row!==undefined?drawVisitor(k,n,t):drawStaff(k,n,t);emo(k,n.main?'🧾':'💬',n.x,n.y-(n.sc?62:84)+Math.sin(t/300+n.ph)*2,16)}});
   L.push({y:hero.y,f:()=>drawPerson(k,hero.x,hero.y,{variant:0,face:hero.face,scale:1.25,moving:hero.path.length>0,time:t,hero:true,view:hero.view})});
   L.push({y:pet.y,f:()=>{if(window.drawPetC)drawPetC(k,pet.x,pet.y+Math.sin(t/420)*4+10,hero.face)}});
   L.sort((a,b)=>a.y-b.y);for(const o of L)o.f();
