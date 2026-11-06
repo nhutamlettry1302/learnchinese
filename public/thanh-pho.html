@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="vi" data-theme="light"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
-<title>Thành Phố Cá Voi – Rừng Cá Voi Roxie</title>
+<title>Thành Phố Cá Voi · Bản đồ mở rộng và công ty 3D</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Đi dạo thành phố, vào 12 địa điểm làm nhiệm vụ tiếng Trung với từ vựng HSK.">
+<meta name="description" content="Đi dạo thành phố, vào 16 địa điểm làm nhiệm vụ tiếng Trung với từ vựng HSK.">
 
 <script src="vocab.js"></script>
 <script src="audio.js"></script>
@@ -190,16 +190,17 @@ const PLACES=[
   ['出国','chūguó','ra nước ngoài','我第一次出国,有点紧张。','Lần đầu tôi ra nước ngoài, hơi hồi hộp.']]}
 ];
 
+PLACES.push(...[{"id": "nhama", "name": "guǐwū", "zh": "鬼屋", "st": "expansion", "c": "#a09bad", "col": 0, "row": 5, "expansion": true, "facade": 0, "words": [["鬼屋", "guǐwū", "nhà ma", "这是鬼屋。", "Đây là nhà ma."], ["书", "shū", "sách", "这是书。", "Đây là sách."], ["魔法", "mófǎ", "phép thuật", "这是魔法。", "Đây là phép thuật."], ["钢琴", "gāngqín", "đàn piano", "这是钢琴。", "Đây là đàn piano."], ["宝藏", "bǎozàng", "kho báu", "这是宝藏。", "Đây là kho báu."], ["月亮", "yuèliang", "mặt trăng", "这是月亮。", "Đây là mặt trăng."]]}, {"id": "gym", "name": "jiànshēnfáng", "zh": "健身房", "st": "expansion", "c": "#ddefe5", "col": 1, "row": 5, "expansion": true, "facade": 1, "words": [["健身房", "jiànshēnfáng", "phòng gym", "这是健身房。", "Đây là phòng gym."], ["跑步", "pǎobù", "chạy bộ", "我喜欢跑步。", "Mình thích chạy bộ."], ["哑铃", "yǎlíng", "tạ tay", "这是哑铃。", "Đây là tạ tay."], ["瑜伽", "yújiā", "yoga", "这是瑜伽。", "Đây là yoga."], ["柜子", "guìzi", "tủ", "这是柜子。", "Đây là tủ."], ["水", "shuǐ", "nước", "这是水。", "Đây là nước."]]}, {"id": "congty", "name": "gōngsī", "zh": "公司", "st": "expansion", "c": "#e2eae4", "col": 2, "row": 5, "expansion": true, "facade": 2, "words": [["公司", "gōngsī", "công ty", "这是公司。", "Đây là công ty."], ["电脑", "diànnǎo", "máy tính", "这是电脑。", "Đây là máy tính."], ["开会", "kāi huì", "họp", "我们在这里开会。", "Chúng mình họp ở đây."], ["咖啡", "kāfēi", "cà phê", "这是咖啡。", "Đây là cà phê."], ["书架", "shūjià", "kệ sách", "这是书架。", "Đây là kệ sách."], ["沙发", "shāfā", "sofa", "这是沙发。", "Đây là sofa."]]}, {"id": "nuocngoai", "name": "guówài", "zh": "国外", "st": "expansion", "c": "#e5edf2", "col": 3, "row": 5, "expansion": true, "facade": 3, "words": [["国外", "guówài", "nước ngoài", "我想去国外。", "Mình muốn đi nước ngoài."], ["咖啡", "kāfēi", "cà phê", "这是咖啡。", "Đây là cà phê."], ["留学", "liúxué", "du học", "我想去留学。", "Mình muốn đi du học."], ["旅行", "lǚxíng", "du lịch", "我喜欢旅行。", "Mình thích du lịch."], ["纪念品", "jìniànpǐn", "quà lưu niệm", "这是纪念品。", "Đây là quà lưu niệm."], ["旅馆", "lǚguǎn", "nhà khách", "这是旅馆。", "Đây là nhà khách."]]}]);
 const ALL=PLACES.flatMap(p=>p.words);
-/* ---------- Bản đồ 1800 x 1420: lưới đường, 12 địa điểm ---------- */
-const YO=110,W=1800,H=1420+YO+70,ROADS_Y=[330,650,970,1290].map(y=>y+YO),COLX=[300,700,1100,1500],VX=[100,500,900,1300,1700];
-const PLOTS=[];for(let c=0;c<4;c++)for(let r=0;r<4;r++)PLOTS.push({x0:VX[c]+38,x1:VX[c+1]-38,y0:ROADS_Y[r]-282,y1:ROADS_Y[r]-40,c,r});
+/* ---------- Bản đồ 1800 x 1420: lưới đường, 16 địa điểm ---------- */
+const YO=110,W=1800,H=1740+YO+70,ROADS_Y=[330,650,970,1290,1610].map(y=>y+YO),COLX=[300,700,1100,1500],VX=[100,500,900,1300,1700];
+const PLOTS=[];for(let c=0;c<4;c++)for(let r=0;r<5;r++)PLOTS.push({x0:VX[c]+38,x1:VX[c+1]-38,y0:ROADS_Y[r]-282,y1:ROADS_Y[r]-40,c,r});
 const NODES={};
 function node(x,y){const k=x+','+y;return NODES[k]=NODES[k]||{x,y,k,nb:[]}}
 const EDGES=[];function link(a,b){if(!a.nb.includes(b)){a.nb.push(b);b.nb.push(a);EDGES.push([a,b])}}
 ROADS_Y.forEach(y=>{const xs=[...new Set([...VX,...COLX])].sort((a,b)=>a-b);for(let i=0;i<xs.length-1;i++)link(node(xs[i],y),node(xs[i+1],y))});
 VX.forEach(x=>{for(let i=0;i<ROADS_Y.length-1;i++)link(node(x,ROADS_Y[i]),node(x,ROADS_Y[i+1]))});
-PLACES.forEach(p=>{p.w=p.st==='park'?300:240;p.h=p.st==='park'?150:140;p.x=COLX[p.col];const ry=ROADS_Y[p.row-1];p.road=ry;p.y=ry-90-p.h/2;p.door=node(p.x,ry)});
+PLACES.forEach(p=>{p.w=p.expansion?260:p.st==='park'?300:240;p.h=p.expansion?180:p.st==='park'?150:140;p.x=COLX[p.col];const ry=ROADS_Y[p.row-1];p.road=ry;p.y=ry-90-p.h/2;p.door=node(p.x,ry)});
 const HOUSES=[[1500,ROADS_Y[1]],[1500,ROADS_Y[2]]]; // khu nhà dân
 /* ---------- Trạng thái ---------- */
 const RW=window.RW||{},ON=!!(RW.url&&RW.key);let me=null;try{me=JSON.parse(localStorage.getItem('rw_me')||'null')}catch(e){}
@@ -216,7 +217,7 @@ const plvl=()=>Math.floor(Math.sqrt(ST.exp/50))+1,lvBase=l=>(l-1)*(l-1)*50;
 const rank=()=>RANKS.filter(r=>plvl()>=r[0]).pop()[1];
 function syncUnlocks(){SKINS.splice(0,6,...(ST.sex==='m'?SKM:SKF));const u=ST.unl[ST.sex]||(ST.unl[ST.sex]=[0,1]);const out=[];SKIN_LV.forEach((l,i)=>{if(plvl()>=l&&!u.includes(i)){u.push(i);out.push(i)}});return out}
 function refreshHud(){const L=plvl(),a=lvBase(L),b=lvBase(L+1),pc=Math.max(0,Math.min(100,(ST.exp-a)/(b-a)*100));
- $('sc').innerHTML=`<div class="hudt">Lv ${L} · 🪙 ${ST.coins}</div><div class="xp"><i style="width:${pc}%"></i></div><small>${rank()} · ⭐ ${stars()}/36</small>`;
+ $('sc').innerHTML=`<div class="hudt">Lv ${L} · 🪙 ${ST.coins}</div><div class="xp"><i style="width:${pc}%"></i></div><small>${rank()} · ⭐ ${stars()}/${PLACES.length*3}</small>`;
  const t=$('tkBadge');if(t){t.textContent=ST.tickets||'';t.hidden=!ST.tickets}}
 function saveState(){try{localStorage.setItem('tp_state',JSON.stringify(ST))}catch(e){}refreshHud()}
 const saveProg=saveState;
@@ -238,10 +239,11 @@ function lantern(k,x,y,r){k.strokeStyle='#7a2a1a';k.lineWidth=2;k.beginPath();k.
 function plaque(k,x,y,t,w,fs,col){const h=fs+12;rr(k,x-w/2,y-h/2,w,h,6);k.fillStyle=col||'#7a1f18';k.fill();k.lineWidth=3;k.strokeStyle='#e6c25a';k.stroke();k.font=`700 ${fs}px "Songti SC","STSong","Noto Serif CJK SC","SimSun",serif`;k.textAlign='center';k.textBaseline='middle';k.fillStyle='#ffe9a8';k.fillText(t,x,y+1)}
 function windowsRow(k,x0,y0,n,w,h,gap,dk,lit){for(let i=0;i<n;i++){const wx=x0+i*(w+gap);rr(k,wx,y0,w,h,4);k.fillStyle=dk&&lit?'#ffd578':(dk?'#2a4a52':'#bfe3f2');k.fill();k.lineWidth=2;k.strokeStyle='rgba(0,0,0,.45)';k.stroke();if(dk&&lit){k.fillStyle='rgba(255,213,120,.22)';k.fillRect(wx-3,y0-3,w+6,h+6)}}}
 window.PKX=new Image();PKX.src='img/park-ext.webp';PKX.onload=()=>{try{BG=null}catch(e){}};
+const newFacades=new Image();newFacades.src='img/expansion-facades.webp';newFacades.onload=()=>{BG=null};const newFacadeRects={"0": [35, 14, 570, 583], "1": [639, 76, 599, 523], "2": [26, 683, 601, 538], "3": [627, 650, 616, 560]};
 function drawPlace(k,p,dk){const x=p.x-p.w/2,y=p.y-p.h/2,w=p.w,h=p.h,st=p.st,c=p.c,fx=p.x;
  // bóng
  k.fillStyle='rgba(0,0,0,.28)';k.beginPath();k.ellipse(fx+8,y+h+3,w*.55,11,0,0,7);k.fill();
- if(false){ // công viên (tranh thiết kế)
+ if(p.expansion){if(newFacades.complete&&newFacades.naturalWidth){const r=newFacadeRects[p.facade],s=Math.min(270/r[2],185/r[3]);k.drawImage(newFacades,...r,p.x-r[2]*s/2,p.road-90-r[3]*s,r[2]*s,r[3]*s)}else{rr(k,x,y,w,h,16);k.fillStyle=p.c;k.fill()}} else if(false){ // công viên (tranh thiết kế)
   const bx=x-6,by=y-6,bw=w+12,bh=h+12;k.save();rr(k,bx,by,bw,bh,30);k.clip();const sw=PKX.naturalHeight*bw/bh,sx0=(PKX.naturalWidth-sw)/2;k.drawImage(PKX,sx0,0,sw,PKX.naturalHeight,bx,by,bw,bh);if(dk){k.fillStyle='rgba(10,20,60,.38)';k.fillRect(bx,by,bw,bh)}k.restore();rr(k,bx,by,bw,bh,30);k.lineWidth=3;k.strokeStyle=dk?'#2f8a58':'#3c8a47';k.stroke();
  } else if(st==='park'){ // công viên (dự phòng) (theo thiết kế)
   const E=(cx,cy,rx,ry,col)=>{k.fillStyle=col;k.beginPath();k.ellipse(cx,cy,rx,ry,0,0,7);k.fill()};
@@ -717,7 +719,7 @@ function endQ(){happyUntil=performance.now()+4500;const p=Q.p,n=Q.ok,st=n>=6?3:n
  saveState();const all=PLACES.every(x=>(prog[x.id]||{}).stars>0);
  $('pq').innerHTML=`<h2>${st?'Hoàn thành nhiệm vụ!':'Thử lại nhé'}</h2><div class="sub">${esc(p.name)} ${p.zh} · đúng ${n}/6</div><div class="stars">${'⭐'.repeat(st)}${'☆'.repeat(3-st)}</div>
  <p class="reward">+${gx} EXP &nbsp; +${gc} 🪙</p>${lvTxt}
- <div class="rev">${Q.items.map(i=>`<div><b>${esc(i.w[0])}</b> ${esc(i.w[1])} · ${esc(i.w[2])}</div>`).join('')}</div>${all?'<p class="sub">Bạn đã đi hết 12 nơi. Giỏi lắm!</p>':''}
+ <div class="rev">${Q.items.map(i=>`<div><b>${esc(i.w[0])}</b> ${esc(i.w[1])} · ${esc(i.w[2])}</div>`).join('')}</div>${all?'<p class="sub">Bạn đã đi hết 16 nơi. Giỏi lắm!</p>':''}
  <div class="row"><button class="btn gold" id="again">Làm lại</button>${ST.tickets?'<button class="btn" id="spin2">🎡 Quay ('+ST.tickets+')</button>':''}<button class="btn" id="back">Về thành phố</button></div>`;
  $('again').onclick=()=>openQ(p);const s2=$('spin2');if(s2)s2.onclick=()=>{$('ovq').classList.remove('on');openWheel()};$('back').onclick=()=>{$('ovq').classList.remove('on');$('hint').textContent='Bấm vào một tòa nhà để đi tiếp'};postScore()}
 /* ---------- Cửa sổ chung ---------- */
@@ -745,7 +747,7 @@ function openLevel(first,after){let lv=ST.lv,ls=ST.lesson;
  const render=()=>{const V=VOCL(),L=V.find(x=>x.k===lv);
   modal(`<h2>${first?'Bạn đang học cấp nào?':'Cấp và bài'}</h2><p class="sub">Nhiệm vụ trong thành phố sẽ dùng từ vựng của đúng cấp và bài bạn chọn.</p>
   <div class="lvs"><button class="${lv==='city'?'on':''}" data-lv="city">Chủ đề thành phố</button>${V.map(l=>`<button class="${lv===l.k?'on':''}" data-lv="${esc(l.k)}">${esc(l.n)}</button>`).join('')}</div>
-  ${lv==='city'||!L?'<p class="sub">12 địa điểm, mỗi nơi có từ vựng riêng (quán ăn, bệnh viện, sân bay…), có cả câu điền từ.</p>':`<select id="lsel"><option value="0">Tất cả các bài của cấp (${L.ls.reduce((a,b)=>a+b.w.length,0)} từ)</option>${L.ls.map(x=>`<option value="${x.n}"${ls===x.n?' selected':''}>Bài ${x.n} · ${esc(x.t)} (${x.w.length} từ)</option>`).join('')}</select>`}
+  ${lv==='city'||!L?'<p class="sub">16 địa điểm, mỗi nơi có từ vựng riêng (quán ăn, bệnh viện, sân bay…), có cả câu điền từ.</p>':`<select id="lsel"><option value="0">Tất cả các bài của cấp (${L.ls.reduce((a,b)=>a+b.w.length,0)} từ)</option>${L.ls.map(x=>`<option value="${x.n}"${ls===x.n?' selected':''}>Bài ${x.n} · ${esc(x.t)} (${x.w.length} từ)</option>`).join('')}</select>`}
   <div class="row"><button class="btn gold" id="lvok">${first?'Bắt đầu chơi':'Áp dụng'}</button>${first?'':'<button class="btn" id="cl">Đóng</button>'}</div>`);
   $('pm').querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{lv=b.dataset.lv;ls=0;render()});
   const sel=$('lsel');if(sel)sel.onchange=()=>{ls=+sel.value};
@@ -872,4 +874,4 @@ function startFlow(){if(ST.done)return;openProfile(true,()=>openLevel(true,()=>{
 syncUnlocks();syncProg();refreshHud();fit();setTimeout(startFlow,350);requestAnimationFrame(frame);
 window.__tp={P,PLACES,walkTo,NODES,openQ,openPlace,enterRoom,NPC,drawPerson,stepNpc,get Q(){return Q},get ST(){return ST},openHome,openWheel,awardWheel,get prog(){return prog},get S(){return S},CAM};
 </script>
-<script src="tasks.js"></script><script src="npc.js"></script><script src="pets.js"></script><script src="home3d.js"></script><script src="rooms3d.js"></script><script src="park2d.js"></script><script src="nha-an2d.js"></script><script src="districts2d.js"></script></body></html>
+<script src="tasks.js"></script><script src="npc.js"></script><script src="pets.js"></script><script src="home3d.js"></script><script src="rooms3d.js"></script><script src="park2d.js"></script><script src="districts2d.js"></script><script src="office3d.js"></script></body></html>

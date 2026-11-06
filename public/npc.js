@@ -47,9 +47,10 @@ const NAME={truong:'小明',thuvien:'图书管理员',rap:'小安',congvien:'林
 function qst(p){ST.qs=ST.qs||{};let q=ST.qs[p.id];const d=day();if(!q||q.d!==d){const T=(ST.lv==='HSK1'||ST.lv==='city')?['listen','speak','type','write','pic','qa']:['listen','speak','type','write','pic','qa','read','order','mix'];const h=hash(p.id+d);q=ST.qs[p.id]={d,tag:T[h%T.length],need:1+((h>>>3)%2),got:0,claimed:false,talk:false,coin:30+(h%3)*10,exp:40+(h%3)*10,tk:h%4===0};}
  if(!(q.need>=1))q.need=1;return q}
 const avail=p=>{const q=qst(p);return!q.talk||!q.claimed};
+const newGateImages={};for(const [id,path]of Object.entries({nhama:'img/nhama-ghosts.webp',gym:'img/gym-npc.webp',congty:'img/congty-npc.webp',nuocngoai:'img/nuocngoai-npc.webp'})){const im=new Image();im.src=path;newGateImages[id]=im}
 /* vẽ NPC đứng cửa */
 window.drawGate=function(cx,t){for(const p of PLACES){const x=p.x+104,y=p.road-12;
-  drawPerson(cx,x,y,{variant:VAR[p.id]??0,scale:.95,moving:false,view:0,time:t,phase:0});
+  const gi=newGateImages[p.id];if(gi){if(gi.complete&&gi.naturalWidth){const size=90,row=p.id==='nhama'?0:1,hover=p.id==='nhama'?5+Math.sin(t/650)*3:0;cx.drawImage(gi,0,row*256,256,256,x-size/2,y-size*252/256-hover,size,size)}}else drawPerson(cx,x,y,{variant:VAR[p.id]??0,scale:.95,moving:false,view:0,time:t,phase:0});
   if(avail(p)){const by=y-78-Math.abs(Math.sin(t/260+p.x))*5;cx.font='22px sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.fillText('💬',x,by)}
   else{cx.font='18px sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.fillText('✅',x,y-78)}}};
 window.npcAt=function(x,y){for(const p of PLACES)if(Math.abs(x-(p.x+104))<28&&y>p.road-86&&y<p.road+6)return p;return null};
