@@ -21,8 +21,11 @@ const petHtml=(i,w,cls)=>{i=((+i||0)%7+7)%7;const h=Math.round(w*112/190);return
 const myPet=()=>{let v=null;try{v=localStorage.getItem('rw_live_pet')}catch(e){}if(v===null){try{v=(JSON.parse(localStorage.getItem('tp_state')||'null')||{}).pet}catch(e){}}return((+v||0)%7+7)%7};
 const setPet=i=>{try{localStorage.setItem('rw_live_pet',String(i))}catch(e){}};
 /* Đường đua: phần thưởng và chướng ngại vật, cùng một dãy cho cả cô và học sinh (sinh từ mã phòng + số bước) */
-const KIND={star:{ic:'⭐',t:'Sao biển! +2 bước',d:2},rock:{ic:'🪨',t:'Đá ngầm! lùi 1 bước',d:-1},whirl:{ic:'🌀',t:'Xoáy nước! đứng 2 giây',lock:2000}};
+const IC=(n,w)=>`<img class="ic" src="assets/game/${n}.svg" alt="" style="width:${w||22}px;height:${w||22}px">`;
+const HEARTS=(n,m)=>Array.from({length:m||3},(_,i)=>`<img class="ic${i<n?'':' off'}" src="assets/game/pearl-life.svg" alt="" style="width:24px;height:24px">`).join('');
+const MEDAL=i=>i<3?IC(['medal-gold','medal-silver','medal-bronze'][i],26):String(i+1);
+const KIND={star:{ic:IC('star-fish',26),t:'Sao biển! +2 bước',d:2},rock:{ic:IC('rock',26),t:'Đá ngầm! lùi 1 bước',d:-1},whirl:{ic:IC('whirlpool',26),t:'Xoáy nước! đứng 2 giây',lock:2000}};
 function tiles(code,goal){let h=0;for(const c of String(code)+':'+goal)h=(h*31+c.charCodeAt(0))>>>0;const rnd=()=>{h=(h*1664525+1013904223)>>>0;return h/4294967296};
  const T={};let last=-9;for(let p=3;p<goal-1;p++){if(p-last<3)continue;const r=rnd();let k=null;if(r<.13)k='star';else if(r<.22)k='rock';else if(r<.29)k='whirl';if(k){T[p]=k;last=p}}return T}
-window.RWL={connect,getRoom,rid,MOCK,PETN,petHtml,myPet,setPet,KIND,tiles};
+window.RWL={connect,getRoom,rid,MOCK,PETN,petHtml,myPet,setPet,KIND,tiles,IC,HEARTS,MEDAL};
 })();

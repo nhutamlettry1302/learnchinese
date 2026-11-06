@@ -88,3 +88,14 @@ label{font-weight:700}
 .bar i{background:linear-gradient(90deg,#8fc3b4,var(--gold))}
 .err{color:var(--bad)}
 .muted a,.card a:not(.btn){color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+/* ===== bộ hình mới (assets/game) ===== */
+img.ic{display:inline-block;vertical-align:-.3em;object-fit:contain}img.ic.off{opacity:.25;filter:grayscale(1)}
+.rank .n{display:inline-flex;align-items:center;justify-content:center;min-width:30px}
+.pod div img.ic{margin-bottom:4px}.heart{display:inline-flex;gap:3px;align-items:center}
+.gc .ic{display:flex;justify-content:center;margin-bottom:6px}.gc .ic img{width:52px;height:52px}
+.tile{display:flex;align-items:center}.tile img{filter:none}
+.fc .f{padding:0;overflow:hidden}
+.gbox{transition:transform .15s}.gbox:hover{transform:translateY(-3px) rotate(-3deg)}
+.finish{width:34px!important;right:2px!important;background:url(assets/game/coral-gate.svg) center bottom/contain no-repeat!important;opacity:.95}
+.rope .flag img.ic{width:34px;height:34px}
+.brand .lg{display:inline-block;width:46px;height:27px;margin-right:8px;vertical-align:-6px;background:url(img/pets.webp) 0 0/322px 27px no-repeat}
