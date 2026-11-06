@@ -39,3 +39,12 @@ label{display:block;font-size:14px;color:var(--muted);margin:10px 0 4px}
 .evt{min-height:30px;text-align:center;font:800 17px var(--f-d);color:var(--accent)}.evt.bad{color:#d9534f}
 .petpick{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:10px 0}.petpick button{border:3px solid var(--outline);background:var(--panel2);border-radius:14px;padding:4px 4px 2px;cursor:pointer;display:grid;justify-items:center;font:700 11px var(--f-b);color:var(--ink)}.petpick button.on{background:var(--gold);color:#1b1405}
 .leg{display:flex;gap:14px;flex-wrap:wrap;font:700 13px var(--f-b);color:var(--muted,inherit);margin-top:6px}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0}.st{background:var(--panel2);border:2.5px solid var(--outline);border-radius:16px;padding:10px 12px;text-align:center}.st b{display:block;font:800 28px var(--f-d)}.st span{font:700 13px var(--f-b);color:var(--muted,inherit)}
+.tool{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px}.tool input{flex:1;min-width:180px;margin:0}.fil,.seg{display:inline-flex;border:2px solid var(--outline);border-radius:99px;overflow:hidden}
+.fil button,.seg button{border:0;background:transparent;color:var(--ink);padding:6px 14px;font:800 13px var(--f-b);cursor:pointer}.fil button.on,.seg button.on{background:var(--accent);color:#fff}.seg button[data-v=teacher].on{background:var(--gold);color:#1b1405}
+.urow{display:flex;gap:12px;align-items:center;padding:10px 4px;border-top:1.5px solid var(--outline)}.urow:first-child{border-top:0}.ui{flex:1;min-width:0}.ui b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ui small{display:block;color:var(--muted,inherit);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:800 18px var(--f-d);color:#fff;background:#6aa9b5;flex:none}.av.r-teacher{background:#d9a62e}.av.r-owner{background:#c0577a}
+.rp{border-radius:99px;padding:4px 12px;font:800 13px var(--f-b);color:#fff;background:#c0577a}.rc{font-size:13px;white-space:nowrap}.empty{padding:18px;text-align:center;color:var(--muted,inherit)}
+.code-sm{font:800 18px var(--f-d);letter-spacing:2px;background:var(--panel2);border:2px solid var(--outline);border-radius:10px;padding:4px 10px}
+@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}.urow{flex-wrap:wrap}.rc{display:none}}

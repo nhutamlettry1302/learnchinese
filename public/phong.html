@@ -26,10 +26,19 @@ ${hasOwner?'':`<div class="card" style="max-width:560px;margin:14px auto"><h3>Ch
  <div class="card" style="max-width:560px;margin:14px auto"><h3>Dành cho giáo viên</h3><p class="muted">Nhập mật khẩu giáo viên (cô Roxie cung cấp) để mở tính năng tạo phòng.</p>
  <label>Mật khẩu giáo viên</label><input id="tp" type="password"><p class="err">${E(err)}</p><button class="btn pri" id="tgo">Mở quyền giáo viên</button></div>`}
 /* quản trị (chủ web) */
-function adminView(){const RN={student:'Học sinh',teacher:'Giáo viên',owner:'Chủ web'};
+let uq='',uf='all';
+const RL={owner:'Chủ web',teacher:'Giáo viên',student:'Học sinh'};
+const ini=u=>(String(u.name||u.email||'?').trim().split(/\s+/).pop()||'?').charAt(0).toUpperCase();
+function userRows(){const q=uq.trim().toLowerCase();const L=users.filter(u=>(uf==='all'||u.role===uf)&&(!q||(u.name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q)));
+ if(!L.length)return'<div class="empty">Không có người dùng phù hợp.</div>';
+ return L.map(u=>`<div class="urow"><span class="av r-${u.role}">${E(ini(u))}</span><div class="ui"><b>${E(u.name||'(chưa đặt tên)')}</b><small>${E(u.email||'')}</small></div><span class="muted rc">${u.rooms?u.rooms+' phòng':''}</span>${u.role==='owner'?'<span class="rp r-owner">👑 Chủ web</span>':`<div class="seg" role="group" aria-label="Vai trò"><button data-role="${u.id}" data-v="student" class="${u.role==='student'?'on':''}">Học sinh</button><button data-role="${u.id}" data-v="teacher" class="${u.role==='teacher'?'on':''}">Giáo viên</button></div>`}</div>`).join('')}
+function adminView(){const n=r=>users.filter(u=>u.role===r).length;
  return`${msg?`<p class="ok">${E(msg)}</p>`:''}${err?`<p class="err">${E(err)}</p>`:''}
- <div class="card"><h3>Người dùng (${users.length})</h3><div style="overflow-x:auto"><table class="res"><tr><th>Tên</th><th>Email</th><th>Vai trò</th><th>Phòng</th></tr>${users.map(u=>`<tr><td>${E(u.name||'—')}</td><td>${E(u.email||'')}</td><td>${u.role==='owner'?'<b>Chủ web</b>':`<select data-role="${u.id}"><option value="student" ${u.role==='student'?'selected':''}>Học sinh</option><option value="teacher" ${u.role==='teacher'?'selected':''}>Giáo viên</option></select>`}</td><td>${u.rooms}</td></tr>`).join('')}</table></div></div>
- <div class="card"><h3>Tất cả phòng (${allRooms.length})</h3>${allRooms.length?`<div style="overflow-x:auto"><table class="res"><tr><th>Mã</th><th>Tên</th><th>Giáo viên</th><th>Lượt chơi</th><th></th></tr>${allRooms.map(r=>`<tr><td><b>${r.code}</b>${r.closed?' (đóng)':''}</td><td>${E(r.name)}</td><td>${E(r.teacher||'')}</td><td>${r.plays}</td><td><button class="btn sm" data-adel="${r.code}">🗑</button></td></tr>`).join('')}</table></div>`:'<p class="muted">Chưa có phòng nào.</p>'}</div>`}
+ <div class="stats"><div class="st"><b>${users.length}</b><span>Tài khoản</span></div><div class="st"><b>${n('teacher')+n('owner')}</b><span>Giáo viên</span></div><div class="st"><b>${n('student')}</b><span>Học sinh</span></div><div class="st"><b>${allRooms.length}</b><span>Phòng học</span></div></div>
+ <div class="card"><h3 style="margin:0 0 4px">Phân quyền người dùng</h3><p class="muted" style="margin:0 0 10px">Người mới đăng ký mặc định là <b>Học sinh</b>. Chọn <b>Giáo viên</b> để họ được tạo phòng và mở lớp học trực tiếp.</p>
+ <div class="tool"><input id="uq" type="search" placeholder="🔍 Tìm theo tên hoặc email" value="${E(uq)}"><div class="fil">${[['all','Tất cả'],['teacher','Giáo viên'],['student','Học sinh']].map(f=>`<button data-uf="${f[0]}" class="${uf===f[0]?'on':''}">${f[1]}</button>`).join('')}</div></div>
+ <div id="ulist">${userRows()}</div></div>
+ <div class="card"><h3 style="margin:0 0 8px">Tất cả phòng học</h3>${allRooms.length?allRooms.map(r=>`<div class="urow"><span class="code-sm">${r.code}</span><div class="ui"><b>${E(r.name)}</b><small>Giáo viên: ${E(r.teacher||'—')} · ${r.plays} lượt chơi${r.closed?' · đã đóng':''}</small></div><button class="btn sm" data-adel="${r.code}" title="Xóa phòng">🗑 Xóa</button></div>`).join(''):'<div class="empty">Chưa có phòng nào.</div>'}</div>`}
 /* chọn bài */
 function picker(sel){const L=tab==='vocab'?C.Data.vocabLevels():C.Data.gramLevels(),cur=L.find(l=>l.k===lvSel[tab])||L[0],S=sel[tab];S[cur.k]=S[cur.k]||[];
  const on=n=>S[cur.k].includes(n);const tot=Object.values(S).reduce((a,x)=>a+x.length,0);
@@ -54,7 +63,9 @@ async function load(){try{rooms=(await C.rpc('my_rooms'))||[]}catch(e){err='Chư
 async function loadAdmin(){try{users=await C.rpc('admin_users')||[];allRooms=await C.rpc('admin_rooms')||[]}catch(e){err=e.message}render()}
 function wire(){
  document.querySelectorAll('[data-pg]').forEach(b=>b.onclick=async()=>{page=b.dataset.pg;err='';msg='';render();if(page==='admin')await loadAdmin()});
- document.querySelectorAll('[data-role]').forEach(b=>b.onchange=async()=>{try{await C.rpc('admin_set_role',{p_id:b.dataset.role,p_role:b.value});say('Đã đổi vai trò.');await loadAdmin()}catch(e){say('',e.message)}});
+ document.querySelectorAll('[data-role]').forEach(b=>b.onclick=async()=>{if(b.classList.contains('on'))return;const u=users.find(x=>x.id===b.dataset.role),v=b.dataset.v;if(!confirm(v==='teacher'?'Cấp quyền giáo viên cho '+(u.name||u.email)+'?':'Chuyển '+(u.name||u.email)+' về học sinh? Họ sẽ không tạo được phòng mới.'))return;try{await C.rpc('admin_set_role',{p_id:u.id,p_role:v});say('Đã cập nhật: '+(u.name||u.email)+' → '+RL[v]);await loadAdmin()}catch(e){say('',e.message)}});
+ document.querySelectorAll('[data-uf]').forEach(b=>b.onclick=()=>{uf=b.dataset.uf;render()});
+ const qi=$('uq');if(qi)qi.oninput=()=>{uq=qi.value;$('ulist').innerHTML=userRows();wire()};
  document.querySelectorAll('[data-adel]').forEach(b=>b.onclick=async()=>{if(!confirm('Xóa phòng '+b.dataset.adel+' cùng điểm của phòng?'))return;try{await C.rpc('admin_room_delete',{p_code:b.dataset.adel});say('Đã xóa phòng.');await loadAdmin()}catch(e){say('',e.message)}});
  on('asw',()=>{mode=mode==='in'?'up':'in';err='';msg='';render()});
  on('ago',async()=>{const em=$('ae').value.trim(),pw=$('ap').value,nm=$('an')?$('an').value.trim():'';err='';msg='';if(!em||pw.length<6){say('','Nhập email và mật khẩu (từ 6 ký tự).');return}
