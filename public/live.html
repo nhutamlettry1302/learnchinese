@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Vào lớp học trực tiếp – Rừng Cá Voi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&family=Noto+Serif+SC:wght@600;800&display=swap">
+<link rel="stylesheet" href="rwlive.css">
+<script>try{var t=localStorage.getItem('rw_theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+</head><body><div class="wrap narrow">
+<div class="top"><a class="btn sm" href="index.html">← Trang chủ</a><span class="brand">🐋 Lớp học trực tiếp</span></div>
+<div id="main"></div></div>
+<script src="config.js"></script><script src="audio.js"></script><script src="rwcore.js"></script><script src="rwlive.js"></script>
+<script>
+const C=RWC,$=id=>document.getElementById(id),E=C.esc,ID=RWL.rid();
+let code=(new URLSearchParams(location.search).get('phong')||'').toUpperCase(),name='',room=null,conn=null,S=null,got=0,mine=null,locked=false,ok=0,no=0,steps=0,rq=null,content=null,rlock=0,done=false;
+const saved=C.J(C.ls.get('rw_live_name')||'null');if(saved)name=saved;else if(C.Auth.profile&&C.Auth.profile.name)name=C.Auth.profile.name;
+function joinForm(err){$('main').innerHTML=`<div class="card"><h2>Vào phòng học</h2><label>Mã phòng cô cho</label><input id="jc" value="${E(code)}" maxlength="8" autocapitalize="characters" style="text-transform:uppercase;letter-spacing:.2em;font-size:24px"><label>Tên của bạn</label><input id="jn" value="${E(name)}" maxlength="20" autocomplete="nickname"><p class="err">${E(err||'')}</p><button class="btn pri" id="jg">Vào chơi</button><p class="muted">Không cần đăng nhập.</p></div>`;
+ $('jg').onclick=async()=>{code=$('jc').value.trim().toUpperCase();name=$('jn').value.trim();if(!code||!name)return joinForm('Hãy nhập đủ mã phòng và tên.');C.ls.set('rw_live_name',JSON.stringify(name));start()}}
+async function start(){$('main').innerHTML='<p class="muted">Đang vào phòng…</p>';try{room=await RWL.getRoom(code);if(room.closed)throw new Error('Phòng này đã đóng.');
+ const cfg=room.config||{};await C.Data.need(true,Object.keys(cfg.gram||{}).length>0);content={vocab:C.Data.vocab(cfg.vocab),quiz:C.Data.gramQuiz(cfg.gram)};
+ C.ls.set('rw_room',JSON.stringify(room));C.ls.set('rw_me',JSON.stringify({name,code:room.code,cls:room.name}));
+ conn=await RWL.connect(code,onMsg);join();setInterval(()=>conn.send({t:'ping',id:ID}),3000);setInterval(()=>{if(S&&Date.now()-got>5000)render()},1000);render()}catch(e){joinForm(e.message||String(e))}}
+const join=()=>conn.send({t:'join',id:ID,name});
+function onMsg(m){if(!m||m.t!=='st')return;const first=!S;const prev=S;S=m;got=Date.now();
+ if(!prev||prev.i!==m.i||prev.m!==m.m||(prev.ph==='lobby'&&m.ph!=='lobby')){mine=null;locked=false}
+ if(m.m==='race'&&m.ph==='run'&&(!prev||prev.ph!=='run')){ok=0;no=0;steps=0;done=false;nextRace()}
+ if(first)join();render()}
+const myTeam=()=>S&&S.tm&&S.tm[ID];
+function render(){const M=$('main');if(!room)return;if(!S){M.innerHTML=`<div class="card" style="text-align:center"><div class="whale" style="font-size:64px">🐋</div><h2>Đang chờ cô...</h2><p class="muted">Phòng <b>${E(code)}</b>. Nếu chờ lâu, cô chưa mở lớp học trực tiếp.</p></div>`;return}
+ const left=Math.max(0,(S.left||0)-(Date.now()-got)/1000);let h='';
+ const tm=S.teams&&myTeam()!==undefined?`<span class="chip t${myTeam()}">Đội ${myTeam()?'Xanh':'Đỏ'}</span>`:'';
+ if(S.ph==='lobby'){h=`<div class="card" style="text-align:center"><div class="whale" style="font-size:72px">🐋</div><h2>Chào ${E(name)}!</h2><p>${tm} Chờ cô bấm bắt đầu...</p><p class="muted">${S.np} bạn đang trong phòng</p></div>`}
+ else if(S.m==='quiz'&&(S.ph==='q'||S.ph==='rv')){const q=S.q,r=S.res&&S.res[ID];
+  h=`<div class="card"><div class="row"><span class="pill">Câu ${S.i+1}/${S.n}</span>${tm}<span style="flex:1"></span>${S.ph==='q'?`<span class="timer" style="font-size:34px">${Math.ceil(left)}</span>`:''}</div><div class="bar" style="margin:8px 0"><i style="width:${S.ph==='q'?left/S.dur*100:0}%"></i></div>
+  <div style="text-align:center;margin:10px 0"><div class="big" style="font-size:clamp(34px,11vw,64px);${q.zh?'':'font-family:var(--f-d);font-size:clamp(24px,7vw,40px)'}">${E(q.prompt)}</div><div class="muted">${E(q.sub||'')}</div></div>
+  <div class="ans">${q.opts.map((o,k)=>`<button data-k="${k}" class="${q.zh===false&&/[一-鿿]/.test(o)?'zh':''} ${S.ph==='rv'?(o===S.ans?'right':'dim'):(mine!==null&&mine!==k?'dim':'')}" ${S.ph==='rv'||mine!==null?'disabled':''}>${E(o)}</button>`).join('')}</div>
+  <div style="text-align:center;margin-top:12px">${S.ph==='q'?(mine!==null?'<p class="ok">Đã gửi! Chờ các bạn khác...</p>':'<p class="muted">Chọn nhanh để được nhiều điểm hơn</p>'):(r&&r[2]>=0?(r[1]?`<h2 class="ok">✔ Đúng rồi! +${r[0]}</h2>`:`<h2 class="err">✘ Chưa đúng</h2>`):'<h2 class="err">Bạn chưa trả lời</h2>')}</div></div>
+  ${S.ph==='rv'?`<div class="card"><h3>Bảng xếp hạng</h3>${S.ts?`<div class="row" style="margin:6px 0"><span class="chip t0">Đỏ: <b>${S.ts[0]}</b></span><span class="chip t1">Xanh: <b>${S.ts[1]}</b></span></div>`:''}<ul class="rank">${S.top.map((p,i)=>`<li class="${p[0]===ID?'me':''}"><span class="n">${['🥇','🥈','🥉'][i]||i+1}</span><b>${E(p[1])}</b><span>${p[2]}</span></li>`).join('')}</ul></div>`:''}`}
+ else if(S.m==='race'&&S.ph==='run'){h=raceHtml(left)}
+ else if(S.ph==='end'){const R=S.rank||[],i=R.findIndex(p=>p[0]===ID),unit=S.m==='race'?' bước':'';
+  h=`<div class="card" style="text-align:center"><h2>🏆 Kết thúc!</h2>${i>=0?`<div class="big" style="font-family:var(--f-d)">${['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><p>Bạn được <b>${R[i][2]}${unit}</b></p>`:'<p class="muted">Bạn chưa có điểm lần này. Lần sau cố lên nhé!</p>'}${S.ts?`<div class="row" style="justify-content:center"><span class="chip t0">Đỏ: <b>${S.ts[0]}</b></span><span class="chip t1">Xanh: <b>${S.ts[1]}</b></span></div>`:''}</div>
+  <div class="card"><ul class="rank">${R.slice(0,10).map((p,k)=>`<li class="${p[0]===ID?'me':''}"><span class="n">${['🥇','🥈','🥉'][k]||k+1}</span><b>${E(p[1])}</b><span>${p[2]}${unit}</span></li>`).join('')}</ul></div>`}
+ M.innerHTML=h;document.querySelectorAll('.ans button[data-k]').forEach(b=>b.onclick=()=>answer(+b.dataset.k))}
+function answer(k){if(!S||S.m!=='quiz'||S.ph!=='q'||mine!==null)return;mine=k;conn.send({t:'ans',id:ID,q:S.i,c:k});const q=S.q;if(window.rwSay&&q.zh)rwSay(q.prompt);render()}
+/* ---- Đua cá voi: mỗi bạn tự trả lời ---- */
+function nextRace(){rq=C.makeQ(content);rlock=0}
+function raceHtml(left){if(!rq)nextRace();const lk=Date.now()<rlock;
+ const lead=(S.bd||[]).slice(0,5);
+ return`<div class="card"><div class="row"><span class="pill">Bước ${steps}/${S.goal}</span>${S.teams&&myTeam()!==undefined?`<span class="chip t${myTeam()}">Đội ${myTeam()?'Xanh':'Đỏ'}</span>`:''}<span style="flex:1"></span><span class="timer" style="font-size:30px">${Math.floor(left/60)}:${String(Math.floor(left%60)).padStart(2,'0')}</span></div>
+ <div class="bar" style="margin:8px 0"><i style="width:${Math.min(100,steps/S.goal*100)}%"></i></div>
+ <div style="text-align:center;margin:8px 0"><div class="big" style="font-size:clamp(34px,11vw,64px);${rq.zh?'':'font-family:var(--f-d);font-size:clamp(24px,7vw,40px)'}">${E(rq.prompt)}</div><div class="muted">${E(rq.sub||'')}</div></div>
+ <div class="ans">${rq.opts.map((o,k)=>`<button data-r="${k}" ${lk?'disabled class="dim"':''}>${E(o)}</button>`).join('')}</div>
+ <p class="muted" style="text-align:center">${lk?'Sai rồi! Chờ 1 giây…':'Đúng thì cá voi bơi thêm 1 bước'}</p></div>
+ <div class="card"><h3>Đang dẫn đầu</h3><ul class="rank">${lead.map((p,i)=>`<li class="${p[0]===ID?'me':''}"><span class="n">${i+1}</span><b>${E(p[1])}</b><span>${p[2]}</span></li>`).join('')}</ul></div>`}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button[data-r]');if(!b||!S||S.m!=='race'||S.ph!=='run'||Date.now()<rlock)return;const k=+b.dataset.r;
+ if(rq.opts[k]===rq.ans){steps++;ok++;C.beep(true);if(window.rwSay&&rq.say)rwSay(rq.say)}else{no++;C.beep(false);rlock=Date.now()+1000;setTimeout(()=>{rq=null;render()},1000)}
+ conn.send({t:'prog',id:ID,steps,ok,no});if(rq&&rq.opts[k]===rq.ans)rq=C.makeQ(content);render()});
+setInterval(()=>{if(S&&S.ph!=='lobby'&&(S.ph==='q'||S.ph==='run'))render()},1000);
+if(code&&name)start();else joinForm();
+</script></body></html>

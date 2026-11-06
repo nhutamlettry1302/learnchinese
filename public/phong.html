@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Phòng học của cô – Rừng Cá Voi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&family=Noto+Serif+SC:wght@600;800&display=swap">
+<link rel="stylesheet" href="rwlive.css">
+<script>try{var t=localStorage.getItem('rw_theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>.pickbox{border:2px dashed var(--outline);border-radius:16px;padding:12px;margin:10px 0}.tabs{display:flex;gap:8px;margin-bottom:6px}.tabs .btn{box-shadow:none}.res{width:100%;border-collapse:collapse;font-size:15px}.res td,.res th{padding:6px 8px;border-bottom:1px dotted var(--outline);text-align:left}</style>
+</head><body><div class="wrap">
+<div class="top"><a class="btn sm" href="index.html">← Trang chủ</a><span class="brand">🐋 Phòng học của cô</span><span class="sp"></span><span id="who" class="muted"></span></div>
+<div id="main"></div></div>
+<script src="config.js"></script><script src="audio.js"></script><script src="rwcore.js"></script>
+<script>
+const C=RWC,A=C.Auth,$=id=>document.getElementById(id),E=C.esc;
+let rooms=[],edit=null,msg='',err='',tab='vocab',lvSel={vocab:'HSK1',gram:'HSK1'},mode='in',open=null,results={};
+const say=(m,e)=>{msg=m||'';err=e||'';render()};
+const sumSel=cfg=>{const n=o=>Object.values(o||{}).reduce((a,l)=>a+l.length,0);return n(cfg.vocab)+' bài từ vựng · '+n(cfg.gram)+' bài ngữ pháp'};
+const joinLink=c=>new URL('live.html?phong='+c,location.href).href;
+function authCard(){return`<div class="card" style="max-width:460px;margin:20px auto"><h2>${mode==='in'?'Đăng nhập':'Tạo tài khoản'}</h2><p class="muted">Đăng nhập để tạo phòng học và theo dõi học sinh. Học sinh vào chơi bằng mã phòng, không cần đăng nhập.</p>
+ ${mode==='up'?'<label>Tên hiển thị</label><input id="an" maxlength="40">':''}<label>Email</label><input id="ae" type="email" autocomplete="email"><label>Mật khẩu (từ 6 ký tự)</label><input id="ap" type="password" autocomplete="${mode==='in'?'current-password':'new-password'}">
+ <p class="err">${E(err)}</p><p class="ok">${E(msg)}</p><div class="row"><button class="btn pri" id="ago">${mode==='in'?'Đăng nhập':'Tạo tài khoản'}</button><button class="btn sm" id="asw">${mode==='in'?'Chưa có tài khoản?':'Đã có tài khoản?'}</button></div></div>`}
+function teacherGate(){return`<div class="card" style="max-width:460px;margin:20px auto"><h2>Xin chào ${E(A.profile&&A.profile.name||'')}</h2><p class="muted">Tài khoản này đang là học sinh. Nếu bạn là giáo viên, nhập mật khẩu giáo viên (cô Roxie cung cấp) để mở tính năng tạo phòng.</p>
+ <label>Mật khẩu giáo viên</label><input id="tp" type="password"><p class="err">${E(err)}</p><div class="row"><button class="btn pri" id="tgo">Mở quyền giáo viên</button><button class="btn sm" id="out">Đăng xuất</button></div></div>`}
+/* chọn bài */
+function picker(sel){const L=tab==='vocab'?C.Data.vocabLevels():C.Data.gramLevels(),cur=L.find(l=>l.k===lvSel[tab])||L[0],S=sel[tab];S[cur.k]=S[cur.k]||[];
+ const on=n=>S[cur.k].includes(n);const tot=Object.values(S).reduce((a,x)=>a+x.length,0);
+ return`<div class="pickbox"><div class="tabs"><button class="btn sm ${tab==='vocab'?'pri':''}" data-tab="vocab">Từ vựng</button><button class="btn sm ${tab==='gram'?'pri':''}" data-tab="gram">Ngữ pháp</button><span style="flex:1"></span><span class="muted">Đã chọn: ${sumSel(sel)}</span></div>
+ <div class="pick-lv">${L.map(l=>`<span class="pk ${l.k===cur.k?'on':''}" data-lv="${E(l.k)}">${E(l.n)}${(S[l.k]||[]).length?' ('+S[l.k].length+')':''}</span>`).join('')}</div>
+ <div class="row" style="margin:6px 0"><button class="btn sm" data-all="1">Chọn hết ${E(cur.n)}</button><button class="btn sm" data-none="1">Bỏ hết</button></div>
+ <div class="pick-ls">${cur.ls.map(x=>`<span class="pk ${on(x.n)?'on':''}" data-ls="${x.n}" title="${E(x.t||'')}">Bài ${x.n}${x.t?' · '+E(String(x.t).slice(0,18)):''}</span>`).join('')}</div></div>`}
+function roomForm(){const r=edit;return`<div class="card"><h2>${r.code?'Sửa phòng '+r.code:'Tạo phòng mới'}</h2><label>Tên phòng (ví dụ: HSK3 tối T3 T5)</label><input id="rn" value="${E(r.name)}" maxlength="60">${picker(r.config)}
+ <p class="err">${E(err)}</p><div class="row"><button class="btn pri" id="rsave">${r.code?'Lưu':'Tạo phòng'}</button><button class="btn" id="rcancel">Hủy</button></div></div>`}
+function roomCard(r){const op=open===r.code,res=results[r.code];
+ return`<div class="card"><div class="row"><div style="flex:1;min-width:200px"><h3>${E(r.name)}${r.closed?' <span class="chip">đã đóng</span>':''}</h3><div class="muted">${sumSel(r.config)} · ${r.plays} lượt chơi</div></div><div class="code" style="font-size:44px">${r.code}</div></div>
+ <div class="row" style="margin-top:10px"><a class="btn pri" href="live-host.html?phong=${r.code}">▶ Mở lớp học trực tiếp</a><button class="btn sm" data-cp="${r.code}">📋 Chép link học sinh</button><button class="btn sm" data-ed="${r.code}">✏️ Sửa bài</button><button class="btn sm" data-rs="${r.code}">📊 Kết quả</button><button class="btn sm" data-cl="${r.code}">${r.closed?'Mở lại':'Đóng phòng'}</button><button class="btn sm" data-del="${r.code}">🗑</button></div>
+ ${op?(res?(res.length?`<div style="overflow-x:auto;margin-top:10px"><table class="res"><tr><th>Học sinh</th><th>Trò</th><th>Điểm cao nhất</th><th>Lượt</th></tr>${res.map(x=>`<tr><td>${E(x.player)}</td><td>${E(({'live-quiz':'Đấu trường','live-race':'Đua cá voi'})[x.game]||x.game)}</td><td>${x.best}</td><td>${x.plays}</td></tr>`).join('')}</table></div>`:'<p class="muted">Chưa có kết quả.</p>'):'<p class="muted">Đang tải…</p>'):''}</div>`}
+function render(){const M=$('main');$('who').innerHTML=A.loggedIn?E((A.profile&&A.profile.name)||A.user&&A.user.email||'')+' · <a href="#" id="out2">Đăng xuất</a>':'';
+ if(!A.loggedIn){M.innerHTML=authCard()}else if(!A.profile){M.innerHTML='<p class="muted">Đang tải hồ sơ…</p>'}else if(A.profile.role!=='teacher'){M.innerHTML=teacherGate()}
+ else if(edit){M.innerHTML=roomForm()}
+ else{M.innerHTML=`${msg?`<p class="ok">${E(msg)}</p>`:''}${err?`<p class="err">${E(err)}</p>`:''}<div class="row"><button class="btn pri" id="newr">＋ Tạo phòng mới</button></div>${rooms.length?rooms.map(roomCard).join(''):'<div class="card"><h3>Chưa có phòng nào</h3><p class="muted">Bấm "Tạo phòng mới", chọn bài từ vựng và ngữ pháp cho lớp, rồi gửi mã phòng cho học sinh. Học sinh vào bằng điện thoại, không cần đăng nhập.</p></div>'}`}
+ wire()}
+const on=(id,f)=>{const e=$(id);if(e)e.onclick=f};
+async function load(){try{rooms=(await C.rpc('my_rooms'))||[]}catch(e){err='Chưa tải được danh sách phòng. Cô đã chạy file phong-hoc.sql trong Supabase chưa? ('+e.message+')'}render()}
+function wire(){
+ on('asw',()=>{mode=mode==='in'?'up':'in';err='';msg='';render()});
+ on('ago',async()=>{const em=$('ae').value.trim(),pw=$('ap').value,nm=$('an')?$('an').value.trim():'';err='';msg='';if(!em||pw.length<6){say('','Nhập email và mật khẩu (từ 6 ký tự).');return}
+  try{if(mode==='in')await A.signIn(em,pw);else{const r=await A.signUp(em,pw,nm);if(r.confirm){say('Đã tạo tài khoản. Hãy mở email để bấm xác nhận, rồi quay lại đăng nhập.');mode='in';return}}await boot()}catch(e){say('',e.message)}});
+ on('tgo',async()=>{try{await A.becomeTeacher($('tp').value);err='';await boot()}catch(e){say('','Mật khẩu giáo viên chưa đúng.')}});
+ on('out',()=>{A.signOut();render()});on('out2',e=>{A.signOut();location.reload()});const o2=$('out2');if(o2)o2.onclick=e=>{e.preventDefault();A.signOut();location.reload()};
+ on('newr',()=>{edit={code:'',name:'',config:{vocab:{},gram:{}}};err='';msg='';render()});
+ on('rcancel',()=>{edit=null;err='';render()});
+ on('rsave',async()=>{const r=edit;r.name=$('rn').value.trim();const n=o=>Object.values(o).reduce((a,l)=>a+l.length,0);if(!r.name){err='Hãy đặt tên phòng.';return render()}if(n(r.config.vocab)+n(r.config.gram)===0){err='Hãy chọn ít nhất một bài.';return render()}
+  const clean={};['vocab','gram'].forEach(k=>{clean[k]={};Object.keys(r.config[k]).forEach(l=>{if(r.config[k][l].length)clean[k][l]=r.config[k][l].slice().sort((a,b)=>a-b)})});
+  try{if(r.code){await C.rpc('room_update',{p_code:r.code,p_name:r.name,p_config:clean,p_closed:null});say('Đã lưu phòng.')}else{const c=await C.rpc('room_create',{p_name:r.name,p_config:clean});say('Đã tạo phòng. Mã phòng: '+c)}edit=null;await load()}catch(e){err=e.message;render()}});
+ document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});
+ document.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{lvSel[tab]=b.dataset.lv;render()});
+ document.querySelectorAll('[data-ls]').forEach(b=>b.onclick=()=>{const S=edit.config[tab],k=lvSel[tab],n=+b.dataset.ls;S[k]=S[k]||[];const i=S[k].indexOf(n);i>=0?S[k].splice(i,1):S[k].push(n);render()});
+ document.querySelectorAll('[data-all]').forEach(b=>b.onclick=()=>{const L=(tab==='vocab'?C.Data.vocabLevels():C.Data.gramLevels()).find(l=>l.k===lvSel[tab]);edit.config[tab][L.k]=L.ls.map(x=>x.n);render()});
+ document.querySelectorAll('[data-none]').forEach(b=>b.onclick=()=>{edit.config[tab][lvSel[tab]]=[];render()});
+ document.querySelectorAll('[data-cp]').forEach(b=>b.onclick=async()=>{const u=joinLink(b.dataset.cp);try{await navigator.clipboard.writeText(u);say('Đã chép link: '+u)}catch(e){say('Link cho học sinh: '+u)}});
+ document.querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>{const r=rooms.find(x=>x.code===b.dataset.ed);edit={code:r.code,name:r.name,config:JSON.parse(JSON.stringify({vocab:r.config.vocab||{},gram:r.config.gram||{}}))};err='';msg='';render()});
+ document.querySelectorAll('[data-rs]').forEach(b=>b.onclick=async()=>{const c=b.dataset.rs;if(open===c){open=null;return render()}open=c;results[c]=null;render();try{results[c]=await C.rpc('room_results',{p_code:c})}catch(e){results[c]=[]}render()});
+ document.querySelectorAll('[data-cl]').forEach(b=>b.onclick=async()=>{const r=rooms.find(x=>x.code===b.dataset.cl);try{await C.rpc('room_update',{p_code:r.code,p_name:null,p_config:null,p_closed:!r.closed});await load()}catch(e){say('',e.message)}});
+ document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const r=rooms.find(x=>x.code===b.dataset.del);if(!confirm('Xóa phòng "'+r.name+'" cùng toàn bộ điểm của phòng? Không thể khôi phục.'))return;try{await C.rpc('room_delete',{p_code:r.code});say('Đã xóa phòng.');await load()}catch(e){say('',e.message)}})}
+async function boot(){render();if(A.loggedIn){await A.refresh();render();if(A.profile&&A.profile.role==='teacher'){await C.Data.need(true,true);await load()}}}
+boot();
+</script></body></html>
