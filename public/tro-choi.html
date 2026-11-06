@@ -26,7 +26,7 @@
 <script>
 const C=RWC,$=id=>document.getElementById(id),E=C.esc,M=$('main');
 let CT=null,cleanup=()=>{},tab='vocab',lv={vocab:'HSK1',gram:'HSK1'},msg='';
-const GI={pairs:'shell-card',flip:'card-back',mil:'pearl',bub:'bubble',fall:'star-fish',onet:'treasure',gold:'anchor-hook',flap:'coral-gate',snake:'dice'};
+const GI={pairs:'shell-card',flip:'card-back',mil:'pearl',bub:'bubble',fall:'star-fish',onet:'treasure',gold:'anchor-hook',flap:'coral-gate',snake:'dice',car:'dice',type:'bubble',tf:'star-fish'};
 const gic=(k,w)=>RWL.IC(GI[k],w);
 const GAMES=[
  {k:'pairs',ic:'🧩',n:'Nối cặp',d:'Chạm chữ Hán rồi chạm nghĩa tương ứng. Nối hết 3 màn nhanh nhất!',need:'v'},
@@ -37,6 +37,9 @@ const GAMES=[
  {k:'onet',ic:'🐙',n:'Nối đường (kiểu Pikachu)',d:'Nối 2 thẻ cùng cặp bằng đường đi không quá 2 góc rẽ. Có gợi ý và xáo trộn.',need:'v'},
  {k:'gold',ic:'⛏️',n:'Đào vàng',d:'Móc câu đung đưa, chạm để thả. Móc đúng viên vàng có nghĩa ở trên cùng!',need:'v'},
  {k:'flap',ic:'🐳',n:'Cá voi bay',d:'Chạm để cá voi vỗ bay, bay qua cổng có đáp án đúng. Có 5 mạng, bay chậm và cổng rộng.',need:'q'},
+ {k:'car',ic:'🏎️',n:'Đua xe',d:'Lái xe qua 3 làn, chạy vào làn có đáp án đúng. Đúng thì xe tăng tốc, sai mất mạng. Có 3 mạng.',need:'q'},
+ {k:'type',ic:'⌨️',n:'Gõ pinyin',d:'60 giây gõ pinyin của chữ Hán hiện ra (không cần dấu thanh). Gõ nhanh được nhiều điểm.',need:'v'},
+ {k:'tf',ic:'✅',n:'Đúng hay sai',d:'45 giây: chữ Hán và nghĩa có khớp nhau không? Chọn Đúng hoặc Sai thật nhanh, chuỗi đúng liên tiếp được thưởng.',need:'v'},
  {k:'snake',ic:'🎲',n:'Thang và rắn',d:'Trả lời đúng để lắc xúc xắc. Có thang, lươn, sao biển, đá ngầm, xoáy nước và ngọc trai. Đua với cá mập tới ô 30!',need:'q'}];
 const best=k=>+(C.ls.get('rw_best_'+k)||0);
 async function load(){CT=await C.Ctx.load()}
@@ -67,7 +70,7 @@ function picker(){const s=C.Ctx.sel;s.vocab=s.vocab||{};s.gram=s.gram||{};C.Data
 function start(k){cleanup();cleanup=()=>{};const g=GAMES.find(x=>x.k===k);
  if(g.need==='v'&&CT.vocab.length<8){msg='Trò này cần ít nhất 8 từ vựng. Hãy chọn thêm bài từ vựng.';return home()}
  if(g.need==='q'&&!C.makeQ(CT)){msg='Chưa đủ nội dung (cần ít nhất 4 từ vựng hoặc có câu ngữ pháp).';return home()}
- msg='';const G={pairs,flip,mil,bub,fall,snake,onet,gold,flap}[k];
+ msg='';const G={pairs,flip,mil,bub,fall,snake,onet,gold,flap,car,type,tf}[k];
  M.innerHTML=`<div class="card"><div class="row"><b style="font:800 20px var(--f-d)">${gic(g.k,30)} ${g.n}</b><span style="flex:1"></span><button class="btn sm" id="bk">← Chọn trò khác</button></div><div id="g" style="margin-top:10px"></div></div>`;$('bk').onclick=()=>home();
  G($('g'),score=>finish(k,g,score,()=>start(k)))}
 function finish(k,g,score,again){cleanup();cleanup=()=>{};score=Math.max(0,Math.round(score));const nb=score>best(k);if(nb)C.ls.set('rw_best_'+k,String(score));
@@ -158,6 +161,39 @@ function snake(R,end){const L={3:11,8:17,14:23,20:27},Sn={16:6,24:13,29:19,26:10
    if(skip[1]){skip[1]=0;D=null;info='Cá mập bị xoáy nước cuốn, lỡ lượt!';draw();await sleep(1300)}
    else{if(Math.random()<.2){D=null;info='Cá mập lỡ lượt!';draw();await sleep(1000)}else if(await turn(1))return finish(1)}}})()}
 
+
+/* 10. Đua xe */
+function car(R,end){let hearts=3,sc=0,lane=1,spd=2.2,q=null,cards=null,y=0,raf,dead=false,flash=0,roadY=0;
+ R.innerHTML=`<div class="stat"><span class="pill">Điểm <b id="sc">0</b></span><span class="heart" id="hr"></span><span class="muted">← → hoặc chạm làn để chuyển</span></div><div style="text-align:center;font:800 20px var(--f-d);min-height:30px" id="qq"></div><canvas id="cv" width="360" height="420" style="width:100%;max-width:420px;display:block;margin:6px auto;border:3px solid var(--outline);border-radius:18px;touch-action:manipulation;background:#5d6b73"></canvas><div class="row" style="justify-content:center;gap:10px"><button class="btn" id="lf">◀ Trái</button><button class="btn" id="rt">Phải ▶</button></div>`;
+ const cv=$('cv'),k=cv.getContext('2d'),hr=()=>$('hr').innerHTML=RWL.HEARTS(hearts,3);hr();
+ const mk=()=>{q=C.makeQ(CT);const w=S(q.opts.filter(o=>o!==q.ans)).slice(0,2),pos=rnd(3);const o=[];let j=0;for(let i=0;i<3;i++)o.push(i===pos?q.ans:w[j++]||'…');cards=o;cards.ok=pos;y=-70;$('qq').innerHTML=E(q.prompt);if(window.rwSay&&q.say)rwSay(q.say)};
+ const mv=d=>{lane=Math.max(0,Math.min(2,lane+d))};$('lf').onclick=()=>mv(-1);$('rt').onclick=()=>mv(1);
+ cv.onclick=e=>{const r=cv.getBoundingClientRect();lane=Math.max(0,Math.min(2,Math.floor((e.clientX-r.left)/r.width*3)))};
+ const kd=e=>{if(e.code==='ArrowLeft'){e.preventDefault();mv(-1)}if(e.code==='ArrowRight'){e.preventDefault();mv(1)}};addEventListener('keydown',kd);
+ const LW=120;
+ const loop=()=>{roadY=(roadY+spd*2)%40;k.fillStyle='#5d6b73';k.fillRect(0,0,360,420);k.fillStyle='#fff';for(let i=1;i<3;i++)for(let yy=-40+roadY;yy<420;yy+=40)k.fillRect(i*LW-2,yy,4,20);
+  y+=spd;
+  cards.forEach((t,i)=>{const cx=i*LW+LW/2;k.fillStyle='#fffefa';k.strokeStyle='#244c43';k.lineWidth=3;k.beginPath();k.roundRect(cx-50,y-26,100,52,12);k.fill();k.stroke();k.fillStyle='#244c43';k.font='800 '+(t.length<=4?20:t.length<=8?14:12)+'px "Noto Serif SC",Nunito,sans-serif';k.textAlign='center';k.textBaseline='middle';const cap=t.length<=4?4:8;for(let s2=0,l=0;s2<t.length&&l<3;s2+=cap,l++)k.fillText(t.slice(s2,s2+cap),cx,y+(l-(Math.min(3,Math.ceil(t.length/cap))-1)/2)*15)});
+  const cx=lane*LW+LW/2,cy=350;if(flash>0)flash--;const h=RWL.carHtml?0:0;
+  k.save();k.translate(cx,cy);if(flash&&Math.floor(flash/5)%2)k.globalAlpha=.4;const c=RWL.CARC[RWL.myPet()];k.fillStyle=c;k.strokeStyle='#244c43';k.lineWidth=3;k.beginPath();k.roundRect(-22,-34,44,68,12);k.fill();k.stroke();k.fillStyle='#e6f6ff';k.fillRect(-15,-18,30,14);k.strokeRect(-15,-18,30,14);k.fillStyle='#333';for(const[ax,ay]of[[-26,-22],[22,-22],[-26,16],[22,16]])k.fillRect(ax-3,ay,6,16);k.restore();
+  if(y>cy-40&&y<cy+60&&!cards.done){cards.done=true;if(lane===cards.ok){C.beep(true);sc+=10+Math.round(spd*2);spd=Math.min(5,spd+.18);$('sc').textContent=sc}else{C.beep(false);hearts--;hr();flash=45;spd=Math.max(2,spd-.4);if(hearts<=0){dead=true;cleanup();cleanup=()=>{};return end(sc*10)}}}
+  if(y>470)mk();
+  if(!dead)raf=requestAnimationFrame(loop)};
+ mk();cleanup=()=>{dead=true;cancelAnimationFrame(raf);removeEventListener('keydown',kd)};loop()}
+/* 11. Gõ pinyin */
+function type(R,end){let sc=0,T=60,w=null,streak=0,i1;const nt=s=>(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d').toLowerCase().replace(/[^a-z]/g,'');
+ R.innerHTML=`<div class="stat"><span class="pill"><b id="tm">60</b>s</span><span class="pill">Điểm <b id="sc">0</b></span><span class="pill">Chuỗi <b id="st2">0</b></span></div><div style="text-align:center;margin:14px 0"><div class="big" id="zh"></div><div class="muted" id="vn"></div></div><div style="display:flex;gap:8px;justify-content:center"><input id="inp" autocomplete="off" autocapitalize="off" placeholder="gõ pinyin rồi bấm Enter" style="max-width:300px"><button class="btn pri" id="go">Gửi</button></div><p id="fb" style="text-align:center;font-weight:800;min-height:26px"></p>`;
+ const nx=()=>{const V=CT.vocab.filter(x=>nt(x.py).length>=2);w=V[rnd(V.length)];$('zh').textContent=w.zh;$('vn').textContent=w.vn;$('inp').value='';$('inp').focus();if(window.rwSay)rwSay(w.zh)};
+ const sub=()=>{const v=nt($('inp').value);if(!v)return;if(v===nt(w.py)){C.beep(true);streak++;sc+=10+Math.min(20,streak*2);$('fb').textContent='Đúng! '+w.py}else{C.beep(false);streak=0;sc=Math.max(0,sc-3);$('fb').textContent='Sai, đáp án: '+w.py}$('sc').textContent=sc;$('st2').textContent=streak;nx()};
+ $('go').onclick=sub;$('inp').onkeydown=e=>{if(e.key==='Enter')sub()};nx();
+ i1=setInterval(()=>{$('tm').textContent=--T;if(T<=0){cleanup();cleanup=()=>{};end(sc*10)}},1000);cleanup=()=>clearInterval(i1)}
+/* 12. Đúng hay sai */
+function tf(R,end){let sc=0,T=45,streak=0,cur=null,i1;
+ R.innerHTML=`<div class="stat"><span class="pill"><b id="tm">45</b>s</span><span class="pill">Điểm <b id="sc">0</b></span><span class="pill">Chuỗi <b id="st2">0</b></span></div><div style="text-align:center;margin:12px 0"><div class="big" id="zh"></div><div style="font:800 24px var(--f-d);margin-top:6px" id="vn"></div></div><div class="ans" style="grid-template-columns:1fr 1fr"><button id="yes" style="background:var(--mint)">Đúng</button><button id="no" style="background:var(--peach)">Sai</button></div><p id="fb" style="text-align:center;font-weight:800;min-height:26px"></p>`;
+ const nx=()=>{const w=CT.vocab[rnd(CT.vocab.length)];let o=w;const same=Math.random()<.5;if(!same){do{o=CT.vocab[rnd(CT.vocab.length)]}while(o.vn===w.vn)}cur={same};$('zh').textContent=w.zh;$('vn').textContent=o.vn;if(window.rwSay)rwSay(w.zh)};
+ const ans=v=>{if(v===cur.same){C.beep(true);streak++;sc+=10+Math.min(20,streak*2);$('fb').textContent='Đúng!'}else{C.beep(false);streak=0;sc=Math.max(0,sc-5);$('fb').textContent='Sai rồi!'}$('sc').textContent=sc;$('st2').textContent=streak;nx()};
+ $('yes').onclick=()=>ans(true);$('no').onclick=()=>ans(false);nx();
+ i1=setInterval(()=>{$('tm').textContent=--T;if(T<=0){cleanup();cleanup=()=>{};end(sc*10)}},1000);cleanup=()=>clearInterval(i1)}
 /* 7. Nối đường (Pikachu) */
 function onet(R,end){const RW=4,CW=6;const W=wordsN(RW*CW/2);if(W.length<RW*CW/2)return end(0);
  let T=S(W.flatMap((w,i)=>[{i,t:w.zh,z:1},{i,t:w.vn,z:0}])),alive=T.map(()=>true),sel=-1,t0=Date.now(),hints=3,shufs=3,pen=0,left=T.length;

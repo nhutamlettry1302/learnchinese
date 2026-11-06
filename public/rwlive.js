@@ -17,7 +17,9 @@ async function getRoom(code){code=String(code||'').trim().toUpperCase();
  const r=await C.rpc('room_get',{p_code:code});if(!r)throw new Error('Mã phòng không đúng.');return r}
 const rid=()=>{let v=null;try{v=sessionStorage.getItem('rwl_id')}catch(e){}if(!v){v=Math.random().toString(36).slice(2,10);try{sessionStorage.setItem('rwl_id',v)}catch(e){}}return v};
 const PETN=['Xanh dương','Hồng','Tím','Vàng','Xanh lá','Trắng','Đen'];
-const petHtml=(i,w,cls)=>{i=((+i||0)%7+7)%7;const h=Math.round(w*112/190);return`<span class="pw ${cls||''}" style="width:${w}px;height:${h}px;background-size:${w*7}px ${h}px;background-position:-${i*w}px 0"></span>`};
+const CARC=['#4aa3df','#ef7fa6','#9a7bd6','#f2c230','#6cc070','#e8e8e8','#4a5560'];
+const carHtml=(i,w,cls)=>{const c=CARC[i],h=Math.round(w*112/190);return`<span class="pw car ${cls||''}" style="width:${w}px;height:${h}px"><svg viewBox="0 0 120 64" width="${w}" height="${h}"><g stroke="#244c43" stroke-width="3" stroke-linejoin="round"><path d="M8 44q0-12 12-14l16-14q4-4 10-4h26q8 0 14 6l12 12q10 2 12 8v8q0 4-4 4H12q-4 0-4-6z" fill="${c}"/><path d="M40 20h22v12H34z M68 20h10l10 12H68z" fill="#e6f6ff"/></g><circle cx="34" cy="54" r="9" fill="#333" stroke="#244c43" stroke-width="3"/><circle cx="90" cy="54" r="9" fill="#333" stroke="#244c43" stroke-width="3"/><circle cx="34" cy="54" r="3" fill="#ccc"/><circle cx="90" cy="54" r="3" fill="#ccc"/></svg></span>`};
+const petHtml=(i,w,cls)=>{i=((+i||0)%7+7)%7;if(window.RWL&&RWL.skin==='car')return carHtml(i,w,cls);const h=Math.round(w*112/190);return`<span class="pw ${cls||''}" style="width:${w}px;height:${h}px;background-size:${w*7}px ${h}px;background-position:-${i*w}px 0"></span>`};
 const myPet=()=>{let v=null;try{v=localStorage.getItem('rw_live_pet')}catch(e){}if(v===null){try{v=(JSON.parse(localStorage.getItem('tp_state')||'null')||{}).pet}catch(e){}}return((+v||0)%7+7)%7};
 const setPet=i=>{try{localStorage.setItem('rw_live_pet',String(i))}catch(e){}};
 /* Đường đua: phần thưởng và chướng ngại vật, cùng một dãy cho cả cô và học sinh (sinh từ mã phòng + số bước) */
@@ -27,5 +29,5 @@ const MEDAL=i=>i<3?IC(['medal-gold','medal-silver','medal-bronze'][i],26):String
 const KIND={star:{ic:IC('star-fish',26),t:'Sao biển! +2 bước',d:2},rock:{ic:IC('rock',26),t:'Đá ngầm! lùi 1 bước',d:-1},whirl:{ic:IC('whirlpool',26),t:'Xoáy nước! đứng 2 giây',lock:2000}};
 function tiles(code,goal){let h=0;for(const c of String(code)+':'+goal)h=(h*31+c.charCodeAt(0))>>>0;const rnd=()=>{h=(h*1664525+1013904223)>>>0;return h/4294967296};
  const T={};let last=-9;for(let p=3;p<goal-1;p++){if(p-last<3)continue;const r=rnd();let k=null;if(r<.13)k='star';else if(r<.22)k='rock';else if(r<.29)k='whirl';if(k){T[p]=k;last=p}}return T}
-window.RWL={connect,getRoom,rid,MOCK,PETN,petHtml,myPet,setPet,KIND,tiles,IC,HEARTS,MEDAL};
+window.RWL={connect,getRoom,rid,MOCK,PETN,petHtml,myPet,setPet,KIND,tiles,IC,HEARTS,MEDAL,CARC,carHtml};
 })();

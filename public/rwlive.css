@@ -115,3 +115,4 @@ img.ic{display:inline-block;vertical-align:-.3em;object-fit:contain}img.ic.off{o
 .cell em{z-index:0}.cell .tk{z-index:2}
 .startbar{display:flex;align-items:center;gap:10px;min-height:64px;margin-top:6px;padding:4px 12px;border:1px dashed var(--line);border-radius:12px;background:var(--mint)}
 .startbar .tk0{display:flex;gap:6px;align-items:flex-end}.startbar .me{cursor:pointer;display:block;line-height:0}.startbar .hop{animation:hop .32s ease-out}.startbar .me.wait{animation:wig .7s ease-in-out infinite}
+.pw.car{background:none!important}.pw.car svg{display:block}

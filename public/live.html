@@ -19,7 +19,7 @@ async function start(){$('main').innerHTML='<p class="muted">Đang vào phòng�
  C.ls.set('rw_room',JSON.stringify(room));C.ls.set('rw_me',JSON.stringify({name,code:room.code,cls:room.name}));
  conn=await RWL.connect(code,onMsg);join();setInterval(()=>conn.send({t:'ping',id:ID,cur:curQ()}),3000);setInterval(()=>{if(S&&Date.now()-got>5000)render()},1000);render()}catch(e){joinForm(e.message||String(e))}}
 const join=()=>conn.send({t:'join',id:ID,name,pet:RWL.myPet(),uid:(C.Auth.loggedIn&&C.Auth.user&&C.Auth.user.id)||null});
-function onMsg(m){if(!m||m.t!=='st')return;const first=!S;const prev=S;S=m;got=Date.now();
+function onMsg(m){if(!m||m.t!=='st')return;RWL.skin=m.sk||'whale';const first=!S;const prev=S;S=m;got=Date.now();
  if(!prev||prev.i!==m.i||prev.m!==m.m||(prev.ph==='lobby'&&m.ph!=='lobby')){mine=null;locked=false}
  if((m.m==='race'||m.m==='tug')&&m.ph==='run'&&(!prev||prev.ph!=='run')){ok=0;no=0;steps=0;done=false;nextRace()}
  if(first)join();render()}
