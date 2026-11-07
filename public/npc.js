@@ -51,8 +51,8 @@ const newGateImages={};for(const [id,path]of Object.entries({nhama:'img/nhama-gh
 /* vẽ NPC đứng cửa */
 window.drawGate=function(cx,t){for(const p of PLACES){const x=p.x+104,y=p.road-12;
   const gi=newGateImages[p.id];if(gi){if(gi.complete&&gi.naturalWidth){const size=64,row=p.id==='nhama'?0:1,hover=p.id==='nhama'?5+Math.sin(t/650)*3:0;cx.drawImage(gi,0,row*256,256,256,x-size/2,y-size*252/256-hover,size,size)}}else drawPerson(cx,x,y,{variant:VAR[p.id]??0,scale:.95,moving:false,view:0,time:t,phase:0});
-  if(avail(p)){const by=y-(newGateImages[p.id]?62:78)-Math.abs(Math.sin(t/260+p.x))*5;cx.font='22px sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.fillText('💬',x,by)}
-  else{cx.font='18px sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.fillText('✅',x,y-(newGateImages[p.id]?62:78))}}};
+  if(avail(p)){const by=y-(newGateImages[p.id]?(p.id==='nhama'?58:50):66)-Math.abs(Math.sin(t/260+p.x))*5;cx.font='22px sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.fillText('💬',x,by)}
+  else{cx.font='18px sans-serif';cx.textAlign='center';cx.textBaseline='middle';cx.fillText('✅',x,y-(newGateImages[p.id]?(p.id==='nhama'?58:50):66))}}};
 window.npcAt=function(x,y){for(const p of PLACES)if(Math.abs(x-(p.x+104))<28&&y>p.road-86&&y<p.road+6)return p;return null};
 /* hộp thoại */
 function face(p){const c=document.createElement('canvas');c.width=90;c.height=110;c.style.cssText='width:70px;height:86px;flex:none';const k=c.getContext('2d');drawPerson(k,45,104,{variant:VAR[p.id]??0,scale:1.45,moving:false,view:0,time:0});return c}
