@@ -3,7 +3,7 @@
 const N=7,TW=104,TH=52,WH=190,CW=800,CH=610,OX=CW/2,OY=WH+34;
 const P=(x,y,z)=>[OX+(x-y)*TW/2,OY+(x+y)*TH/2-(z||0)];
 const FP={bed:[3,2],sofa:[2,1],chair:[1,1],plant:[1,1],cactus:[1,1],tv:[2,1],books:[1,1],bear:[1,1],cat:[1,1],whale:[1,1],piano:[2,1],bike:[2,1],fish:[1,1],tea:[1,1]};
-const SITS=['sofa','chair'],LIES=['bed'];
+Object.assign(FP,{"cloudbed":[3,2],"oceanbed":[3,2],"mintsofa":[2,1],"lavendersofa":[2,1],"wardrobe":[2,1],"bookcase":[2,1],"desk":[2,1],"vanity":[2,1],"kitchen":[2,1],"fridge":[1,1],"sink":[1,1],"bath":[2,1],"lamp":[1,1],"terrarium":[1,1],"record":[1,1],"coffeetable":[2,1],"dresser":[2,1],"laundry":[1,1],"petbed":[1,1],"dining":[2,1]});const SITS=['sofa','chair','mintsofa','lavendersofa'],LIES=['bed','cloudbed','oceanbed'];
 const rgb=h=>{h=h.replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');return[0,2,4].map(i=>parseInt(h.substr(i,2),16))};
 const mix=(h,t,f)=>{const a=rgb(h),b=rgb(t);return'#'+a.map((v,i)=>Math.round(v+(b[i]-v)*f).toString(16).padStart(2,'0')).join('')};
 const C=b=>({t:mix(b,'#ffffff',.22),l:b,r:mix(b,'#000000',.22)});
