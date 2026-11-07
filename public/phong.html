@@ -4,11 +4,12 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&family=Noto+Serif+SC:wght@600;800&display=swap">
 <link rel="stylesheet" href="rwlive.css">
 <script>try{var t=localStorage.getItem('rw_theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
-<style>.pickbox{border:2px dashed var(--outline);border-radius:16px;padding:12px;margin:10px 0}.tabs{display:flex;gap:8px;margin-bottom:6px}.tabs .btn{box-shadow:none}.res{width:100%;border-collapse:collapse;font-size:15px}.res td,.res th{padding:6px 8px;border-bottom:1px dotted var(--outline);text-align:left}</style>
+<style>.pickbox{border:2px dashed var(--outline);border-radius:16px;padding:12px;margin:10px 0}.tabs{display:flex;gap:8px;margin-bottom:6px}.tabs .btn{box-shadow:none}.res{width:100%;border-collapse:collapse;font-size:15px}.res td,.res th{padding:6px 8px;border-bottom:1px dotted var(--outline);text-align:left}.whh{display:flex;align-items:center;gap:12px;margin-bottom:6px}.whi{display:block;margin:-2px auto 2px;height:40px}.st .whi svg{height:38px;width:auto}.whbars{display:flex;align-items:flex-end;gap:5px;height:76px;margin-top:10px}.whbars div{flex:1;text-align:center}.whbars i{display:block;border-radius:8px 8px 3px 3px;background:linear-gradient(#a9cfcb,#7cc6c0);border:1.5px solid #c4a46a}.whbars small{font-size:10px;color:#8a6a2f}
+</style>
 </head><body><div class="wrap">
 <div class="top"><a class="btn sm" href="index.html">← Trang chủ</a><span class="brand">🐋 Phòng học của cô</span><span class="sp"></span><span id="who" class="muted"></span></div>
 <div id="main"></div></div>
-<script src="config.js"></script><script src="audio.js"></script><script src="rwcore.js"></script>
+<script src="config.js"></script><script src="whales.js"></script><script src="audio.js"></script><script src="rwcore.js"></script>
 <script>
 const C=RWC,A=C.Auth,$=id=>document.getElementById(id),E=C.esc;
 let hasOwner=true,page='mine',users=[],allRooms=[],myScores=null,rooms=[],edit=null,msg='',err='',tab='vocab',lvSel={vocab:'HSK1',gram:'HSK1'},mode='in',open=null,results={};
@@ -32,15 +33,26 @@ const ini=u=>(String(u.name||u.email||'?').trim().split(/\s+/).pop()||'?').charA
 function userRows(){const q=uq.trim().toLowerCase();const L=users.filter(u=>(uf==='all'||u.role===uf)&&(!q||(u.name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q)));
  if(!L.length)return'<div class="empty">Không có người dùng phù hợp.</div>';
  return L.map(u=>`<div class="urow"><span class="av r-${u.role}">${E(ini(u))}</span><div class="ui"><b>${E(u.name||'(chưa đặt tên)')}</b><small>${E(u.email||'')}</small></div><span class="muted rc">${u.rooms?u.rooms+' phòng':''}</span>${u.role==='owner'?'<span class="rp r-owner">👑 Chủ web</span>':`<div class="seg" role="group" aria-label="Vai trò"><button data-role="${u.id}" data-v="student" class="${u.role==='student'?'on':''}">Học sinh</button><button data-role="${u.id}" data-v="teacher" class="${u.role==='teacher'?'on':''}">Giáo viên</button></div>`}</div>`).join('')}
-function visitCard(){if(!vstats)return verr?`<div class="card"><h3 style="margin:0 0 4px">👁 Lượt truy cập</h3><p class="err">${E(verr)}</p></div>`:'';const v=vstats,mx=Math.max(1,...v.days.map(x=>x.n));
- return`<div class="card"><h3 style="margin:0 0 4px">👁 Lượt truy cập web</h3><div class="stats"><div class="st"><b>${v.today}</b><span>Hôm nay</span></div><div class="st"><b>${v.week}</b><span>7 ngày</span></div><div class="st"><b>${v.month}</b><span>30 ngày</span></div><div class="st"><b>${v.unique}</b><span>Máy khác nhau</span></div></div>
- <div style="display:flex;align-items:flex-end;gap:4px;height:70px;margin-top:10px">${v.days.map(x=>`<div title="${E(x.d)}: ${x.n}" style="flex:1;background:#2a9d8f;border-radius:3px 3px 0 0;height:${Math.max(3,Math.round(x.n/mx*64))}px"></div>`).join('')}</div>
- <p class="muted" style="font-size:12px;margin:4px 0 8px">14 ngày gần nhất, mỗi máy tính 1 lượt mỗi ngày.</p>
+function tile(ic,n,l){return`<div class="st"><span class="whi">${RWH(ic,54)}</span><b>${n}</b><span>${l}</span></div>`}
+function visitCard(){const hd=`<div class="whh">${RWH('chart',64)}<div><h3 style="margin:0">Lượt truy cập web</h3><p class="muted" style="margin:0">Mỗi máy tính 1 lượt mỗi ngày</p></div></div>`;
+ if(!vstats)return verr?`<div class="card">${hd}<p class="err">${E(verr)}</p></div>`:'';const v=vstats,mx=Math.max(1,...v.days.map(x=>x.n));
+ return`<div class="card">${hd}<div class="stats">${tile('calendar',v.today,'Hôm nay')}${tile('clock',v.week,'7 ngày')}${tile('star',v.month,'30 ngày')}${tile('globe',v.unique,'Máy khác nhau')}</div>
+ <div class="whbars">${v.days.map(x=>`<div title="${E(x.d)}: ${x.n}"><i style="height:${Math.max(4,Math.round(x.n/mx*56))}px"></i><small>${E(String(x.d).slice(8,10))}</small></div>`).join('')}</div>
+ <p class="muted" style="font-size:12px;margin:2px 0 8px">14 ngày gần nhất</p>
  ${v.pages&&v.pages.length?'<p class="muted" style="margin:0">Trang được xem nhiều (30 ngày): '+v.pages.map(p=>E(p.p)+' <b>'+p.n+'</b>').join(' · ')+'</p>':''}</div>`}
+const ago=t=>{const m=Math.round((Date.now()-new Date(t))/6e4);return m<1?'vừa xong':m<60?m+' phút trước':m<1440?Math.round(m/60)+' giờ trước':Math.round(m/1440)+' ngày trước'};
+function cityRows(){const q=cq.trim().toLowerCase();const L=(cityL||[]).filter(u=>!q||u.player.toLowerCase().includes(q)||u.email.toLowerCase().includes(q));
+ if(!L.length)return'<div class="empty">Chưa có người chơi phù hợp.</div>';
+ return L.map((u,i)=>`<div class="urow"><span class="av">${i+1}</span><div class="ui"><b>${E(u.player)}</b><small>${E(u.email)}</small></div><span class="muted rc">Cấp ${u.level} · ${u.exp} EXP · ${u.stars}★ · ${u.places} nơi${u.extra&&u.extra.worldQuests?' · '+u.extra.worldQuests+' NV quốc gia':''}<br>Chơi ${ago(u.updated_at)}</span><button class="btn sm" data-cdel="${E(u.email)}">Xóa</button></div>`).join('')}
+function cityCard(){const hd=`<div class="whh">${RWH('trophy',64)}<div><h3 style="margin:0">Người chơi Thành phố Cá Voi</h3><p class="muted" style="margin:0">Mỗi người đăng nhập bằng email và tên</p></div></div>`;
+ if(!cityL)return cityErr?`<div class="card">${hd}<p class="err">${E(cityErr)}</p></div>`:'';
+ const day=Date.now()-864e5,wk=Date.now()-7*864e5,act=t=>cityL.filter(u=>new Date(u.updated_at)>t).length,avg=cityL.length?Math.round(cityL.reduce((a,u)=>a+u.level,0)/cityL.length*10)/10:0;
+ return`<div class="card">${hd}<div class="stats">${tile('hanzi',cityL.length,'Người chơi')}${tile('fire',act(day),'Chơi 24 giờ qua')}${tile('target',act(wk),'Chơi 7 ngày qua')}${tile('trophy',avg,'Cấp trung bình')}</div>
+ <div class="tool"><input id="cq" type="search" placeholder="🔍 Tìm tên hoặc email" value="${E(cq)}"></div><div id="clist">${cityRows()}</div><p class="muted" style="font-size:12px">Xóa người chơi chỉ xóa hồ sơ trên máy chủ. Nếu bạn ấy chơi lại thì hồ sơ được tạo lại từ dữ liệu trên máy của bạn ấy.</p></div>`}
 function adminView(){const n=r=>users.filter(u=>u.role===r).length;
  return`${msg?`<p class="ok">${E(msg)}</p>`:''}${err?`<p class="err">${E(err)}</p>`:''}
  <div class="stats"><div class="st"><b>${users.length}</b><span>Tài khoản</span></div><div class="st"><b>${n('teacher')+n('owner')}</b><span>Giáo viên</span></div><div class="st"><b>${n('student')}</b><span>Học sinh</span></div><div class="st"><b>${allRooms.length}</b><span>Phòng học</span></div></div>
-${visitCard()}
+${visitCard()}${cityCard()}
  <div class="card"><h3 style="margin:0 0 4px">Phân quyền người dùng</h3><p class="muted" style="margin:0 0 10px">Người mới đăng ký mặc định là <b>Học sinh</b>. Chọn <b>Giáo viên</b> để họ được tạo phòng và mở lớp học trực tiếp.</p>
  <div class="tool"><input id="uq" type="search" placeholder="🔍 Tìm theo tên hoặc email" value="${E(uq)}"><div class="fil">${[['all','Tất cả'],['teacher','Giáo viên'],['student','Học sinh']].map(f=>`<button data-uf="${f[0]}" class="${uf===f[0]?'on':''}">${f[1]}</button>`).join('')}</div></div>
  <div id="ulist">${userRows()}</div></div>
@@ -66,11 +78,12 @@ function render(){const M=$('main');$('who').innerHTML=A.loggedIn?E((A.profile&&
  wire()}
 const on=(id,f)=>{const e=$(id);if(e)e.onclick=f};
 async function load(){try{rooms=(await C.rpc('my_rooms'))||[]}catch(e){err='Chưa tải được danh sách phòng. Cô đã chạy file phong-hoc.sql trong Supabase chưa? ('+e.message+')'}render()}
-let vstats=null,verr='';async function loadAdmin(){try{users=await C.rpc('admin_users')||[];allRooms=await C.rpc('admin_rooms')||[]}catch(e){err=e.message}try{vstats=await C.rpc('visit_stats');verr=''}catch(e){vstats=null;verr='Chưa bật đếm lượt truy cập: hãy chạy file luot-truy-cap.sql trong Supabase.'}render()}
+let vstats=null,verr='',cityL=null,cityErr='',cq='';async function loadAdmin(){try{users=await C.rpc('admin_users')||[];allRooms=await C.rpc('admin_rooms')||[]}catch(e){err=e.message}try{vstats=await C.rpc('visit_stats');verr=''}catch(e){vstats=null;verr='Chưa bật đếm lượt truy cập: hãy chạy file luot-truy-cap.sql trong Supabase.'}try{cityL=await C.rpc('admin_city_list')||[];cityErr=''}catch(e){cityL=null;cityErr='Chưa bật quản lý người chơi: hãy chạy file thanh-pho-nguoi-choi.sql trong Supabase.'}render()}
 function wire(){
  document.querySelectorAll('[data-pg]').forEach(b=>b.onclick=async()=>{page=b.dataset.pg;err='';msg='';render();if(page==='admin')await loadAdmin()});
  document.querySelectorAll('[data-role]').forEach(b=>b.onclick=async()=>{if(b.classList.contains('on'))return;const u=users.find(x=>x.id===b.dataset.role),v=b.dataset.v;if(!confirm(v==='teacher'?'Cấp quyền giáo viên cho '+(u.name||u.email)+'?':'Chuyển '+(u.name||u.email)+' về học sinh? Họ sẽ không tạo được phòng mới.'))return;try{await C.rpc('admin_set_role',{p_id:u.id,p_role:v});say('Đã cập nhật: '+(u.name||u.email)+' → '+RL[v]);await loadAdmin()}catch(e){say('',e.message)}});
  document.querySelectorAll('[data-uf]').forEach(b=>b.onclick=()=>{uf=b.dataset.uf;render()});
+ const cqi=$('cq');if(cqi)cqi.oninput=()=>{cq=cqi.value;$('clist').innerHTML=cityRows();wireC()};const wireC=()=>document.querySelectorAll('[data-cdel]').forEach(b=>b.onclick=async()=>{if(!confirm('Xóa người chơi '+b.dataset.cdel+' khỏi bảng xếp hạng?'))return;try{await C.rpc('admin_city_delete',{p_email:b.dataset.cdel});say('Đã xóa người chơi.');await loadAdmin()}catch(e){say('',e.message)}});wireC();
  const qi=$('uq');if(qi)qi.oninput=()=>{uq=qi.value;$('ulist').innerHTML=userRows();wire()};
  document.querySelectorAll('[data-adel]').forEach(b=>b.onclick=async()=>{if(!confirm('Xóa phòng '+b.dataset.adel+' cùng điểm của phòng?'))return;try{await C.rpc('admin_room_delete',{p_code:b.dataset.adel});say('Đã xóa phòng.');await loadAdmin()}catch(e){say('',e.message)}});
  on('asw',()=>{mode=mode==='in'?'up':'in';err='';msg='';render()});

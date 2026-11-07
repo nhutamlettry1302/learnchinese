@@ -43,13 +43,19 @@ returns table(player text,level int,exp int,stars int,places int)
 language sql security definer set search_path=public as $$
   select player,level,exp,stars,places from public.city_players order by exp desc limit least(greatest(p_limit,1),50) $$;
 
--- Dành cho giáo viên (cần mật khẩu giáo viên): xem tất cả người chơi
-create or replace function public.admin_city(p_pass text)
+-- Dành cho chủ web (đăng nhập tài khoản chủ web trong Phòng học → Quản trị): xem và quản lý người chơi
+create or replace function public.admin_city_list()
 returns table(email text,player text,level int,exp int,stars int,places int,extra jsonb,first_seen timestamptz,updated_at timestamptz)
 language plpgsql security definer set search_path=public as $$
 begin
-  if not public.rw_is_admin(p_pass) then raise exception 'forbidden'; end if;
+  if not public.rw_is_owner() then raise exception 'forbidden'; end if;
   return query select c.email,c.player,c.level,c.exp,c.stars,c.places,c.extra,c.first_seen,c.updated_at from public.city_players c order by c.exp desc limit 5000;
 end $$;
-
-grant execute on function public.save_city(text,text,int,int,int,int,jsonb), public.load_city(text), public.city_board(int), public.admin_city(text) to anon, authenticated;
+create or replace function public.admin_city_delete(p_email text) returns void
+language plpgsql security definer set search_path=public as $$
+begin
+  if not public.rw_is_owner() then raise exception 'forbidden'; end if;
+  delete from public.city_players where email=lower(trim(p_email));
+end $$;
+grant execute on function public.save_city(text,text,int,int,int,int,jsonb), public.load_city(text), public.city_board(int) to anon, authenticated;
+grant execute on function public.admin_city_list(), public.admin_city_delete(text) to authenticated;
