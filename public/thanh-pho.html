@@ -914,14 +914,14 @@ function gate(msg){let g=document.getElementById('gate');if(g)g.remove();g=docum
   try{await enterAs(n,e);g.remove()}catch(x){er.textContent='Chưa kết nối được máy chủ. Kiểm tra mạng rồi thử lại.';$('ggo').disabled=false;$('ggo').textContent='Đăng nhập và chơi'}};
  $('ggo').onclick=go;g.addEventListener('keydown',ev=>{if(ev.key==='Enter')go()});setTimeout(()=>$('gn')&&$('gn').focus(),50)}
 async function enterAs(name,email){
- let rec=null;if(ON)rec=await rpc('load_city',{p_email:email}).then(r=>Array.isArray(r)?r[0]:r);   // lỗi mạng => dừng, không cho chơi
+ let rec=null;if(ON){try{rec=await rpc('load_city',{p_email:email}).then(r=>Array.isArray(r)?r[0]:r)}catch(e){window.__cityErr=1}}   // máy chủ chưa sẵn sàng: vẫn cho chơi, lưu trên máy và đồng bộ sau
  const prev=owner();
  if(prev&&prev!==email){try{localStorage.setItem('tp_state:'+prev,JSON.stringify(ST))}catch(e){}let st=null;try{st=JSON.parse(localStorage.getItem('tp_state:'+email)||'null')}catch(e){}ST=st?Object.assign(defState(),st):defState()}
  try{localStorage.setItem('tp_owner',email)}catch(e){}
  me={name,email};try{localStorage.setItem('tp_acct',JSON.stringify(me))}catch(e){}
  ST.name=name;if(rec&&rec.exp>(ST.exp||0)){ST.exp=rec.exp}
  syncUnlocks();syncProg();saveState();queueCity(true);
- if(!ST.done)setTimeout(startFlow,300);else toast('Chào mừng '+name+' trở lại! Cấp '+plvl())}
+ if(!ST.done)setTimeout(startFlow,300);else toast('Chào mừng '+name+' trở lại! Cấp '+plvl());if(window.__cityErr)setTimeout(()=>toast('Chưa lưu được lên máy chủ, tạm lưu trên máy này'),2500)}
 function logoutM(){modal(`<h2>Đăng xuất?</h2><p class="sub">Đang đăng nhập: <b>${esc(me?me.name:'')}</b><br>${esc(me?me.email:'')}</p><p class="sub">Thành tích đã được lưu. Đăng nhập lại bằng email để chơi tiếp.</p><div class="row"><button class="btn gold" id="lo">Đăng xuất</button><button class="btn" id="cl">Ở lại</button></div>`);$('cl').onclick=closeM;$('lo').onclick=async()=>{await flushCity();try{localStorage.setItem('tp_state:'+me.email,JSON.stringify(ST))}catch(e){}me=null;try{localStorage.removeItem('tp_acct')}catch(e){}closeM();gate()}}
 function cityPayload(){let stars=0,places=0;for(const k in ST.prog){const o=ST.prog[k]||{};for(const id in o){stars+=(o[id]&&o[id].stars)||0;if(k==='city'&&o[id]&&o[id].stars>0)places++}}
  const j=k=>{try{return JSON.parse(localStorage.getItem(k)||'{}')}catch(e){return{}}};const w=j('tp_world'),w2=j('tp_world2'),wq=j('tp_world_quest');
