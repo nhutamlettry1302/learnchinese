@@ -32,9 +32,15 @@ const ini=u=>(String(u.name||u.email||'?').trim().split(/\s+/).pop()||'?').charA
 function userRows(){const q=uq.trim().toLowerCase();const L=users.filter(u=>(uf==='all'||u.role===uf)&&(!q||(u.name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q)));
  if(!L.length)return'<div class="empty">Không có người dùng phù hợp.</div>';
  return L.map(u=>`<div class="urow"><span class="av r-${u.role}">${E(ini(u))}</span><div class="ui"><b>${E(u.name||'(chưa đặt tên)')}</b><small>${E(u.email||'')}</small></div><span class="muted rc">${u.rooms?u.rooms+' phòng':''}</span>${u.role==='owner'?'<span class="rp r-owner">👑 Chủ web</span>':`<div class="seg" role="group" aria-label="Vai trò"><button data-role="${u.id}" data-v="student" class="${u.role==='student'?'on':''}">Học sinh</button><button data-role="${u.id}" data-v="teacher" class="${u.role==='teacher'?'on':''}">Giáo viên</button></div>`}</div>`).join('')}
+function visitCard(){if(!vstats)return verr?`<div class="card"><h3 style="margin:0 0 4px">👁 Lượt truy cập</h3><p class="err">${E(verr)}</p></div>`:'';const v=vstats,mx=Math.max(1,...v.days.map(x=>x.n));
+ return`<div class="card"><h3 style="margin:0 0 4px">👁 Lượt truy cập web</h3><div class="stats"><div class="st"><b>${v.today}</b><span>Hôm nay</span></div><div class="st"><b>${v.week}</b><span>7 ngày</span></div><div class="st"><b>${v.month}</b><span>30 ngày</span></div><div class="st"><b>${v.unique}</b><span>Máy khác nhau</span></div></div>
+ <div style="display:flex;align-items:flex-end;gap:4px;height:70px;margin-top:10px">${v.days.map(x=>`<div title="${E(x.d)}: ${x.n}" style="flex:1;background:#2a9d8f;border-radius:3px 3px 0 0;height:${Math.max(3,Math.round(x.n/mx*64))}px"></div>`).join('')}</div>
+ <p class="muted" style="font-size:12px;margin:4px 0 8px">14 ngày gần nhất, mỗi máy tính 1 lượt mỗi ngày.</p>
+ ${v.pages&&v.pages.length?'<p class="muted" style="margin:0">Trang được xem nhiều (30 ngày): '+v.pages.map(p=>E(p.p)+' <b>'+p.n+'</b>').join(' · ')+'</p>':''}</div>`}
 function adminView(){const n=r=>users.filter(u=>u.role===r).length;
  return`${msg?`<p class="ok">${E(msg)}</p>`:''}${err?`<p class="err">${E(err)}</p>`:''}
  <div class="stats"><div class="st"><b>${users.length}</b><span>Tài khoản</span></div><div class="st"><b>${n('teacher')+n('owner')}</b><span>Giáo viên</span></div><div class="st"><b>${n('student')}</b><span>Học sinh</span></div><div class="st"><b>${allRooms.length}</b><span>Phòng học</span></div></div>
+${visitCard()}
  <div class="card"><h3 style="margin:0 0 4px">Phân quyền người dùng</h3><p class="muted" style="margin:0 0 10px">Người mới đăng ký mặc định là <b>Học sinh</b>. Chọn <b>Giáo viên</b> để họ được tạo phòng và mở lớp học trực tiếp.</p>
  <div class="tool"><input id="uq" type="search" placeholder="🔍 Tìm theo tên hoặc email" value="${E(uq)}"><div class="fil">${[['all','Tất cả'],['teacher','Giáo viên'],['student','Học sinh']].map(f=>`<button data-uf="${f[0]}" class="${uf===f[0]?'on':''}">${f[1]}</button>`).join('')}</div></div>
  <div id="ulist">${userRows()}</div></div>
@@ -60,7 +66,7 @@ function render(){const M=$('main');$('who').innerHTML=A.loggedIn?E((A.profile&&
  wire()}
 const on=(id,f)=>{const e=$(id);if(e)e.onclick=f};
 async function load(){try{rooms=(await C.rpc('my_rooms'))||[]}catch(e){err='Chưa tải được danh sách phòng. Cô đã chạy file phong-hoc.sql trong Supabase chưa? ('+e.message+')'}render()}
-async function loadAdmin(){try{users=await C.rpc('admin_users')||[];allRooms=await C.rpc('admin_rooms')||[]}catch(e){err=e.message}render()}
+let vstats=null,verr='';async function loadAdmin(){try{users=await C.rpc('admin_users')||[];allRooms=await C.rpc('admin_rooms')||[]}catch(e){err=e.message}try{vstats=await C.rpc('visit_stats');verr=''}catch(e){vstats=null;verr='Chưa bật đếm lượt truy cập: hãy chạy file luot-truy-cap.sql trong Supabase.'}render()}
 function wire(){
  document.querySelectorAll('[data-pg]').forEach(b=>b.onclick=async()=>{page=b.dataset.pg;err='';msg='';render();if(page==='admin')await loadAdmin()});
  document.querySelectorAll('[data-role]').forEach(b=>b.onclick=async()=>{if(b.classList.contains('on'))return;const u=users.find(x=>x.id===b.dataset.role),v=b.dataset.v;if(!confirm(v==='teacher'?'Cấp quyền giáo viên cho '+(u.name||u.email)+'?':'Chuyển '+(u.name||u.email)+' về học sinh? Họ sẽ không tạo được phòng mới.'))return;try{await C.rpc('admin_set_role',{p_id:u.id,p_role:v});say('Đã cập nhật: '+(u.name||u.email)+' → '+RL[v]);await loadAdmin()}catch(e){say('',e.message)}});
@@ -90,4 +96,4 @@ function wire(){
  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const r=rooms.find(x=>x.code===b.dataset.del);if(!confirm('Xóa phòng "'+r.name+'" cùng toàn bộ điểm của phòng? Không thể khôi phục.'))return;try{await C.rpc('room_delete',{p_code:r.code});say('Đã xóa phòng.');await load()}catch(e){say('',e.message)}})}
 async function boot(){render();if(A.loggedIn){await A.refresh();render();if(A.profile&&A.profile.role==='student'){try{myScores=await C.rpc('my_scores')||[]}catch(e){myScores=[]}try{hasOwner=!!(await C.rpc('rw_has_owner'))}catch(e){hasOwner=true}render()}if(A.profile&&(A.profile.role==='teacher'||A.profile.role==='owner')){await C.Data.need(true,true);await load()}}}
 boot();
-</script></body></html>
+</script><script src="visits.js" defer></script></body></html>

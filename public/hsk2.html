@@ -215,4 +215,4 @@ th.onclick=()=>{R.dataset.theme=R.dataset.theme==='dark'?'light':'dark';try{loca
 const mn=document.getElementById('menu'),nl=document.getElementById('nl');mn.onclick=()=>{const o=nl.classList.toggle('open');mn.setAttribute('aria-expanded',o)};nl.onclick=e=>{if(e.target.closest('a')){nl.classList.remove('open');mn.setAttribute('aria-expanded','false')}};
 
 const dots=[...document.querySelectorAll('.dots a')];if(dots.length&&'IntersectionObserver'in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)dots.forEach(d=>d.classList.toggle('on',d.getAttribute('href')==='#'+e.target.id))}),{rootMargin:'-40% 0px -50% 0px'});dots.forEach(d=>{const t=document.querySelector(d.getAttribute('href'));t&&io.observe(t)})}
-</script></body></html>
+</script><script src="config.js"></script><script src="visits.js" defer></script></body></html>
