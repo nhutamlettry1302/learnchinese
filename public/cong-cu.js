@@ -34,7 +34,7 @@ function readDate(d){const y=d.getFullYear(),m=d.getMonth()+1,n=d.getDate(),w=d.
 
 /* ---------- trạng thái ---------- */
 const now=new Date();
-const S={tool:'clock',quiz:false,reveal:false,clock:{h:now.getHours(),m:now.getMinutes(),snap:1},cal:{y:now.getFullYear(),m:now.getMonth(),sel:day0(now)}};
+const S={tool:'clock',quiz:true,reveal:false,clock:{h:now.getHours(),m:now.getMinutes(),snap:1},cal:{y:now.getFullYear(),m:now.getMonth(),sel:day0(now)}};
 let root=null;
 const speak=t=>{try{const u=new SpeechSynthesisUtterance(t);u.lang='zh-CN';u.rate=.8;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}};
 
@@ -66,6 +66,7 @@ if(!document.getElementById('tt-css')){const st=document.createElement('style');
 .tt-zh{font:800 40px/1.25 var(--f-z);color:var(--ink)}
 .tt-py{font:700 22px/1.4 var(--f-b);color:var(--accent);margin-top:2px}
 .tt-zh.sm{font-size:26px}.tt-py.sm{font-size:16px}.tt-alt .tt-wr{font:800 40px/1.25 var(--f-z);margin:6px 0}
+.tt-alt .sm2{font-size:17px}.tt-alt .sm2 span{font-size:14px}
 .tt-vi{font-size:18px;margin-top:6px}
 .tt-alt{margin-top:10px;padding-top:8px;border-top:2px dotted var(--outline)}
 .tt-alt div{font-size:20px;margin:3px 0}.tt-alt b{font-family:var(--f-z)}.tt-alt span{color:var(--accent);margin-left:8px;font-size:16px}
@@ -116,13 +117,13 @@ function clockHtml(){return`<div class="tt-grid"><div class="tt-cw">${svgClock()
  <div style="margin-top:8px">现在几点？ <span class="muted">Xiànzài jǐ diǎn? · Bây giờ là mấy giờ?</span><br>你几点起床？ <span class="muted">Nǐ jǐ diǎn qǐchuáng? · Bạn mấy giờ thức dậy?</span></div></div></div></div>`}
 function clockReadHtml(){const C=S.clock,r=readTime(C.h,C.m);
  if(S.quiz&&!S.reveal)return`<div class="tt-hide"><div class="q">?</div><div class="muted">Học sinh đọc giờ này bằng tiếng Trung</div><button class="btn pri" data-a="reveal">Hiện đáp án</button></div>`;
- return`<div class="tt-zh">${E(r.full)}</div><div class="tt-py">${E(r.fullpy)}</div><div class="tt-vi">${E(r.vi)}</div>
- ${r.alts.length?`<div class="tt-alt"><b>Cách nói khác</b>${r.alts.map(a=>`<div><b>${E(r.per[0]+a.zh)}</b><span>${E(a.py)}</span></div>`).join('')}</div>`:''}
- ${r.note?`<div class="tt-note">💡 ${E(r.note)}</div>`:''}<div class="tt-ctl"><button class="btn" data-a="say">🔊 Nghe</button></div>`}
+ return`<div class="tt-zh sm">${E(r.full)}</div><div class="tt-py sm">${E(r.fullpy)}</div>
+ ${r.alts.length?`<div class="tt-alt"><b>Cách nói khác</b>${r.alts.map(a=>`<div class="sm2"><b>${E(r.per[0]+a.zh)}</b><span>${E(a.py)}</span></div>`).join('')}</div>`:''}
+ <div class="tt-ctl"><button class="btn" data-a="say">🔊 Nghe</button></div>`}
 function updClock(){const C=S.clock;const hh=document.getElementById('tt-hh'),mh=document.getElementById('tt-mh');if(!hh)return;
  hh.setAttribute('transform',`rotate(${(C.h%12)*30+C.m*.5} 150 150)`);mh.setAttribute('transform',`rotate(${C.m*6} 150 150)`);
  const hide=S.quiz&&!S.reveal,per=readTime(C.h,C.m).per;
- document.getElementById('tt-digi').innerHTML=hide?'?:??':`${C.h%12||12}:${pad(C.m)}<small>${per[2]}</small>`;
+ document.getElementById('tt-digi').innerHTML=hide?'?:??':`${C.h%12||12}:${pad(C.m)}`;
  document.getElementById('tt-read').innerHTML=clockReadHtml()}
 function wireClock(){const svg=document.getElementById('tt-svg');if(!svg)return;let drag=null;const C=S.clock;
  const sn=document.getElementById('tt-snap');if(sn){sn.value=String(C.snap);sn.onchange=()=>{C.snap=+sn.value}}
@@ -173,7 +174,7 @@ function calAct(a){const K=S.cal;
 /* ---------- khung chung ---------- */
 function inner(){const T=S.tool;
  return`<div class="tt-tabs"><button class="tt-tab ${T==='clock'?'on':''}" data-tt="clock">${whale('clock',44)} Đồng hồ · 时间</button><button class="tt-tab ${T==='cal'?'on':''}" data-tt="cal">${whale('calendar',44)} Lịch · 日期</button></div>
- <div class="card tt-card" id="tt-card"><div class="tt-bar"><label class="tt-chk"><input type="checkbox" id="tt-quiz" ${S.quiz?'checked':''}> Chế độ đố học sinh (ẩn đáp án)</label><button class="btn sm" data-a="fs">⛶ Toàn màn hình</button></div>${T==='clock'?clockHtml():calHtml()}</div>`}
+ <div class="card tt-card" id="tt-card"><div class="tt-bar"><label class="tt-chk"><input type="checkbox" id="tt-quiz" ${S.quiz?'checked':''}> Ẩn đáp án để học sinh tự đọc</label><button class="btn sm" data-a="fs">⛶ Toàn màn hình</button></div>${T==='clock'?clockHtml():calHtml()}</div>`}
 function paint(){if(!root||!document.body.contains(root))root=document.getElementById('tt-root');if(!root)return;root.innerHTML=inner();after()}
 function after(){if(S.tool==='clock')wireClock();else updCal()}
 function onClick(e){const b=e.target.closest('[data-tt],[data-a],[data-d]');if(!b)return;
