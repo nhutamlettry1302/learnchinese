@@ -68,4 +68,4 @@ document.addEventListener('click',e=>{const gb=e.target.closest&&e.target.closes
  const qa={p:rq.prompt,a:rq.ans,ok:rq.opts[k]===rq.ans?1:0};if(rq&&rq.opts[k]===rq.ans&&Date.now()>=rlock)rq=seedQ();conn.send({t:'prog',id:ID,steps,ok,no,qa,cur:curQ()});render()});
 setInterval(()=>{if(S&&S.ph!=='lobby'&&(S.ph==='q'||S.ph==='run'))render()},1000);
 if(code&&name)start();else joinForm();
-</script><script src="visits.js" defer></script></body></html>
+</script><script src="visits.js" defer></script><script src="copyright.js"></script></body></html>

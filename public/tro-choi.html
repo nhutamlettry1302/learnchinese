@@ -341,4 +341,4 @@ function flap(R,end){R.innerHTML=`<div class="stat"><span class="pill">Điểm <
   if(!dead)raf=requestAnimationFrame(loop)};
  hr();mk();cleanup=()=>{dead=true;cancelAnimationFrame(raf);removeEventListener('keydown',kd)};ready(R,'Cá voi bay','Bấm vào khung hoặc nhấn Space để vỗ cánh. Bay qua cổng có đáp án đúng, tránh trần và đáy.',()=>{go=1;loop()})}
 home().then(()=>{const k=new URLSearchParams(location.search).get('game');if(k&&GAMES.some(g=>g.k===k))start(k)}).catch(e=>{M.innerHTML='<div class="card"><h2>Chưa tải được nội dung</h2><p>Hãy tải lại trang để thử lại.</p><button class="btn" onclick="location.reload()">Tải lại</button></div>';console.error(e)});
-</script><script src="visits.js" defer></script></body></html>
+</script><script src="visits.js" defer></script><script src="copyright.js"></script></body></html>

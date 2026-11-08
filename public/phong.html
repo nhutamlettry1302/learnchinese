@@ -112,4 +112,4 @@ function wire(){
  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const r=rooms.find(x=>x.code===b.dataset.del);if(!confirm('Xóa phòng "'+r.name+'" cùng toàn bộ điểm của phòng? Không thể khôi phục.'))return;try{await C.rpc('room_delete',{p_code:r.code});say('Đã xóa phòng.');await load()}catch(e){say('',e.message)}})}
 async function boot(){render();if(A.loggedIn){await A.refresh();render();if(A.profile&&A.profile.role==='student'){try{myScores=await C.rpc('my_scores')||[]}catch(e){myScores=[]}try{hasOwner=!!(await C.rpc('rw_has_owner'))}catch(e){hasOwner=true}render()}if(A.profile&&(A.profile.role==='teacher'||A.profile.role==='owner')){await C.Data.need(true,true);await load()}}}
 boot();
-</script><script src="visits.js" defer></script></body></html>
+</script><script src="visits.js" defer></script><script src="copyright.js"></script></body></html>

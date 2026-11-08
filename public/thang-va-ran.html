@@ -325,4 +325,4 @@ function flap(R,end){R.innerHTML=`<div class="stat"><span class="pill">Điểm <
   if(!dead)raf=requestAnimationFrame(loop)};
  hr();mk();cleanup=()=>{dead=true;cancelAnimationFrame(raf);removeEventListener('keydown',kd)};loop()}
 (async()=>{await C.Data.need(true,true);await load();const sel={vocab:{HSK1:C.Data.vocabLevels().find(l=>l.k==='HSK1').ls.map(x=>x.n)},gram:{}};C.Ctx.setSel(sel);await load();start('snake')})();
-</script><script src="visits.js" defer></script></body></html>
+</script><script src="visits.js" defer></script><script src="copyright.js"></script></body></html>

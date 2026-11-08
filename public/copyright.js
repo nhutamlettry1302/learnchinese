@@ -1,0 +1,2 @@
+/* Dòng bản quyền cuối trang */
+(function(){function add(){if(document.getElementById('rw-copy'))return;var d=document.createElement('p');d.id='rw-copy';d.textContent='© 2026 Cô Như Tâm – Rừng Cá Voi. Không sao chép khi chưa được phép';d.style.cssText='text-align:center;font:600 12.5px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#7b8a78;opacity:.85;margin:26px 12px 18px;padding:0';document.body.appendChild(d)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',add);else add()})();
