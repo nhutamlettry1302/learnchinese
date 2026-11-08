@@ -39,8 +39,9 @@ const IC=(n,w)=>`<img class="ic" src="assets/game/${n}.svg" alt="" style="width:
 const HEARTS=(n,m)=>Array.from({length:m||3},(_,i)=>`<img class="ic${i<n?'':' off'}" src="assets/game/pearl-life.svg" alt="" style="width:24px;height:24px">`).join('');
 const MEDAL=i=>i<3?IC(['medal-gold','medal-silver','medal-bronze'][i],26):String(i+1);
 const KIND={star:{ic:IC('star-fish',26),t:'Sao biển! +2 bước',d:2},rock:{ic:IC('rock',26),t:'Đá ngầm! lùi 1 bước',d:-1},whirl:{ic:IC('whirlpool',26),t:'Xoáy nước! đứng 2 giây',lock:2000}};
-function tiles(code,goal){let h=0;for(const c of String(code)+':'+goal)h=(h*31+c.charCodeAt(0))>>>0;const rnd=()=>{h=(h*1664525+1013904223)>>>0;return h/4294967296};
- const T={};let last=-9;for(let p=3;p<goal-1;p++){if(p-last<3)continue;const r=rnd();let k=null;if(r<.13)k='star';else if(r<.22)k='rock';else if(r<.29)k='whirl';if(k){T[p]=k;last=p}}return T}
+function tiles(code,goal,sd){let h=0;for(const c of String(code)+':'+goal+':'+(sd||0))h=(h*31+c.charCodeAt(0))>>>0;const rnd=()=>{h=(h*1664525+1013904223)>>>0;return h/4294967296};
+ /* chướng ngại vật rải ngẫu nhiên suốt đường đua, khoảng cách và loại thay đổi mỗi ván; cả lớp trong cùng ván có cùng một đường đua */
+ const T={};let p=2+Math.floor(rnd()*2);while(p<goal-1){const r=rnd();T[p]=r<.36?'star':r<.7?'rock':'whirl';p+=3+Math.floor(rnd()*3)}return T}
 function seedQ(C,content,sd,k){let a=0x9e3779b9^(sd|0)^Math.imul(k+1,2654435761);const R=Math.random;Math.random=()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};try{return C.makeQ(content)}finally{Math.random=R}}
 window.RWL={seedQ,connect,getRoom,rid,MOCK,PETN,petHtml,myPet,myChar,setPet,KIND,tiles,IC,HEARTS,MEDAL,CARC,carHtml};
 })();
