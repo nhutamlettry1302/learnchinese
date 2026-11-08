@@ -65,6 +65,7 @@ if(!document.getElementById('tt-css')){const st=document.createElement('style');
 .tt-read{border:2.5px dashed var(--outline);border-radius:18px;padding:14px 16px;background:var(--panel2);min-height:150px}
 .tt-zh{font:800 40px/1.25 var(--f-z);color:var(--ink)}
 .tt-py{font:700 22px/1.4 var(--f-b);color:var(--accent);margin-top:2px}
+.tt-zh.sm{font-size:26px}.tt-py.sm{font-size:16px}.tt-alt .tt-wr{font:800 40px/1.25 var(--f-z);margin:6px 0}
 .tt-vi{font-size:18px;margin-top:6px}
 .tt-alt{margin-top:10px;padding-top:8px;border-top:2px dotted var(--outline)}
 .tt-alt div{font-size:20px;margin:3px 0}.tt-alt b{font-family:var(--f-z)}.tt-alt span{color:var(--accent);margin-left:8px;font-size:16px}
@@ -89,9 +90,10 @@ if(!document.getElementById('tt-css')){const st=document.createElement('style');
 .tt-cal button.sel{background:var(--accent);color:var(--on-accent);box-shadow:0 3px 0 var(--outline)}
 .tt-cal i{visibility:hidden}
 .tt-card:fullscreen{background:var(--bg);padding:26px;overflow:auto;border-radius:0}
-.tt-card:fullscreen .tt-zh{font-size:64px}.tt-card:fullscreen .tt-py{font-size:32px}.tt-card:fullscreen .tt-vi{font-size:24px}
+.tt-card:fullscreen .tt-zh{font-size:64px}.tt-card:fullscreen .tt-py{font-size:32px}.tt-card:fullscreen .tt-zh.sm{font-size:26px}.tt-py.sm{font-size:16px}.tt-alt .tt-wr{font:800 40px/1.25 var(--f-z);margin:6px 0}
+.tt-vi{font-size:24px}
 .tt-card:fullscreen .tt-grid{grid-template-columns:minmax(300px,640px) 1fr}
-@media(max-width:560px){.tt-zh{font-size:32px}.tt-py{font-size:18px}.tt-digi{font-size:36px}.tt-nav .t{font-size:20px}}
+@media(max-width:560px){.tt-alt .tt-wr{font-size:34px}.tt-zh.sm{font-size:22px}.tt-zh{font-size:32px}.tt-py{font-size:18px}.tt-digi{font-size:36px}.tt-nav .t{font-size:20px}}
 `;document.head.appendChild(st)}
 
 /* ---------- Đồng hồ ---------- */
@@ -147,7 +149,7 @@ function calHtml(){const K=S.cal,first=new Date(K.y,K.m,1),off=(first.getDay()+6
  const L=['一','二','三','四','五','六','日'],V=['T2','T3','T4','T5','T6','T7','CN'];
  let cells=L.map((z,i)=>`<div class="wd ${i>4?'we':''}">${z}<small>${V[i]}</small></div>`).join('')+'<i></i>'.repeat(off).replace(/<i><\/i>/g,'<div></div>');
  for(let d=1;d<=n;d++){const dt=new Date(K.y,K.m,d),w=dt.getDay(),cls=[(w===0||w===6)?'we':'',+dt===+td?'td':'',+dt===+K.sel?'sel':''].join(' ');cells+=`<button class="${cls}" data-d="${d}">${d}</button>`}
- return`<div class="tt-grid"><div><div class="tt-nav"><button class="btn" data-a="y-">«</button><button class="btn" data-a="mo-">‹</button><div class="t">${K.y}年${K.m+1}月<div class="muted" style="font:700 14px var(--f-b)">${yp(K.y)} nián ${np(K.m+1)} yuè · Tháng ${K.m+1}/${K.y}</div></div><button class="btn" data-a="mo+">›</button><button class="btn" data-a="y+">»</button></div>
+ return`<div class="tt-grid"><div><div class="tt-nav"><button class="btn" data-a="y-">«</button><button class="btn" data-a="mo-">‹</button><div class="t">${K.y}年${K.m+1}月<div class="muted" style="font:700 14px var(--f-b)">${yp(K.y)} nián ${np(K.m+1)} yuè</div></div><button class="btn" data-a="mo+">›</button><button class="btn" data-a="y+">»</button></div>
  <div class="tt-cal">${cells}</div><div class="tt-ctl"><button class="btn" data-a="today">Hôm nay · 今天</button><button class="btn pri" data-a="rand">🎲 Ngày ngẫu nhiên</button></div></div>
  <div><div class="tt-read" id="tt-read"></div>
  <div class="tt-tip"><b>Cần nhớ</b><table>
@@ -156,9 +158,9 @@ function calHtml(){const K=S.cal,first=new Date(K.y,K.m,1),off=(first.getDay()+6
  <div style="margin-top:8px">今天几月几号？ <span class="muted">Jīntiān jǐ yuè jǐ hào? · Hôm nay ngày mấy tháng mấy?</span><br>今天星期几？ <span class="muted">Jīntiān xīngqī jǐ? · Hôm nay thứ mấy?</span><br>你的生日是几月几号？ <span class="muted">Nǐ de shēngrì shì jǐ yuè jǐ hào?</span></div></div></div></div>`}
 function calReadHtml(){const r=readDate(S.cal.sel);
  if(S.quiz&&!S.reveal)return`<div class="tt-hide"><div class="q">?</div><div class="muted">Học sinh đọc ngày này bằng tiếng Trung<br><b>${S.cal.sel.getDate()}/${S.cal.sel.getMonth()+1}/${S.cal.sel.getFullYear()}</b></div><button class="btn pri" data-a="reveal">Hiện đáp án</button></div>`;
- return`${r.rel?`<div class="tt-note" style="margin:0 0 6px"><b style="font:800 24px var(--f-z)">${r.rel[0]}</b> <span class="muted">${r.rel[1]} · ${r.rel[2]}</span></div>`:''}
- <div class="tt-zh">${E(r.zh)}</div><div class="tt-py">${E(r.py)}</div><div class="tt-vi">${E(r.vi)}</div>
- <div class="tt-alt"><b>Cách viết</b><div><b>${E(r.wr)}</b></div></div><div class="tt-ctl"><button class="btn" data-a="say">🔊 Nghe</button></div>`}
+ return`${r.rel?`<div class="tt-note" style="margin:0 0 6px"><b style="font:800 22px var(--f-z)">${r.rel[0]}</b> <span class="muted">${r.rel[1]}</span></div>`:''}
+ <div class="tt-zh sm">${E(r.zh)}</div><div class="tt-py sm">${E(r.py)}</div>
+ <div class="tt-alt"><b>Cách viết</b><div class="tt-wr">${E(r.wr)}</div></div><div class="tt-ctl"><button class="btn" data-a="say">🔊 Nghe</button></div>`}
 function updCal(){const e=document.getElementById('tt-read');if(e)e.innerHTML=calReadHtml()}
 function calAct(a){const K=S.cal;
  if(a==='mo-'||a==='mo+'||a==='y-'||a==='y+'){const dm=a==='mo-'?-1:a==='mo+'?1:a==='y-'?-12:12,d=new Date(K.y,K.m+dm,1);K.y=d.getFullYear();K.m=d.getMonth();const n=new Date(K.y,K.m+1,0).getDate();K.sel=new Date(K.y,K.m,Math.min(K.sel.getDate(),n))}
