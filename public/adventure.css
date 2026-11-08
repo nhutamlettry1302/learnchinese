@@ -17,3 +17,5 @@
 .scene-train .riding>.npc-sprite{left:23px;top:33px;--size:58px!important;clip-path:inset(0 0 25% 0)}
 
 .scene-train .world-name{left:calc(100% + 2px);bottom:17px;max-width:103px;font-size:10px;white-space:nowrap;z-index:5}.scene-train .world-racer{--stagger:0!important}@media(max-width:700px){.scene-train .world-name{left:calc(100% - 20px);font-size:8px;max-width:70px;bottom:9px}}
+
+.adventure-timer{color:#244c3d!important;display:inline-flex;align-items:center;gap:10px}.adventure-timer .tm-wh{display:inline-flex}
