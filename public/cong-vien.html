@@ -839,7 +839,7 @@ function startFlow(){if(ST.done)return;openProfile(true,()=>openLevel(true,()=>{
 syncUnlocks();syncProg();refreshHud();fit();setTimeout(startFlow,350);requestAnimationFrame(frame);
 window.__tp={P,PLACES,walkTo,NODES,openQ,openPlace,enterRoom,NPC,drawPerson,stepNpc,get Q(){return Q},get ST(){return ST},openHome,openWheel,awardWheel,get prog(){return prog},get S(){return S},CAM};
 </script>
-<script src="tasks.js"></script><script src="npc.js"></script><script src="pets.js"></script><script src="home3d.js"></script><script src="rooms3d.js"></script><script src="park2d.js"></script><script>
+<script src="tasks.js"></script><script src="i18n-zh.js"></script><script src="npc.js"></script><script src="pets.js"></script><script src="home3d.js"></script><script src="rooms3d.js"></script><script src="park2d.js"></script><script>
 /* cong-vien.html: mở thẳng công viên (bản tách từ thanh-pho.html) */
 (function(){var go=function(){try{var tp=window.__tp;var p=tp.PLACES.find(function(x){return x.id==='congvien'});window.enterRoom(p)}catch(e){setTimeout(go,300)}};setTimeout(go,900)})();
 </script><script src="config.js"></script><script src="visits.js" defer></script></body></html>
