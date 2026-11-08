@@ -22,3 +22,5 @@
 
 .world-item img{width:76px;height:76px}.adventure-scene.compact .world-item img{width:50px;height:50px}@media(max-width:700px){.world-item img{width:50px;height:50px}.adventure-scene.compact .world-item img{width:44px;height:44px}}
 .sc em img{max-width:62%}
+
+.world-item.new{animation:obpop .7s cubic-bezier(.2,1.6,.4,1)}@keyframes obpop{0%{transform:translate(-50%,-50%) scale(0);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
