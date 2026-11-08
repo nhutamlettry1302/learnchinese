@@ -46,8 +46,7 @@ function giftHtml(){const g=S.gifts&&S.gifts[ID];if(g!==undefined)return`<div cl
 function answer(k){if(!S||S.m!=='quiz'||S.ph!=='q'||mine!==null)return;mine=k;conn.send({t:'ans',id:ID,q:S.i,c:k});const q=S.q;if(window.rwSay&&q.zh)rwSay(q.prompt);render()}
 /* ---- Đua cá voi: mỗi bạn tự trả lời ---- */
 const curQ=()=>rq?rq.prompt+(rq.sub?' · '+rq.sub:''):'';
-let qn=0,qsd=null;
-function seedQ(){const sd=(S&&S.sd)||0;if(qsd!==sd){qsd=sd;qn=0}let a=0x9e3779b9^sd^(qn*2654435761);qn++;const R=Math.random;Math.random=()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};try{return C.makeQ(content)}finally{Math.random=R}}
+const seedQ=()=>RWL.seedQ(C,content,(S&&S.sd)||0,ok+no);
 function nextRace(){rq=seedQ();rlock=0}
 function ropeHtml(){const t=S.ts||[0,0],d=t[0]-t[1],pos=50-Math.max(-1,Math.min(1,d/S.goal))*42,mt=myTeam();return`<div class="row" style="justify-content:space-between;margin:6px 0"><span class="chip t0">Đỏ <b>${t[0]}</b></span><span class="chip t1">Xanh <b>${t[1]}</b></span></div><div class="rope"><i class="zr"></i><i class="zb"></i><span class="mid"></span><span class="flag" style="left:${pos}%">${RWL.IC("rope-flag",34)}</span></div><p class="muted" style="text-align:center;margin:4px 0">Bạn thuộc <b>đội ${mt?'Xanh':'Đỏ'}</b>. Trả lời đúng để kéo cờ về phía đội mình!</p>`}
 const SKN={car:'Đua xe',rocket:'Tên lửa',climb:'Leo núi',boat:'Đua thuyền',submarine:'Tàu ngầm',balloon:'Khinh khí cầu',train:'Chuyến tàu tri thức'};
