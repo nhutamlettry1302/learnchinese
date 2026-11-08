@@ -1,0 +1,20 @@
+.sbw{background:#e8efda;border:1px solid #ccd8bd;border-radius:22px;padding:12px;color:#244c3d}
+.sbd{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.sc{position:relative;background:#fffef5;border:1px solid #ccd8bd;border-radius:12px;box-shadow:0 3px 0 #cbd7ba;aspect-ratio:1.1;overflow:hidden;color:#304d3c;min-width:0}
+.sc.l{background:#d3e8c5}.sc.s{background:#f4d9d0}.sc.p.good{background:#f6ecc0}.sc.p.bad{background:#dfe6d9}.sc.goal{background:#ffe9a8}
+.sc .sn{position:absolute;left:6px;top:4px;font:800 clamp(12px,1.6vw,20px) var(--f-d,sans-serif);color:#244c3d;z-index:1}
+.sc em{position:absolute;inset:18% 0 0 0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-style:normal;opacity:.5;pointer-events:none}
+.sc em strong{font:800 clamp(9px,1vw,13px) var(--f-b,sans-serif);color:#3b5a40;background:#fffdf0b8;border-radius:8px;padding:0 5px;margin-top:-4px}
+.sc em img{max-width:48%;height:auto}
+.stks{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:0}
+.sc .stks{position:absolute;left:2px;right:2px;bottom:1px;z-index:2}
+.stk{display:inline-block;line-height:0;margin:0 -4px;filter:drop-shadow(0 2px 2px #0004)}
+.stk.me{filter:drop-shadow(0 0 4px #f2b705) drop-shadow(0 2px 2px #0004);z-index:3;animation:sbob 1.2s ease-in-out infinite}
+@keyframes sbob{50%{transform:translateY(-5px)}}
+.smore{font:800 12px var(--f-b,sans-serif);background:#244c3d;color:#fff;border-radius:10px;padding:1px 6px;align-self:center;margin-left:4px}
+.sstart{display:flex;align-items:center;gap:14px;margin-top:10px;background:#dce8cb;border-radius:12px;padding:8px 14px;min-height:64px}
+.sstart b{font:800 16px var(--f-d,sans-serif);color:#244c3d}.sstart small{color:#5a7a60}
+.slg{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:center;margin:12px 0 4px;font:700 13px var(--f-b,sans-serif);color:#4a6a50}
+.slg img{vertical-align:middle}
+.sdiceRow{display:flex;align-items:center;gap:12px;justify-content:center;margin:6px 0}
+@media(max-width:600px){.sbd{gap:3px}.sc{border-radius:8px}.sc em strong{display:none}}

@@ -31,6 +31,7 @@ SKART.train=c=>`<svg viewBox="0 0 120 64"><g stroke="#244f40" stroke-width="2.5"
 const skHtml=(sk,i,w,cls)=>{const c=CARC[i],h=Math.round(w*112/190);return`<span class="pw sk ${cls||''}" style="width:${w}px;height:${h}px">${SKART[sk](c).replace('<svg ',`<svg width="${w}" height="${h}" `)}</span>`};
 const carHtml=(i,w,cls)=>skHtml('car',i,w,cls);
 const petHtml=(i,w,cls)=>{i=((+i||0)%7+7)%7;if(window.RWL&&SKART[RWL.skin])return skHtml(RWL.skin,i,w,cls);const h=Math.round(w*112/190);return`<span class="pw ${cls||''}" style="width:${w}px;height:${h}px;background-size:${w*7}px ${h}px;background-position:-${i*w}px 0"></span>`};
+const myChar=()=>{let v=null;try{v=localStorage.getItem('rw_live_pet')}catch(e){}if(v===null){try{v=(JSON.parse(localStorage.getItem('tp_state')||'null')||{}).pet}catch(e){}}const n=(window.ROXIE_CHARACTERS||[]).length||7;return(((+v||0)%n)+n)%n};
 const myPet=()=>{let v=null;try{v=localStorage.getItem('rw_live_pet')}catch(e){}if(v===null){try{v=(JSON.parse(localStorage.getItem('tp_state')||'null')||{}).pet}catch(e){}}return((+v||0)%7+7)%7};
 const setPet=i=>{try{localStorage.setItem('rw_live_pet',String(i))}catch(e){}};
 /* Đường đua: phần thưởng và chướng ngại vật, cùng một dãy cho cả cô và học sinh (sinh từ mã phòng + số bước) */
@@ -41,5 +42,5 @@ const KIND={star:{ic:IC('star-fish',26),t:'Sao biển! +2 bước',d:2},rock:{ic
 function tiles(code,goal){let h=0;for(const c of String(code)+':'+goal)h=(h*31+c.charCodeAt(0))>>>0;const rnd=()=>{h=(h*1664525+1013904223)>>>0;return h/4294967296};
  const T={};let last=-9;for(let p=3;p<goal-1;p++){if(p-last<3)continue;const r=rnd();let k=null;if(r<.13)k='star';else if(r<.22)k='rock';else if(r<.29)k='whirl';if(k){T[p]=k;last=p}}return T}
 function seedQ(C,content,sd,k){let a=0x9e3779b9^(sd|0)^Math.imul(k+1,2654435761);const R=Math.random;Math.random=()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};try{return C.makeQ(content)}finally{Math.random=R}}
-window.RWL={seedQ,connect,getRoom,rid,MOCK,PETN,petHtml,myPet,setPet,KIND,tiles,IC,HEARTS,MEDAL,CARC,carHtml};
+window.RWL={seedQ,connect,getRoom,rid,MOCK,PETN,petHtml,myPet,myChar,setPet,KIND,tiles,IC,HEARTS,MEDAL,CARC,carHtml};
 })();
