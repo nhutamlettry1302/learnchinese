@@ -2,6 +2,9 @@
 (function(){
 const on=()=>{try{return !(typeof ST!=='undefined'&&ST&&ST.lv==='HSK1')}catch(e){return true}};
 const X={ // nguyên cả đoạn chữ
+'Thành Phố Cá Voi':'鲸鱼城市','Cấp/Bài':'等级/课','Nhà':'家','Tủ skin':'衣橱','Quay':'转盘','Địa điểm':'地点','👘 Tủ skin':'👘 衣橱',
+'Bấm vào một tòa nhà hoặc con đường để đi':'点击建筑或道路前往','Bấm vào tòa nhà để vào làm nhiệm vụ':'点击建筑进入做任务','Bấm vào một tòa nhà để đi tiếp':'点击一栋建筑继续','Bấm vào tòa nhà có dấu ! để bắt đầu':'点击带“!”的建筑开始',
+'Chủ đề thành phố':'城市主题','Tất cả các bài':'全部课程',
 'Tiếp tục':'继续','Tạm biệt':'再见','Ra phố':'回街上','Mặc định':'默认','Tường:':'墙壁：','Sàn:':'地板：','Bỏ thử':'取消试看','👁 Thử':'👁 试看',
 '🚶 Đi lại, ngồi, nằm':'🚶 走动、坐、躺','🚶 Đi, ngồi, nằm':'🚶 走动、坐、躺','✋ Dời đồ':'✋ 移动家具','🧹 Cất đồ':'🧹 收起家具','🎒 Đồ của tôi':'🎒 我的物品','🛍️ Cửa hàng':'🛍️ 商店',
 '💬 Đã trò chuyện hôm nay':'💬 今天已聊过','💬 Trò chuyện (có thưởng)':'💬 聊天（有奖励）','✅ Đã nhận thưởng hôm nay':'✅ 今天已领奖','🎁 Nhận thưởng nhiệm vụ':'🎁 领取任务奖励',
@@ -15,6 +18,7 @@ const X={ // nguyên cả đoạn chữ
 'Bấm vào sàn hoặc tường để đặt':'点击地板或墙壁来摆放','Bấm một món rồi bấm chỗ mới':'先点一件家具，再点新位置','Bấm vào món đồ để cất lại':'点击家具把它收起来','Bấm vào sàn để đứng dậy':'点击地板站起来','Bấm ghế/giường để ngồi/nằm, bấm sàn để đi':'点击椅子/床来坐/躺，点击地板来走动',
 'Cô tặng bạn giường, sofa, ghế và chậu cây cho căn nhà 3D!':'老师送你床、沙发、椅子和盆栽，布置你的3D小屋！','Giáo viên tặng bạn giường, sofa và ghế để thử ngồi, nằm!':'老师送你床、沙发和椅子，试试坐一坐、躺一躺！'};
 const R=[ // mẫu có số / tên
+[/^Khám phá (\d+) khu$/,'探索 $1 个区域'],[/^Đang học: (.*)$/,(m,a)=>'正在学习：'+a.replace(/Tất cả các bài/,'全部课程').replace(/Chủ đề thành phố/,'城市主题').replace(/Bài (\d+)/,'第$1课')],
 [/^Nhà của (.*) 🏠$/,'$1的家 🏠'],[/^Bấm vào phòng để đặt (.*)$/,'点击房间来摆放 $1'],[/^Bấm vào sàn hoặc tường để đặt (.*)$/,'点击地板或墙壁来摆放 $1'],[/^Bấm vào chỗ mới để đặt (.*)$/,'点击新位置来摆放 $1'],
 [/^Bấm vào chỗ mới$/,'点击新位置'],
 [/^(\s*)hoàn thành thẻ\s*$/,'$1在这里完成'],[/^\s*ở đây (\d+) lần \((\d+)\/(\d+)\)\s*$/,' 卡 $1 次（$2/$3）'],
@@ -29,10 +33,10 @@ const ORIG=new WeakMap();
 function walk(n){if(n.nodeType===3){const p=n.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA|INPUT)$/.test(p.nodeName))return;const o=ORIG.has(n)?ORIG.get(n):n.data;if(!ORIG.has(n))ORIG.set(n,o);const v=on()?tr(o):o;if(n.data!==v){busy=1;n.data=v;busy=0}else if(!ORIG.has(n)){}return}
  if(n.nodeType===1&&!/^(SCRIPT|STYLE)$/.test(n.nodeName))n.childNodes.forEach(walk)}
 let busy=0;
-function run(){['pm','toast','hint'].forEach(id=>{const e=document.getElementById(id);if(e)walk(e)})}
+function run(){['pm','toast','hint','districtLauncher'].forEach(id=>{const e=document.getElementById(id);if(e)walk(e)});const tp=document.querySelector('.top');if(tp)walk(tp)}
 // ghi lại bản gốc khi nội dung bị trang ghi đè
 const mo=new MutationObserver(ms=>{if(busy)return;for(const m of ms){m.addedNodes&&m.addedNodes.forEach(n=>walk(n));if(m.type==='characterData'){ORIG.delete(m.target);walk(m.target)}}});
-function start(){['pm','toast'].forEach(id=>{const e=document.getElementById(id);if(e)mo.observe(e,{childList:true,subtree:true,characterData:true})});run()}
+function start(){['pm','toast','hint'].forEach(id=>{const e=document.getElementById(id);if(e)mo.observe(e,{childList:true,subtree:true,characterData:true})});const tp=document.querySelector('.top');if(tp)mo.observe(tp,{childList:true,subtree:true,characterData:true});run()}
 // canvas: các dòng hướng dẫn vẽ trong nhà
 const P=CanvasRenderingContext2D.prototype;['fillText','strokeText'].forEach(f=>{const o=P[f];P[f]=function(t,...a){return o.call(this,typeof t==='string'?tr(t):t,...a)}});
 window.ZH={on,tr,DAILYZ};
