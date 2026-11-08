@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Lớp học trực tiếp – Cô điều khiển</title>
+<title>Lớp học trực tiếp – Giáo viên điều khiển</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&family=Noto+Serif+SC:wght@600;800&display=swap">
 <link rel="stylesheet" href="rwlive.css">
 <script>try{var t=localStorage.getItem('rw_theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 </head><body><div class="wrap">
-<div class="top"><a class="btn sm" href="phong.html">← Phòng của cô</a><span class="brand"><i class="lg"></i>Lớp học trực tiếp</span><span class="sp"></span><span class="muted" id="cnt"></span></div>
+<div class="top"><a class="btn sm" href="phong.html">← Phòng của giáo viên</a><span class="brand"><i class="lg"></i>Lớp học trực tiếp</span><span class="sp"></span><span class="muted" id="cnt"></span></div>
 <div id="main"><p class="muted">Đang kết nối…</p></div></div>
 <script src="config.js"></script><script src="audio.js"></script><script src="rwcore.js"></script><script src="rwlive.js"></script>
 <script>
@@ -41,7 +41,7 @@ function onMsg(m){if(!m||!m.id)return;let p=H.P[m.id];
  if(m.t==='prog'&&H.game==='coop'&&H.ph==='run'){p.steps=Math.max(0,Math.min(999,+m.steps||0));p.ok=+m.ok||0;p.no=+m.no||0;if(act().reduce((a,x)=>a+x.steps,0)>=H.hp)endGame();else{render();send()}}
  else if(m.t==='prog'&&(H.game==='race'||H.game==='tug')&&H.ph==='run'){if(H.game==='tug'){p.steps=Math.max(0,Math.min(999,+m.steps||0));p.ok=+m.ok||0;p.no=+m.no||0;const t=teamScores('steps');if(Math.abs(t[0]-t[1])>=H.goal)endGame();else{render();send()}}else{p.steps=Math.max(0,Math.min(H.goal,+m.steps||0));p.ok=+m.ok||0;p.no=+m.no||0;if(p.steps>=H.goal)endGame();else if(H.rule==='survive'&&act().length&&act().every(x=>x.no>=3))endGame();else render()}}}
 function startQuiz(){const qs=[],seen=new Set();let g=0;while(qs.length<H.n&&g++<H.n*30){const q=C.makeQ(H.content);if(q&&!seen.has(q.prompt)){seen.add(q.prompt);qs.push(q)}}
- if(!qs.length){alert('Nội dung chưa đủ để ra câu hỏi (cần ít nhất 4 từ). Cô chọn thêm bài trong phòng nhé.');return}
+ if(!qs.length){alert('Nội dung chưa đủ để ra câu hỏi (cần ít nhất 4 từ). Hãy chọn thêm bài trong phòng nhé.');return}
  H.qs=qs;H.n=qs.length;Object.values(H.P).forEach(p=>{p.score=0;p.streak=0;p.a={}});H.i=0;nextQ()}
 function nextQ(){H.gifts={};H.ph='q';H.t0=Date.now();H.counts=[];H.res={};render();send()}
 function reveal(){if(H.ph!=='q')return;const q=H.qs[H.i];H.ph='rv';H.counts=q.opts.map(()=>0);H.res={};
@@ -62,7 +62,7 @@ function render(){const m=$('main');if(!m||!H.room)return;if(H.ph==='lobby')save
  <p class="muted" style="margin:4px 0">Hoặc chọn nhanh một trò khác (cùng cách chơi: mỗi bạn tự trả lời trên máy):</p><div class="row" style="margin:6px 0">${PRESETS.map(x=>`<button class="btn sm ${H.preset===x.k?'pri':''}" data-p="${x.k}">${x.n}</button>`).join('')}</div>
  <div class="row">${H.game==='quiz'?`<div style="width:150px"><label>Số câu</label><input type="number" id="sn" min="3" max="60" value="${H.n}"></div><div style="width:150px"><label>Giây mỗi câu</label><input type="number" id="sd" min="5" max="60" value="${H.dur}"></div>`:`<div style="width:150px"><label>${H.game==='tug'?'Chênh lệch điểm để thắng':H.game==='coop'?'Số câu đúng mỗi bạn cần góp':'Số bước tới đích'}</label><input type="number" id="sg" min="5" max="60" value="${H.goal}"></div><div style="width:170px"><label>Thời gian tối đa (giây)</label><input type="number" id="sr" min="30" max="900" value="${H.rdur}"></div>`}
  ${H.game==='quiz'?`<label style="display:flex;gap:8px;align-items:center;margin-top:24px;color:var(--ink)"><input type="checkbox" id="sgf" style="width:auto" ${H.gift?'checked':''}> 🎁 Hộp quà may mắn</label>`:''}<label style="display:flex;gap:8px;align-items:center;margin-top:24px;color:var(--ink)"><input type="checkbox" id="stm" style="width:auto" ${H.teams||H.game==='tug'?'checked':''} ${H.game==='tug'?'disabled':''}> Chia 2 đội (Đỏ – Xanh)</label></div>
- <p class="muted">Nội dung: ${sel.vocab.length} từ vựng · ${sel.quiz.length} câu ngữ pháp (theo bài cô đã chọn cho phòng).</p></div>
+ <p class="muted">Nội dung: ${sel.vocab.length} từ vựng · ${sel.quiz.length} câu ngữ pháp (theo bài đã chọn cho phòng).</p></div>
  <div class="card"><h2>Học sinh đã vào (${act().length})</h2><div class="chips" style="margin:10px 0">${act().map(p=>`<span class="chip ${H.teams?'t'+p.team:''}">${RWL.petHtml(p.pet,34)} ${E(p.name)}</span>`).join('')||'<span class="muted">Chưa có ai. Gửi mã phòng cho học sinh nhé.</span>'}</div><button class="btn pri" id="go">▶ Bắt đầu</button></div>`}
  else if(H.game==='quiz'&&(H.ph==='q'||H.ph==='rv')){const q=H.qs[H.i],left=Math.max(0,H.dur-(Date.now()-H.t0)/1000),na=act().filter(p=>p.a[H.i]!==undefined).length;
   h=`<div class="card"><div class="row"><span class="pill">Câu ${H.i+1}/${H.n}</span><span class="sp" style="flex:1"></span>${H.ph==='q'?`<span class="timer">${Math.ceil(left)}</span>`:''}</div><div class="bar" style="margin:10px 0"><i style="width:${H.ph==='q'?left/H.dur*100:0}%"></i></div>
@@ -88,7 +88,7 @@ function render(){const m=$('main');if(!m||!H.room)return;if(H.ph==='lobby')save
   ${rankCard()}${qPanel()}<div class="row" style="margin-top:12px"><span class="muted">Học sinh tự trả lời trên máy; trả lời đúng thì tiến 1 bước.${H.rule==='penalty'?' Trả lời sai thì lùi 1 bước.':H.rule==='survive'?' Sai 3 lần là bị loại.':''}</span><span style="flex:1"></span><button class="btn gold" id="end">Kết thúc</button></div></div>`}
  else if(H.ph==='end'){const R=H.game==='quiz'?board().map(p=>[p.id,p.name,p.score,p.team]):Object.values(H.P).sort((a,b)=>b.steps-a.steps||a.no-b.no).map(p=>[p.id,p.name,p.steps,p.team]);
   h=`<div class="card"><h2 style="text-align:center">Kết quả</h2>${H.game==='coop'?(()=>{const dm=Object.values(H.P).reduce((x,p)=>x+p.steps,0),w=dm>=H.hp;return`<p style="text-align:center;font:800 22px var(--f-d)">${w?(H.skin==='boss'?'Cả lớp đã hạ trùm cá mập!':'Cả lớp đã xây xong tháp!'):(H.skin==='boss'?'Hết giờ, trùm cá mập còn '+(H.hp-dm)+' máu':'Hết giờ, tháp mới cao '+dm+'/'+H.hp+' tầng')}</p>`})():''}${teamBar(teamScores(H.game!=='quiz'?'steps':''))}<div class="pod">${[1,0,2].map(i=>R[i]?`<div class="p${i+1}">${medal(i)}<br>${E(R[i][1])}<br>${R[i][2]}</div>`:'').join('')}</div>${rankHtml(R.slice(0,30),H.game==='race'?' bước':H.game==='tug'?' điểm':H.game==='coop'?' đóng góp':'')}
-  <p class="muted">Điểm đã được lưu vào phòng, cô xem ở trang "Phòng của cô".</p><div class="row"><button class="btn pri" id="again">Chơi lại</button><a class="btn" href="phong.html">Về phòng của cô</a></div></div>`}
+  <p class="muted">Điểm đã được lưu vào phòng, bạn xem ở trang "Phòng của giáo viên".</p><div class="row"><button class="btn pri" id="again">Chơi lại</button><a class="btn" href="phong.html">Về phòng của giáo viên</a></div></div>`}
  m.innerHTML=h;wire()}
 function wire(){const g=(id,f)=>{const e=$(id);if(e)e.onclick=f};
  document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{saveSet();const x=PRESETS.find(y=>y.k===b.dataset.p);H.preset=x.k;H.game=x.g;H.skin=x.sk;H.rule=x.rule;H.teams=false;if(H.goal<8||H.goal>40)H.goal=x.g==='coop'?12:25;render()});
@@ -100,5 +100,5 @@ function saveSet(){const v=id=>{const e=$(id);return e?+e.value:null};const gf=$
  H.room=await RWL.getRoom(code);const cfg=H.room.config||{};await C.Data.need(true,Object.keys(cfg.gram||{}).length>0);
  H.content={vocab:C.Data.vocab(cfg.vocab),quiz:C.Data.gramQuiz(cfg.gram),points:[]};
  conn=await RWL.connect(code,onMsg);setInterval(()=>{if(H.ph==='q'&&Date.now()-H.t0>=H.dur*1000)reveal();if(H.ph==='run'&&Date.now()-H.t0>=H.rdur*1000)endGame();if(H.ph==='q'||H.ph==='run')render();send()},1000);render()}
- catch(e){$('main').innerHTML='<div class="card"><p class="err">'+E(e.message||e)+'</p><a class="btn" href="phong.html">Về phòng của cô</a></div>'}})();
+ catch(e){$('main').innerHTML='<div class="card"><p class="err">'+E(e.message||e)+'</p><a class="btn" href="phong.html">Về phòng của giáo viên</a></div>'}})();
 </script><script src="visits.js" defer></script></body></html>

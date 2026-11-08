@@ -1112,7 +1112,7 @@ function lbHtml(rows){
 async function lbLoad(){ try{ return await rpc('leaderboard', { p_game: gameKey(), p_code: me.code, p_limit: 10 }); }catch(e){ return null; } }
 function syncMe(){ $('bMe').querySelector('.lb').textContent = me ? me.name.slice(0, 10) : 'Vào lớp'; }
 function loginM(){
-  modal('Vào lớp', '<p class="sub">Nhập tên và mã lớp cô cho để điểm của bạn vào bảng xếp hạng.</p><input class="inp" id="in1" placeholder="Tên của bạn" maxlength="24" autocomplete="nickname" value="' + (me ? esc(me.name) : '') + '"><input class="inp" id="in2" placeholder="Mã lớp" maxlength="20" autocapitalize="characters" value="' + (me ? esc(me.code) : '') + '" style="margin-top:8px"><p id="er" class="wl"></p><div class="row"><button class="btn go" id="mGo">Vào lớp</button><button class="btn" id="mCl">Đóng</button></div>');
+  modal('Vào lớp', '<p class="sub">Nhập tên và mã lớp do giáo viên cấp để điểm của bạn vào bảng xếp hạng.</p><input class="inp" id="in1" placeholder="Tên của bạn" maxlength="24" autocomplete="nickname" value="' + (me ? esc(me.name) : '') + '"><input class="inp" id="in2" placeholder="Mã lớp" maxlength="20" autocapitalize="characters" value="' + (me ? esc(me.code) : '') + '" style="margin-top:8px"><p id="er" class="wl"></p><div class="row"><button class="btn go" id="mGo">Vào lớp</button><button class="btn" id="mCl">Đóng</button></div>');
   $('mCl').onclick = closeM;
   $('mGo').onclick = async () => {
     const n = $('in1').value.trim(), c = $('in2').value.trim().toUpperCase();

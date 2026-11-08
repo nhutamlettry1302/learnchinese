@@ -50,11 +50,11 @@ async function load(){CT=await C.Ctx.load()}
 function sum(s){const n=o=>Object.values(o||{}).reduce((a,l)=>a+l.length,0);return n(s.vocab)+' bài từ vựng · '+n(s.gram)+' bài ngữ pháp'}
 async function home(){cleanup();cleanup=()=>{};await C.Data.need(true,false);await load();const inR=C.Ctx.inRoom,r=C.Room.cfg,sel=C.Ctx.sel,LV=C.Data.vocabLevels();
  const curLv=LV.find(l=>{const a=(sel.vocab||{})[l.k];return a&&Object.keys(sel.vocab).length===1&&a.length===l.ls.length});
- M.innerHTML=`<div class="card">${inR?`<div class="row"><div style="flex:1;min-width:200px"><b>Đang chơi theo phòng ${E(r.code)} · ${E(r.name)}</b><div class="muted">${CT.vocab.length} từ vựng · ${CT.quiz.length} câu ngữ pháp · điểm được gửi vào phòng của cô</div></div><button class="btn sm" id="lv">Chơi tự do</button></div>`
+ M.innerHTML=`<div class="card">${inR?`<div class="row"><div style="flex:1;min-width:200px"><b>Đang chơi theo phòng ${E(r.code)} · ${E(r.name)}</b><div class="muted">${CT.vocab.length} từ vựng · ${CT.quiz.length} câu ngữ pháp · điểm được gửi vào phòng của giáo viên</div></div><button class="btn sm" id="lv">Chơi tự do</button></div>`
   :`<b style="font:800 18px var(--f-d)">Chọn cấp độ để ôn</b><div class="muted" style="margin:2px 0 10px">${curLv?'Đang chọn: '+E(curLv.n)+' (tất cả bài)':'Đang chọn: '+sum(sel)}</div>
   <div class="pick-lv">${LV.map(l=>`<span class="pk ${curLv&&curLv.k===l.k?'on':''}" data-lvl="${E(l.k)}">${E(l.n)}</span>`).join('')}</div>
   <div class="row" style="margin-top:10px"><button class="btn sm" id="pk">📚 Chọn bài cụ thể</button><span class="muted">${CT.vocab.length} từ vựng · ${CT.quiz.length} câu ngữ pháp</span></div>
-  <p class="muted" style="margin:10px 0 0">Đang học theo lớp của cô? Vào <a href="live.html"><b>Phòng học</b></a> bằng mã phòng.</p>`}
+  <p class="muted" style="margin:10px 0 0">Đang học theo lớp của giáo viên? Vào <a href="live.html"><b>Phòng học</b></a> bằng mã phòng.</p>`}
   ${msg?`<p class="err">${E(msg)}</p>`:''}</div>
  <div class="grid" style="margin-top:12px">${GAMES.map(g=>`<button class="gc" data-g="${g.k}"><span class="ic">${gic(g.k,52)}</span><b>${g.n}</b><small>${g.d}</small>${best(g.k)?`<div style="margin-top:6px"><span class="pill">Kỷ lục ${best(g.k)}</span></div>`:''}</button>`).join('')}</div>`;
  const lvb=$('lv');if(lvb)lvb.onclick=()=>{C.Room.leave();home()};const pk=$('pk');if(pk)pk.onclick=picker;
@@ -79,7 +79,7 @@ function start(k){cleanup();cleanup=()=>{};const g=GAMES.find(x=>x.k===k);
  G($('g'),score=>finish(k,g,score,()=>start(k)))}
 function finish(k,g,score,again){cleanup();cleanup=()=>{};score=Math.max(0,Math.round(score));const nb=score>best(k);if(nb)C.ls.set('rw_best_'+k,String(score));
  const inR=C.Ctx.inRoom;if(inR)C.submit('solo-'+k,score);
- $('g').innerHTML=`<div style="text-align:center"><div class="big2">${nb?RWL.IC('medal-gold',54):RWL.petHtml(RWL.myPet(),84)} ${score}</div><p>${nb?'Kỷ lục mới!':'Kỷ lục của bạn: '+best(k)}</p>${inR?'<p class="muted">Điểm đã gửi vào phòng của cô.</p>':'<p class="muted">Vào phòng bằng mã để điểm hiện trên bảng xếp hạng của lớp.</p>'}<div class="row" style="justify-content:center"><button class="btn pri" id="ag">Chơi lại</button><button class="btn" id="bk2">Chọn trò khác</button></div></div>`;$('ag').onclick=again;$('bk2').onclick=()=>home()}
+ $('g').innerHTML=`<div style="text-align:center"><div class="big2">${nb?RWL.IC('medal-gold',54):RWL.petHtml(RWL.myPet(),84)} ${score}</div><p>${nb?'Kỷ lục mới!':'Kỷ lục của bạn: '+best(k)}</p>${inR?'<p class="muted">Điểm đã gửi vào phòng của giáo viên.</p>':'<p class="muted">Vào phòng bằng mã để điểm hiện trên bảng xếp hạng của lớp.</p>'}<div class="row" style="justify-content:center"><button class="btn pri" id="ag">Chơi lại</button><button class="btn" id="bk2">Chọn trò khác</button></div></div>`;$('ag').onclick=again;$('bk2').onclick=()=>home()}
 const S=C.shuf,rnd=n=>Math.floor(Math.random()*n),zhFont=w=>/[一-鿿]/.test(w);
 const wordsN=n=>{const seen=new Set(),o=[];for(const w of S(CT.vocab)){if(seen.has(w.zh)||seen.has(w.vn))continue;seen.add(w.zh);seen.add(w.vn);o.push(w);if(o.length>=n)break}return o};
 /* 1. Nối cặp */
