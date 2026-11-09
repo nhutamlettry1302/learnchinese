@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="phong-theme.css"><link rel="stylesheet" href="adventure.css"><link rel="stylesheet" href="snakeboard.css"></head><body class="student-page"><div class="wrap narrow">
 <div class="top"><a class="btn sm" href="index.html">← Trang chủ</a><span class="brand"><i class="lg"></i>Lớp học trực tiếp</span></div>
 <div id="main"></div></div>
-<script src="whales.js"></script><script src="config.js"></script><script src="audio.js"></script><script src="rwcore.js"></script><script src="rwlive.js"></script><script src="characters.js"></script><script src="adventure.js"></script><script src="snakeboard.js"></script>
+<script src="whales.js"></script><script src="config.js"></script><script src="audio.js"></script><script src="rwcore.js"></script><script src="rwlive.js?v=20261110"></script><script src="characters.js"></script><script src="adventure.js"></script><script src="snakeboard.js"></script>
 <script>
 const C=RWC,$=id=>document.getElementById(id),E=C.esc,ID=RWL.rid();
 let code=(new URLSearchParams(location.search).get('phong')||'').toUpperCase(),name='',room=null,conn=null,S=null,got=0,mine=null,locked=false,ok=0,no=0,steps=0,evt='',evtT=0,evtBad=false,rq=null,content=null,rlock=0,done=false,hit={},lastDice=0;
@@ -18,7 +18,7 @@ function joinForm(err){$('main').innerHTML=`<section class="student-welcome">${R
 async function start(){$('main').innerHTML='<p class="muted">Đang vào phòng…</p>';try{room=await RWL.getRoom(code);if(room.closed)throw new Error('Phòng này đã đóng.');
  const cfg=room.config||{};await C.Data.need(true,Object.keys(cfg.gram||{}).length>0);content={vocab:C.Data.vocab(cfg.vocab),quiz:C.Data.gramQuiz(cfg.gram)};
  C.ls.set('rw_room',JSON.stringify(room));C.ls.set('rw_me',JSON.stringify({name,code:room.code,cls:room.name}));
- conn=await RWL.connect(code,onMsg);join();setInterval(()=>conn.send({t:'ping',id:ID,cur:curQ()}),3000);setInterval(()=>{if(S&&Date.now()-got>5000)render()},1000);render()}catch(e){joinForm(e.message||String(e))}}
+ conn=await RWL.connect(code,onMsg,{role:'student',id:ID});join();setInterval(()=>conn.send({t:'ping',id:ID,cur:curQ(),name,pet:RWL.myChar(),uid:(C.Auth.loggedIn&&C.Auth.user&&C.Auth.user.id)||null}),5000);setInterval(()=>{if(S&&Date.now()-got>5000)render()},1000);render()}catch(e){joinForm(e.message||String(e))}}
 const join=()=>conn.send({t:'join',id:ID,name,pet:RWL.myChar(),uid:(C.Auth.loggedIn&&C.Auth.user&&C.Auth.user.id)||null});
 function onMsg(m){if(!m||m.t!=='st')return;RWL.skin=m.sk||'whale';window.RULE=m.rule||'normal';const prev=S&&S.session===m.session?S:null;const first=!prev;S=m;got=Date.now();
  if(!prev||prev.i!==m.i||prev.m!==m.m||(prev.ph==='lobby'&&m.ph!=='lobby')){mine=null;locked=false}

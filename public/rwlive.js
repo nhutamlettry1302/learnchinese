@@ -3,14 +3,19 @@
 const C=window.RWC,RW=window.RW||{};
 const MOCK=/[?&]mock=1/.test(location.search);
 const SB_URL='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
-async function connect(code,onMsg){
+/* Chia học sinh vào các kênh nhỏ (SHARDS) để mỗi tin nhắn chỉ gửi tới vài bạn cùng kênh + giáo viên,
+   thay vì gửi tới cả lớp. Lớp 28 bạn trước đây tạo ra hàng trăm tin/giây và bị Supabase chặn. */
+const SHARDS=14;
+const shardOf=id=>{let h=0;for(const c of String(id||''))h=(h*31+c.charCodeAt(0))>>>0;return h%SHARDS};
+async function connect(code,onMsg,opts){opts=opts||{};const host=opts.role==='host';
  if(MOCK){const bc=new BroadcastChannel('rwl:'+code);bc.onmessage=e=>onMsg(e.data);return{send:m=>bc.postMessage(m),close:()=>bc.close(),mock:true}}
  await C.loadScript(SB_URL);
- const sb=window.supabase.createClient(RW.url,RW.key,{realtime:{params:{eventsPerSecond:30}}});
- const ch=sb.channel('rwl:'+code,{config:{broadcast:{self:false,ack:false}}});
- ch.on('broadcast',{event:'m'},p=>onMsg(p.payload));
- await new Promise((ok,no)=>{const t=setTimeout(()=>no(new Error('Không kết nối được phòng trực tiếp. Kiểm tra mạng rồi thử lại.')),12000);ch.subscribe(s=>{if(s==='SUBSCRIBED'){clearTimeout(t);ok()}else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT'){clearTimeout(t);no(new Error('Không kết nối được phòng trực tiếp.'))}})});
- return{send:m=>ch.send({type:'broadcast',event:'m',payload:m}),close:()=>{try{sb.removeChannel(ch)}catch(e){}}}
+ const sb=window.supabase.createClient(RW.url,RW.key,{realtime:{params:{eventsPerSecond:80}}});
+ /* giáo viên nghe tất cả kênh (kể cả kênh cũ để trình duyệt chưa tải lại vẫn vào được); học sinh chỉ vào kênh của mình */
+ const names=host?['rwl:'+code,...Array.from({length:SHARDS},(_,i)=>'rwl:'+code+':s'+i)]:['rwl:'+code+':s'+shardOf(opts.id)];
+ const chs=names.map(n=>{const ch=sb.channel(n,{config:{broadcast:{self:false,ack:false}}});ch.on('broadcast',{event:'m'},p=>onMsg(p.payload));return ch});
+ await Promise.all(chs.map(ch=>new Promise((ok,no)=>{const t=setTimeout(()=>no(new Error('Không kết nối được phòng trực tiếp. Kiểm tra mạng rồi thử lại.')),12000);ch.subscribe(s=>{if(s==='SUBSCRIBED'){clearTimeout(t);ok()}else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT'){clearTimeout(t);no(new Error('Không kết nối được phòng trực tiếp.'))}})})));
+ return{send:m=>chs.forEach(ch=>ch.send({type:'broadcast',event:'m',payload:m})),close:()=>{chs.forEach(ch=>{try{sb.removeChannel(ch)}catch(e){}})}}
 }
 async function getRoom(code){code=String(code||'').trim().toUpperCase();
  if(MOCK)return{code,name:'Phòng thử',config:{vocab:{HSK1:[1,2,3]},gram:{HSK1:[1,2]}}};
