@@ -101,4 +101,4 @@ document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement
  H.content={vocab:C.Data.vocab(cfg.vocab),quiz:C.Data.gramQuiz(cfg.gram),points:[]};
  conn=await RWL.connect(code,onMsg);setInterval(()=>{if(H.ph==='q'&&Date.now()-H.t0>=H.dur*1000)reveal();if(H.ph==='run'&&Date.now()-H.t0>=H.rdur*1000)endGame();if(H.ph==='q'||H.ph==='run')render();send()},1000);render()}
  catch(e){$('main').innerHTML='<div class="card"><p class="err">'+E(e.message||e)+'</p><a class="btn" href="phong.html">Về phòng của giáo viên</a></div>'}})();
-</script><script src="visits.js" defer></script><script src="copyright.js"></script></body></html>
+</script><script src="visits.js" defer></script><script src="rwmusic.js"></script><script>setInterval(()=>{try{RWM.set((H.ph==='q'||H.ph==='run'||H.ph==='rv')?(H.game==='quiz'?'calm':'race'):null)}catch(e){}},700)</script><script src="copyright.js"></script></body></html>
