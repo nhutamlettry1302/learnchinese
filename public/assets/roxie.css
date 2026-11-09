@@ -15,3 +15,4 @@ nav{position:sticky;z-index:40;top:0;background:var(--glass);backdrop-filter:blu
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
 
 [hidden]{display:none!important}
+[data-theme=dark] .seal{color:color-mix(in srgb,var(--c) 45%,#fff)}

@@ -24,3 +24,12 @@
 .sc em img{max-width:62%}
 
 .world-item.new{animation:obpop .7s cubic-bezier(.2,1.6,.4,1)}@keyframes obpop{0%{transform:translate(-50%,-50%) scale(0);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+
+/* === Sửa chữ nhạt: các khung nền sáng luôn dùng chữ tối, kể cả khi trang đang ở giao diện tối === */
+.adventure-legend,.adventure-legend *,.adventure-rank,.adventure-rank *,.adventure-controls,.adventure-controls *,.coop-status,.team-person small,.character-choice,.character-choice *{color:#244c3d!important}
+.adventure-rank small,.adventure-controls small,.character-choice p,.adventure-legend small{color:#4f6354!important}
+:root[data-theme=dark] .rank li.me,:root[data-theme=dark] .rank li.me *{color:#fff3cf!important}
+:root[data-theme=dark] .slg,:root[data-theme=dark] .slg *{color:#d6e8d3!important}
+.ans button.right,.ans button.zh{color:#2a2008!important}
+:root[data-theme=dark] .top .muted,:root[data-theme=dark] #cnt{color:#244c3d!important}
+.ans button:nth-child(3){color:#2a2008!important}
