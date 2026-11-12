@@ -7,16 +7,23 @@ const SB_URL='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd
    thay vì gửi tới cả lớp. Lớp 28 bạn trước đây tạo ra hàng trăm tin/giây và bị Supabase chặn. */
 const SHARDS=14;
 const shardOf=id=>{let h=0;for(const c of String(id||''))h=(h*31+c.charCodeAt(0))>>>0;return h%SHARDS};
-async function connect(code,onMsg,opts){opts=opts||{};const host=opts.role==='host';
+async function connect1(code,onMsg,opts){opts=opts||{};const host=opts.role==='host';
  if(MOCK){const bc=new BroadcastChannel('rwl:'+code);bc.onmessage=e=>onMsg(e.data);return{send:m=>bc.postMessage(m),close:()=>bc.close(),mock:true}}
  await C.loadScript(SB_URL);
  const sb=window.supabase.createClient(RW.url,RW.key,{realtime:{params:{eventsPerSecond:80}}});
  /* giáo viên nghe tất cả kênh (kể cả kênh cũ để trình duyệt chưa tải lại vẫn vào được); học sinh chỉ vào kênh của mình */
  const names=host?['rwl:'+code,...Array.from({length:SHARDS},(_,i)=>'rwl:'+code+':s'+i)]:['rwl:'+code+':s'+shardOf(opts.id)];
  const chs=names.map(n=>{const ch=sb.channel(n,{config:{broadcast:{self:false,ack:false}}});ch.on('broadcast',{event:'m'},p=>onMsg(p.payload));return ch});
- await Promise.all(chs.map(ch=>new Promise((ok,no)=>{const t=setTimeout(()=>no(new Error('Không kết nối được phòng trực tiếp. Kiểm tra mạng rồi thử lại.')),12000);ch.subscribe(s=>{if(s==='SUBSCRIBED'){clearTimeout(t);ok()}else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT'){clearTimeout(t);no(new Error('Không kết nối được phòng trực tiếp.'))}})})));
+ try{await Promise.all(chs.map(ch=>new Promise((ok,no)=>{const t=setTimeout(()=>no(new Error('Không kết nối được phòng trực tiếp. Kiểm tra mạng rồi thử lại.')),12000);ch.subscribe(s=>{if(s==='SUBSCRIBED'){clearTimeout(t);ok()}else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT'){clearTimeout(t);no(new Error('Không kết nối được phòng trực tiếp.'))}})})))}catch(e){chs.forEach(ch=>{try{sb.removeChannel(ch)}catch(_){}});throw e}
  return{send:m=>chs.forEach(ch=>ch.send({type:'broadcast',event:'m',payload:m})),close:()=>{chs.forEach(ch=>{try{sb.removeChannel(ch)}catch(e){}})}}
 }
+/* Cả lớp bấm vào cùng lúc thì Supabase giới hạn số lượt kết nối mỗi giây và từ chối một phần (thử 30 bạn cùng lúc: 10 bạn bị từ chối).
+   Vì vậy học sinh vào lệch nhau ngẫu nhiên vài giây và tự thử lại nhiều lần thay vì báo lỗi ngay. */
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function connect(code,onMsg,opts){opts=opts||{};if(MOCK)return connect1(code,onMsg,opts);
+ const tries=opts.role==='host'?3:8;if(opts.role!=='host')await sleep(Math.random()*2500);let last;
+ for(let i=0;i<tries;i++){try{return await connect1(code,onMsg,opts)}catch(e){last=e;await sleep(1500+Math.random()*3500)}}
+ throw last}
 async function getRoom(code){code=String(code||'').trim().toUpperCase();
  if(MOCK)return{code,name:'Phòng thử',config:{vocab:{HSK1:[1,2,3]},gram:{HSK1:[1,2]}}};
  const r=await C.rpc('room_get',{p_code:code});if(!r)throw new Error('Mã phòng không đúng.');return r}
