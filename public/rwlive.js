@@ -54,7 +54,8 @@ const KIND={gift:{ic:IC('gift-box',26),t:'Hộp quà may mắn!',d:0},star:{ic:I
 /* Chướng ngại vật xuất hiện/biến mất ngẫu nhiên theo thời gian (cùng một ván thì cả lớp thấy giống nhau) */
 function obst(code,goal,sd,dur){let h=0;for(const c of String(code)+':'+goal+':'+(sd||0)+':o')h=(h*31+c.charCodeAt(0))>>>0;const rnd=()=>{h=(h*1664525+1013904223)>>>0;return h/4294967296};
  dur=dur||240;const n=Math.max(4,Math.round(goal/3)),ps=[];for(let g=0;g<400&&ps.length<n;g++){const p=2+Math.floor(rnd()*(goal-4));if(ps.every(q=>Math.abs(q-p)>=2))ps.push(p)}
- return ps.sort((a,b)=>a-b).map(p=>{const r=rnd(),k=r<.22?'gift':r<.46?'star':r<.74?'rock':'whirl',a=rnd()*dur*.8;return{p,k,a,b:a+20+rnd()*45}})}
+ const deck=[];for(let i=0;i<ps.length;i++)deck.push(['star','rock','whirl','gift','rock','star','whirl','rock'][i%8]);for(let i=deck.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]]}
+ return ps.sort((a,b)=>a-b).map((p,i)=>{const k=deck[i],a=rnd()*dur*.8;return{p,k,a,b:a+20+rnd()*45}})}
 function tiles(code,goal,sd){let h=0;for(const c of String(code)+':'+goal+':'+(sd||0))h=(h*31+c.charCodeAt(0))>>>0;const rnd=()=>{h=(h*1664525+1013904223)>>>0;return h/4294967296};
  /* chướng ngại vật rải ngẫu nhiên suốt đường đua, khoảng cách và loại thay đổi mỗi ván; cả lớp trong cùng ván có cùng một đường đua */
  const T={};let p=2+Math.floor(rnd()*2);while(p<goal-1){const r=rnd();T[p]=r<.36?'star':r<.7?'rock':'whirl';p+=3+Math.floor(rnd()*3)}return T}
