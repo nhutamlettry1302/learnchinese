@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="phong-theme.css"><link rel="stylesheet" href="adventure.css?v=20261114b"><link rel="stylesheet" href="snakeboard.css"></head><body class="student-page"><div class="wrap narrow">
 <div class="top"><a class="btn sm" href="index.html">← Trang chủ</a><span class="brand"><i class="lg"></i>Lớp học trực tiếp</span></div>
 <div id="main"></div></div>
-<script src="whales.js"></script><script src="config.js"></script><script src="audio.js"></script><script src="rwcore.js"></script><script src="rwlive.js?v=20261114"></script><script src="characters.js"></script><script src="adventure.js?v=20261114b"></script><script src="snakeboard.js"></script>
+<script src="whales.js"></script><script src="config.js"></script><script src="audio.js"></script><script src="rwcore.js?v=20261115"></script><script src="rwlive.js?v=20261114"></script><script src="characters.js"></script><script src="adventure.js?v=20261114b"></script><script src="snakeboard.js"></script>
 <script>
 const C=RWC,$=id=>document.getElementById(id),E=C.esc,ID=RWL.rid();
 let code=(new URLSearchParams(location.search).get('phong')||'').toUpperCase(),name='',room=null,conn=null,S=null,got=0,mine=null,locked=false,ok=0,no=0,steps=0,evt='',evtT=0,evtBad=false,rq=null,content=null,rlock=0,done=false,hit={},lastDice=0;
@@ -16,7 +16,7 @@ const SOLO_CATALOG="<section class=\"student-catalog\"><h2>Góc ôn tập của 
 function joinForm(err){$('main').innerHTML=`<section class="student-welcome">${RWL.petHtml(0,100)}<div><div class="eyebrow">SÂN CHƠI CÁ VOI ROXIE</div><h1>Vào lớp, chơi cùng bạn bè</h1><p class="muted">Chơi trực tiếp với giáo viên hoặc tự ôn tập bằng trò chơi.</p></div></section><div class="student-home-grid"><div class="card join-panel"><h2>Vào phòng học</h2><label>Mã phòng do giáo viên cấp</label><input id="jc" value="${E(code)}" maxlength="8" autocapitalize="characters" style="text-transform:uppercase;letter-spacing:.2em;font-size:24px"><label>Tên của bạn</label><input id="jn" value="${E(name)}" maxlength="20" autocomplete="nickname"><p class="err">${E(err||'')}</p><button class="btn pri" id="jg">Vào chơi</button><p class="muted" style="font-size:12px">Chỉ cần mã phòng và tên của bạn. Không cần đăng nhập.</p></div>${SOLO_CATALOG}</div>`;
  $('jg').onclick=async()=>{code=$('jc').value.trim().toUpperCase();name=$('jn').value.trim();if(!code||!name)return joinForm('Hãy nhập đủ mã phòng và tên.');C.ls.set('rw_live_name',JSON.stringify(name));start()}}
 async function start(){$('main').innerHTML='<p class="muted">Đang vào phòng…</p>';try{room=await RWL.getRoom(code);if(room.closed)throw new Error('Phòng này đã đóng.');
- const cfg=room.config||{};await C.Data.need(true,Object.keys(cfg.gram||{}).length>0);content={vocab:C.Data.vocab(cfg.vocab),quiz:C.Data.gramQuiz(cfg.gram)};
+ const cfg=room.config||{};await C.Data.need(true,Object.keys(cfg.gram||{}).length>0);content=C.Data.build(cfg);
  C.ls.set('rw_room',JSON.stringify(room));C.ls.set('rw_me',JSON.stringify({name,code:room.code,cls:room.name}));
  conn=await RWL.connect(code,onMsg,{role:'student',id:ID});join();setInterval(()=>conn.send({t:'ping',id:ID,cur:curQ(),name,pet:RWL.myChar(),uid:(C.Auth.loggedIn&&C.Auth.user&&C.Auth.user.id)||null}),5000);setInterval(()=>{if(S&&Date.now()-got>5000)render()},1000);render()}catch(e){joinForm(e.message||String(e))}}
 const join=()=>conn.send({t:'join',id:ID,name,pet:RWL.myChar(),uid:(C.Auth.loggedIn&&C.Auth.user&&C.Auth.user.id)||null});

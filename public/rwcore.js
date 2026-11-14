@@ -40,6 +40,7 @@ const Data={
  gramLevels(){return Object.keys(window.GRM||{}).map(k=>({k,n:k,ls:GRM[k].lessons.map(x=>({n:x.n,t:x.t,c:GRM[k].quiz.filter(q=>q.l===x.n).length}))}))},
  vocab(sel){const out=[];(window.VOC||[]).forEach(L=>{const ls_=sel&&sel[L.k];if(!ls_||!ls_.length)return;L.ls.forEach(x=>{if(ls_.includes(x.n))x.w.forEach(w=>out.push({zh:w[0],py:w[1],vn:w[2],lv:L.k,l:x.n}))})});return out},
  gramQuiz(sel){const out=[];Object.keys(sel||{}).forEach(k=>{const G=window.GRM&&GRM[k];if(!G)return;const ls_=sel[k];G.quiz.forEach(q=>{if(ls_.includes(q.l))out.push({s:q.s,a:q.a,zh:q.zh,lv:k,pool:G.pool||[]})})});return out},
+ build(cfg){cfg=cfg||{};const v=Data.vocab(cfg.vocab),q=Data.gramQuiz(cfg.gram);(cfg.custom||[]).forEach(c=>{const lv=c.course||'Tự soạn';(c.vocab||[]).forEach(w=>v.push({zh:w[0],py:w[1]||'',vn:w[2]||'',lv,l:c.title||''}));const pool=[...new Set((c.quiz||[]).map(x=>x.a))];(c.quiz||[]).forEach(x=>q.push({s:x.s,a:x.a,zh:x.zh||x.s.replace('____',x.a),lv,opts:x.o,pool}))});return{vocab:v,quiz:q,points:Data.gramPoints(cfg.gram),mix:cfg.mix==null?40:cfg.mix}},
  gramPoints(sel){const out=[];Object.keys(sel||{}).forEach(k=>{const G=window.GRM&&GRM[k];if(!G)return;G.lessons.forEach(x=>{if(!sel[k].includes(x.n))return;x.pts.forEach(p=>out.push({zh:p.zh,en:p.en,vn:p.vn,ex:p.ex,lv:k}))})});return out}
 };
 /* Nội dung đang chơi: trong phòng thì theo giáo viên chọn, ngoài phòng thì theo lựa chọn của chính người chơi */
@@ -47,15 +48,15 @@ const Ctx={
  get sel(){const r=Room.cfg,m=Room.me;if(r&&m&&r.code===m.code)return r.config||{};return J(ls.get('rw_sel'))||{vocab:{HSK1:[1,2,3]},gram:{}}},
  setSel(s){ls.set('rw_sel',JSON.stringify(s))},
  get inRoom(){const r=Room.cfg,m=Room.me;return !!(r&&m&&r.code===m.code)},
- async load(){const s=Ctx.sel;await Data.need(true,Object.keys(s.gram||{}).length>0);return{room:Ctx.inRoom?Room.cfg:null,sel:s,vocab:Data.vocab(s.vocab),quiz:Data.gramQuiz(s.gram),points:Data.gramPoints(s.gram)}}
+ async load(){const s=Ctx.sel;await Data.need(true,Object.keys(s.gram||{}).length>0);return Object.assign({room:Ctx.inRoom?Room.cfg:null,sel:s},Data.build(s))}
 };
 const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const pick=(a,n,not)=>{const o=[];for(const x of shuf(a)){if(not&&not(x))continue;o.push(x);if(o.length>=n)break}return o};
 /* câu hỏi trắc nghiệm từ nội dung: nghĩa, chữ Hán, pinyin, điền từ ngữ pháp */
 function makeQ(c,kind){const V=c.vocab,Q=c.quiz;
- const k=kind||(Q.length&&(!V.length||Math.random()<.4)?'gram':['zh2vn','vn2zh','zh2py'][Math.floor(Math.random()*3)]);
- if(k==='gram'&&Q.length){const q=Q[Math.floor(Math.random()*Q.length)],pool=q.pool.filter(x=>x!==q.a);const opts=shuf([q.a].concat(pick(pool,3)));return{type:'gram',prompt:q.s,sub:'',opts,ans:q.a,say:q.s.replace('____',q.a)}}
- if(V.length<4)return null;const w=V[Math.floor(Math.random()*V.length)],o=pick(V,3,x=>x.zh===w.zh||x.vn===w.vn);
+ const mx=(c.mix==null?40:c.mix)/100;let k=kind||(Q.length&&(!V.length||Math.random()<mx)?'gram':['zh2vn','vn2zh','zh2py'][Math.floor(Math.random()*3)]);if(k==='zh2py'&&V.filter(x=>x.py).length<4)k='zh2vn';
+ if(k==='gram'&&Q.length){const q=Q[Math.floor(Math.random()*Q.length)],own=q.opts&&q.opts.length>1;let pool=(own?q.opts:q.pool).filter(x=>x!==q.a);if(!own&&pool.length<3)pool=pool.concat(['的','了','是','在','不','有','吗','都'].filter(x=>x!==q.a&&!pool.includes(x)));const opts=shuf([q.a].concat(own?pool:pick(pool,3)));return{type:'gram',prompt:q.s,sub:'',opts,ans:q.a,say:q.s.replace('____',q.a)}}
+ if(V.length<4)return null;const VV=k==='zh2py'?V.filter(x=>x.py):V,w=VV[Math.floor(Math.random()*VV.length)],o=pick(VV,3,x=>x.zh===w.zh||x.vn===w.vn||x.py===w.py);
  if(k==='vn2zh')return{type:'vn2zh',prompt:w.vn,sub:'Chọn chữ Hán đúng',opts:shuf([w.zh].concat(o.map(x=>x.zh))),ans:w.zh,say:w.zh};
  if(k==='zh2py')return{type:'zh2py',prompt:w.zh,sub:'Chọn pinyin đúng',opts:shuf([w.py].concat(o.map(x=>x.py))),ans:w.py,say:w.zh,zh:true};
  return{type:'zh2vn',prompt:w.zh,sub:w.py,opts:shuf([w.vn].concat(o.map(x=>x.vn))),ans:w.vn,say:w.zh,zh:true}}

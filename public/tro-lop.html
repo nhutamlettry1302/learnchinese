@@ -36,7 +36,7 @@ canvas{display:block;width:100%;height:100%}
 @media(max-width:700px){.opts{grid-template-columns:1fr}}
 </style></head><body><div class="wrap">
 <div id="main"></div></div>
-<script src="config.js"></script><script src="audio.js"></script><script src="rwcore.js"></script><script src="rwlive.js"></script>
+<script src="config.js"></script><script src="audio.js"></script><script src="rwcore.js?v=20261115"></script><script src="rwlive.js"></script>
 <script>
 const C=RWC,$=id=>document.getElementById(id),E=C.esc,qs=new URLSearchParams(location.search),M=$('main');
 const COL=['#4aa3df','#ef7fa6','#9a7bd6','#f2c230','#6cc070','#f08a4b'],NM=['Xanh dương','Hồng','Tím','Vàng','Xanh lá','Cam'];
@@ -68,7 +68,7 @@ async function setup(){stop();await C.Data.need(true,false);const LV=C.Data.voca
 async function start(){S.err='';let sel;
  if(S.room&&S.useRoom)sel=S.room.config||{};else{const L=C.Data.vocabLevels().find(l=>l.k===S.lv);sel={vocab:{[S.lv]:L.ls.map(l=>l.n)},gram:{}}}
  await C.Data.need(true,Object.keys(sel.gram||{}).length>0);
- S.ct={vocab:C.Data.vocab(sel.vocab),quiz:C.Data.gramQuiz(sel.gram)};
+ S.ct=C.Data.build(sel);
  if(!C.makeQ(S.ct)){S.err='Nội dung chưa đủ để ra câu hỏi (cần ít nhất 4 từ vựng). Hãy chọn thêm bài.';return setup()}
  S.cur=0;S.round=0;S.sc=Array(S.nt).fill(0);arena()}
 function stop(){cancelAnimationFrame(raf);raf=0;G=null;document.onkeydown=null;document.onkeyup=null}
