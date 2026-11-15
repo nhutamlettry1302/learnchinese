@@ -105,13 +105,13 @@ function sim(a,b){a=hz(a);b=hz(b);if(!b)return 0;let m=0,j=0;for(const c of b){c
 function rSpeak(q){const w=q.w;frame(`<div class="zh">${esc(w[0])}</div><div class="py">${esc(w[1])}</div><div class="sub">${esc(w[2])}</div><div id="fb"></div><div class="row"><button class="btn" id="sy">🔊 Nghe mẫu</button><button class="btn gold" id="mic">🎤 ${SR?'Bấm và đọc':'Mình đã đọc xong'}</button></div>`);
  $('sy').onclick=()=>say(w[0]);let fin=false;
  $('mic').onclick=()=>{if(fin)return;
-  if(!SR){fin=true;fb('Trình duyệt này chưa nhận diện được giọng nói. Hãy dùng Chrome để được chấm. Lần này tính là đã luyện.',true);done(true,6,2,w);return}
+  if(!SR){fin=true;fb('Trình duyệt này chưa nhận diện được giọng nói. Hãy dùng Chrome để được chấm. Lần này máy không chấm được, bạn tự nghe mẫu và đọc theo; điểm này không được kiểm tra.',true);done(true,6,2,w);return}
   const r=new SR();r.lang='zh-CN';r.maxAlternatives=5;fb('🎤 Đang nghe… hãy đọc to',true);
   r.onresult=e=>{if(fin)return;fin=true;const alts=[...e.results[0]].map(x=>x.transcript),best=Math.max(...alts.map(a=>sim(a,w[0]))),right=best>=.75;fb(right?`✅ Tốt lắm! Máy nghe được: ${esc(alts[0])}`:`❌ Máy nghe được: ${esc(alts[0])||'(không rõ)'}<br>Mẫu: <b>${esc(w[0])}</b> ${esc(w[1])}`,right);done(right,15,6,w)};
   r.onerror=e=>{if(fin)return;fb(e.error==='not-allowed'?'Hãy cho phép dùng micro rồi bấm lại.':'Chưa nghe rõ, bấm lại nhé.',false)};
   r.onend=()=>{if(!fin)fb('Chưa nghe thấy gì, bấm lại và đọc to nhé.',false)};try{r.start()}catch(e){}}}
 /* viết chữ Hán */
-function loadHW(cb){if(window.HanziWriter)return cb(true);if(loadHW.s)return cb(false);loadHW.s=1;const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.2/dist/hanzi-writer.min.js';s.onload=()=>cb(true);s.onerror=()=>cb(false);document.head.appendChild(s)}
+function loadHW(cb){if(window.HanziWriter)return cb(true);if(loadHW.s)return cb(false);loadHW.s=1;const s=document.createElement('script');const U=['https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.2/dist/hanzi-writer.min.js','https://unpkg.com/hanzi-writer@3.7.2/dist/hanzi-writer.min.js'];s.src=U[0];s.onload=()=>cb(true);s.onerror=()=>{const t=document.createElement('script');t.src=U[1];t.onload=()=>cb(true);t.onerror=()=>cb(false);document.head.appendChild(t)};document.head.appendChild(s)}
 function rWrite(q){const w=q.w,n=Math.min(2,hz(w[0]).length||1);frame(`<div class="vn">${esc(w[2])}</div><div class="py">${esc(w[1])} <button class="say" style="width:36px;height:36px;font-size:16px" id="sy">🔊</button></div><div class="sub">Dùng ngón tay hoặc chuột viết chữ Hán vào khung</div><canvas id="wc" width="${n*240}" height="240" style="touch-action:none;width:${n*150}px;max-width:100%;border-radius:14px;background:#fffdf6;border:3px solid var(--outline)"></canvas><div id="mdl"></div><div id="fb"></div><div class="row"><button class="btn" id="clr">🧽 Xóa</button><button class="btn gold" id="shw">👀 Xem chữ mẫu</button></div>`);
  $('sy').onclick=()=>say(w[0]);const c=$('wc'),g=c.getContext('2d');
  const grid=()=>{g.clearRect(0,0,c.width,c.height);g.strokeStyle='#e6d6b8';g.lineWidth=2;g.setLineDash([6,6]);for(let i=0;i<n;i++){const x=i*240;g.strokeRect(x+3,3,234,234);g.beginPath();g.moveTo(x+120,3);g.lineTo(x+120,237);g.moveTo(x+3,120);g.lineTo(x+237,120);g.stroke()}g.setLineDash([])};grid();
@@ -148,14 +148,22 @@ function rOrder(q){const tgt=q.parts.join('');let pick=[],bank=shuffle(q.parts.m
    if(!bank.length){const right=pick.map(y=>y.t).join('')===tgt;draw();fb(right?'✅ Đúng rồi!':'❌ Đáp án: <b>'+esc(tgt)+'</b>',right);say(tgt);done(right,12,5)}else draw()})};draw()}
 /* ---- kết thúc: tính sao theo tỉ lệ đúng ---- */
 window.endQ=function(){happyUntil=performance.now()+4500;const p=Q.p,tag=Q.tag,N=Q.items.length,n=Q.ok,ratio=n/N,st=ratio>=1?3:ratio>=.8?2:ratio>=.6?1:0,key=p.id+'|'+tag,old=prog[key]||{best:0,stars:0},score=Math.round(ratio*100);
- const first=!old.stars&&st>0,gx=Q.pts+(st===3?30:0)+(first?20:0),gc=Q.coin+(st===3?15:0);
+ const first=!old.stars&&st>0;
+ /* chống cày: mỗi nhiệm vụ mỗi ngày, lần 1 đủ thưởng, lần 2 còn nửa, từ lần 3 chỉ còn 1/5 xu; thưởng 3 sao chỉ nhận 1 lần/ngày; thêm thưởng chuỗi ngày */
+ const td=new Date(Date.now()+7*36e5).toISOString().slice(0,10);if(!ST.daily||ST.daily.d!==td){const y=ST.daily&&ST.daily.d,prev=new Date(Date.now()+7*36e5-864e5).toISOString().slice(0,10);ST.streak=(y===prev)?(ST.streak||0):(ST.daily?0:ST.streak||0);ST.daily={d:td,runs:{},b3:{},day:0}}
+ const D=ST.daily,run=(D.runs[key]=(D.runs[key]||0)+1),mul=run===1?1:run===2?.5:.2;
+ let bonus3=0,note='';if(st===3&&!D.b3[key]){D.b3[key]=1;bonus3=1}
+ let sx=0;if(!D.day&&n>0){D.day=1;ST.streak=(ST.streak||0)+1;sx=Math.min(30,ST.streak*5)}
+ const gx=Math.round(Q.pts*(run>=3?.2:mul))+(bonus3?30:0)+(first?20:0)+sx,gc=Math.round(Q.coin*mul)+(bonus3?15:0);
+ if(run===2)note='Lần 2 trong ngày: thưởng giảm còn nửa. Hãy thử nhiệm vụ khác hoặc từ mới nhé!';else if(run>=3)note='Đã luyện nhiều lần hôm nay: thưởng rất ít, bạn hãy chuyển sang nhiệm vụ khác.';
+ if(st===3&&!bonus3)note+=(note?' ':'')+'Thưởng 3 sao chỉ nhận một lần mỗi ngày cho mỗi nhiệm vụ.';
  if(score>old.best||st>old.stars)prog[key]={best:Math.max(score,old.best),stars:Math.max(st,old.stars)};
  const ps=Math.max(0,...Object.keys(prog).filter(k=>k===p.id||k.startsWith(p.id+'|')).map(k=>prog[k].stars||0));prog[p.id]={best:Math.max((prog[p.id]||{}).best||0,score),stars:ps};
  const L0=plvl();ST.exp+=gx;ST.coins+=gc;const L1=plvl();let lvTxt='';
  if(L1>L0){ST.tickets=(ST.tickets||0)+(L1-L0);const ns=syncUnlocks();lvTxt=`<p class="sub"><b>Lên cấp ${L1}!</b> Bạn nhận 1 vé vòng quay 🎡${ns.length?' và mở skin mới: <b>'+ns.map(i=>SKINS[i]).join(', ')+'</b> 👗':''}</p>`}
  saveState();
  const rev=Q.items.filter(i=>i.w).map(i=>`<div><b>${esc(i.w[0])}</b> ${esc(i.w[1])} · ${esc(i.w[2])}</div>`).join('');
- $('pq').innerHTML=`<h2>${st?'Hoàn thành nhiệm vụ!':'Thử lại nhé'}</h2><div class="sub">${esc(p.name)} ${p.zh} · ${TAGS[tag].ic} ${TAGS[tag].n} · đúng ${n}/${N}</div><div class="stars">${'⭐'.repeat(st)}${'☆'.repeat(3-st)}</div><p class="reward">+${gx} EXP &nbsp; +${gc} 🪙</p>${lvTxt}${rev?'<div class="rev">'+rev+'</div>':''}
+ $('pq').innerHTML=`<h2>${st?'Hoàn thành nhiệm vụ!':'Thử lại nhé'}</h2><div class="sub">${esc(p.name)} ${p.zh} · ${TAGS[tag].ic} ${TAGS[tag].n} · đúng ${n}/${N}</div><div class="stars">${'⭐'.repeat(st)}${'☆'.repeat(3-st)}</div><p class="reward">+${gx} EXP &nbsp; +${gc} 🪙</p>${sx?`<p class="sub">🔥 Chuỗi ${ST.streak} ngày học liên tiếp: +${sx} EXP</p>`:''}${note?`<p class="sub">${note}</p>`:''}${lvTxt}${rev?'<div class="rev">'+rev+'</div>':''}
  <div class="row"><button class="btn gold" id="again">Làm lại</button><button class="btn" id="more">Nhiệm vụ khác</button>${ST.tickets?'<button class="btn" id="spin2">🎡 Quay ('+ST.tickets+')</button>':''}<button class="btn" id="back">Về thành phố</button></div>`;
  $('again').onclick=()=>openTag(p,tag);$('more').onclick=()=>openBoard(p);const s2=$('spin2');if(s2)s2.onclick=()=>{$('ovq').classList.remove('on');openWheel()};$('back').onclick=()=>{$('ovq').classList.remove('on');$('hint').textContent='Bấm vào một tòa nhà để đi tiếp'};postScore()};
 /* ---- kiểu dáng ---- */
