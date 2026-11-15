@@ -52,13 +52,48 @@ const HEARTS=(n,m)=>Array.from({length:m||3},(_,i)=>`<img class="ic${i<n?'':' of
 const MEDAL=i=>i<3?IC(['medal-gold','medal-silver','medal-bronze'][i],26):String(i+1);
 const KIND={gift:{ic:IC('gift-box',26),t:'Hộp quà may mắn!',d:0},star:{ic:IC('star-fish',26),t:'Sao biển! +2 bước',d:2},rock:{ic:IC('rock',26),t:'Đá ngầm! lùi 1 bước',d:-1},whirl:{ic:IC('whirlpool',26),t:'Xoáy nước! đứng 2 giây',lock:2000}};
 /* Chướng ngại vật xuất hiện/biến mất ngẫu nhiên theo thời gian (cùng một ván thì cả lớp thấy giống nhau) */
-function obst(code,goal,sd,dur){let h=0;for(const c of String(code)+':'+goal+':'+(sd||0)+':o')h=(h*31+c.charCodeAt(0))>>>0;const rnd=()=>{h=(h*1664525+1013904223)>>>0;return h/4294967296};
+function obst(code,goal,sd,dur){code=String(code).split(':')[0];let h=0;for(const c of code+':'+goal+':'+(sd||0)+':o')h=(h*31+c.charCodeAt(0))>>>0;const rnd=()=>{h=(h*1664525+1013904223)>>>0;return h/4294967296};
+ /* CÔNG BẰNG: mọi bạn trong cùng ván chạy trên CÙNG một đường đua (seed chỉ theo mã phòng + ván, không theo từng bạn);
+    vật phẩm chia đều theo từng khối 4 (1 sao, 1 hộp quà, 1 đá, 1 xoáy), hộp quà có giá trị cố định theo thứ tự, không bốc ngẫu nhiên. */
  dur=dur||240;const n=Math.max(4,Math.round(goal/3)),ps=[];for(let g=0;g<400&&ps.length<n;g++){const p=2+Math.floor(rnd()*(goal-4));if(ps.every(q=>Math.abs(q-p)>=2))ps.push(p)}
- const deck=[];for(let i=0;i<ps.length;i++)deck.push(['star','rock','whirl','gift','rock','star','whirl','rock'][i%8]);for(let i=deck.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]]}
- return ps.sort((a,b)=>a-b).map((p,i)=>{const k=deck[i],a=rnd()*dur*.8;return{p,k,a,b:a+20+rnd()*45}})}
+ const deck=[];while(deck.length<ps.length){const bl=['star','gift','rock','whirl'];for(let i=3;i>0;i--){const j=Math.floor(rnd()*(i+1));[bl[i],bl[j]]=[bl[j],bl[i]]}deck.push(...bl)}
+ let gi=0;return ps.sort((a,b)=>a-b).map((p,i)=>{const k=deck[i],a=rnd()*dur*.8,o={p,k,a,b:a+20+rnd()*45};if(k==='gift')o.g=[2,1,-1,3][gi++%4];return o})}
+/* xúc xắc Thang và rắn: cùng ván thì cả lớp cùng chuỗi xúc xắc (công bằng) */
+function dice(code,sd,k){let h=0;for(const c of String(code).split(':')[0]+':'+(sd||0)+':d:'+k)h=(h*31+c.charCodeAt(0))>>>0;h=(h*1664525+1013904223)>>>0;return 1+Math.floor(h/4294967296*6)}
 function tiles(code,goal,sd){let h=0;for(const c of String(code)+':'+goal+':'+(sd||0))h=(h*31+c.charCodeAt(0))>>>0;const rnd=()=>{h=(h*1664525+1013904223)>>>0;return h/4294967296};
  /* chướng ngại vật rải ngẫu nhiên suốt đường đua, khoảng cách và loại thay đổi mỗi ván; cả lớp trong cùng ván có cùng một đường đua */
  const T={};let p=2+Math.floor(rnd()*2);while(p<goal-1){const r=rnd();T[p]=r<.36?'star':r<.7?'rock':'whirl';p+=3+Math.floor(rnd()*3)}return T}
-function seedQ(C,content,sd,k){let a=0x9e3779b9^(sd|0)^Math.imul(k+1,2654435761);const R=Math.random;Math.random=()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};try{return C.makeQ(content)}finally{Math.random=R}}
-window.RWL={seedQ,connect,getRoom,rid,MOCK,PETN,petHtml,myPet,myChar,setPet,KIND,tiles,obst,IC,HEARTS,MEDAL,CARC,carHtml};
+/* Câu hỏi: cùng ván thì cả lớp cùng thứ tự câu (công bằng), nhưng KHÔNG lặp lại một từ/câu cho đến khi hết cả kho; 8 dạng câu luân phiên. */
+const _mk=x=>{let a=x|0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}};
+const _sh=(a,r)=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const _pk=(a,n,no,r)=>{const o=[];for(const x of _sh(a,r)){if(no(x))continue;o.push(x);if(o.length>=n)break}return o};
+const _PL=new WeakMap();
+function _ord(P,key,n,sd){const r=_mk(sd^Math.imul(P[key+'E']+1,0x85ebca6b)^n);return _sh(Array.from({length:n},(_,i)=>i),r)}
+function _next(P,key,n,sd,bad){for(let t=0;t<6;t++){if(!P[key]||P[key+'I']>=P[key].length){P[key+'E']=(P[key+'E']||0)+(P[key]?1:0);P[key]=_ord(P,key,n,sd);P[key+'I']=0}const i=P[key][P[key+'I']++];if(!bad(i)||t===5)return i}}
+function _build(C,c,P,j,sd){const V=c.vocab||[],Q=c.quiz||[],mx=(c.mix==null?40:c.mix)/100,r=_mk(sd^Math.imul(j+1,2654435761)^0x9e3779b9);
+ const hasPy=V.filter(x=>x.py).length>=4,say=!!window.rwSay;
+ const gram=Q.length&&(V.length<4||r()<mx);
+ if(gram){const qi=_next(P,'g',Q.length,sd,i=>P.recent.includes('g'+Q[i].s)),q=Q[qi];P.recent.push('g'+q.s);if(P.recent.length>8)P.recent.shift();
+  const own=q.opts&&q.opts.length>1;let pool=(own?q.opts:q.pool||[]).filter(x=>x!==q.a);if(!own&&pool.length<3)pool=pool.concat(['的','了','是','在','不','有','吗','都','也','很','还','就'].filter(x=>x!==q.a&&!pool.includes(x)));
+  const tf=P.tfG=(P.tfG||0)+1;
+  if(tf%4===0){const good=r()<.5,w=good?q.a:_pk(pool,1,()=>false,r)[0];if(w!=null&&w!==undefined)return{type:'gtf',prompt:q.s.replace('____',w),sub:'Câu này ĐÚNG hay SAI?',opts:['Đúng','Sai'],ans:good?'Đúng':'Sai',say:q.s.replace('____',q.a),zh:true,tf:1}}
+  return{type:'gram',prompt:q.s,sub:'Chọn từ điền vào chỗ trống',opts:_sh([q.a].concat(own?pool.slice(0,3):_pk(pool,3,()=>false,r)),r),ans:q.a,say:q.s.replace('____',q.a)}}
+ if(V.length<4)return null;
+ const T=['zh2vn','vn2zh','zh2py','py2zh','vn2py','tf'].filter(t=>hasPy||!/py/.test(t)).concat(say?['listen2vn','listen2zh']:[]);
+ const wi=_next(P,'v',V.length,sd,i=>P.recent.includes('v'+V[i].zh)),w=V[wi];P.recent.push('v'+w.zh);if(P.recent.length>8)P.recent.shift();
+ if(!P.t||P.tI>=P.t.length){P.tE=(P.tE||0)+1;P.t=_sh(T,_mk(sd^Math.imul(P.tE,0x27d4eb2d)));P.tI=0;if(P.t[0]===P.lastT)P.t.push(P.t.shift())}let ty=P.t[P.tI++];P.lastT=ty;
+ if(/py/.test(ty)&&!w.py)ty='zh2vn';
+ const D=(f,key)=>_pk(V,3,x=>x.zh===w.zh||x.vn===w.vn||x.py===w.py||(f&&!x[f]),r);
+ if(ty==='vn2zh')return{type:ty,prompt:w.vn,sub:'Chọn chữ Hán đúng',opts:_sh([w.zh].concat(D().map(x=>x.zh)),r),ans:w.zh,say:w.zh};
+ if(ty==='zh2py')return{type:ty,prompt:w.zh,sub:'Chọn pinyin đúng',opts:_sh([w.py].concat(D('py').map(x=>x.py)),r),ans:w.py,say:w.zh,zh:true};
+ if(ty==='py2zh')return{type:ty,prompt:w.py,sub:'Chọn chữ Hán đúng',opts:_sh([w.zh].concat(D('py').map(x=>x.zh)),r),ans:w.zh,say:w.zh};
+ if(ty==='vn2py')return{type:ty,prompt:w.vn,sub:'Chọn pinyin đúng',opts:_sh([w.py].concat(D('py').map(x=>x.py)),r),ans:w.py,say:w.zh};
+ if(ty==='tf'){const good=r()<.5,o=D()[0]||w,shown=good?w.vn:o.vn;return{type:ty,prompt:w.zh,sub:'“'+shown+'” — nghĩa này ĐÚNG hay SAI?',opts:['Đúng','Sai'],ans:good?'Đúng':'Sai',say:w.zh,zh:true,tf:1}}
+ if(ty==='listen2vn')return{type:ty,prompt:'🔊 Nghe và chọn nghĩa',sub:'Bấm “Nghe lại” nếu chưa nghe rõ',opts:_sh([w.vn].concat(D().map(x=>x.vn)),r),ans:w.vn,say:w.zh,listen:1};
+ if(ty==='listen2zh')return{type:ty,prompt:'🔊 Nghe và chọn chữ Hán',sub:'Bấm “Nghe lại” nếu chưa nghe rõ',opts:_sh([w.zh].concat(D().map(x=>x.zh)),r),ans:w.zh,say:w.zh,listen:1};
+ return{type:'zh2vn',prompt:w.zh,sub:w.py,opts:_sh([w.vn].concat(D().map(x=>x.vn)),r),ans:w.vn,say:w.zh,zh:true}}
+function seedQ(C,content,sd,k){let P=_PL.get(content);if(!P||P.sd!==sd){P={sd,qs:[],recent:[]};_PL.set(content,P)}
+ while(P.qs.length<=k){const j=P.qs.length;let q=null;try{q=_build(C,content,P,j,sd|0)}catch(e){q=null}if(!q)q=C.makeQ(content);P.qs.push(q)}
+ const q=P.qs[k];return Object.assign({},q,{opts:q.opts.slice()})}
+window.RWL={seedQ,dice,connect,getRoom,rid,MOCK,PETN,petHtml,myPet,myChar,setPet,KIND,tiles,obst,IC,HEARTS,MEDAL,CARC,carHtml};
 })();
