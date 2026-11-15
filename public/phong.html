@@ -49,10 +49,14 @@ function cityCard(){const hd=`<div class="whh">${RWH('trophy',64)}<div><h3 style
  const day=Date.now()-864e5,wk=Date.now()-7*864e5,act=t=>cityL.filter(u=>new Date(u.updated_at)>t).length,avg=cityL.length?Math.round(cityL.reduce((a,u)=>a+u.level,0)/cityL.length*10)/10:0;
  return`<div class="card">${hd}<div class="stats">${tile('hanzi',cityL.length,'Người chơi')}${tile('fire',act(day),'Chơi 24 giờ qua')}${tile('target',act(wk),'Chơi 7 ngày qua')}${tile('trophy',avg,'Cấp trung bình')}</div>
  <div class="tool"><input id="cq" type="search" placeholder="🔍 Tìm tên hoặc email" value="${E(cq)}"></div><div id="clist">${cityRows()}</div><p class="muted" style="font-size:12px">Xóa người chơi chỉ xóa hồ sơ trên máy chủ. Nếu bạn ấy chơi lại thì hồ sơ được tạo lại từ dữ liệu trên máy của bạn ấy.</p></div>`}
+function wordsCard(){const hd='<h3 style="margin:0">Từ cả lớp hay sai (Thành phố Cá Voi)</h3><p class="muted" style="margin:2px 0 8px">Tổng hợp theo từ, không hiện tên học sinh. Dùng để chọn nội dung dạy lại.</p>';
+ if(!cityW)return cityWErr?`<div class="card">${hd}<p class="err">${E(cityWErr)}</p></div>`:'';
+ if(!cityW.length)return`<div class="card">${hd}<div class="empty">Chưa có dữ liệu. Học sinh chơi và có từ sai thì sẽ hiện ở đây.</div></div>`;
+ return`<div class="card">${hd}<div style="overflow:auto"><table style="width:100%;border-collapse:collapse"><tr style="text-align:left"><th>Từ</th><th>Số bạn hay sai</th><th>Lượt sai</th><th>Lượt đúng</th><th>Số bạn đã gặp</th></tr>${cityW.map(w=>`<tr style="border-top:1px solid var(--bd,#e5e7eb)"><td style="font-size:18px"><b>${E(w.word)}</b></td><td>${w.wrong_students}</td><td>${w.wrong}</td><td>${w.right_n}</td><td>${w.students}</td></tr>`).join('')}</table></div></div>`}
 function adminView(){const n=r=>users.filter(u=>u.role===r).length;
  return`${msg?`<p class="ok">${E(msg)}</p>`:''}${err?`<p class="err">${E(err)}</p>`:''}
  <div class="stats"><div class="st"><b>${users.length}</b><span>Tài khoản</span></div><div class="st"><b>${n('teacher')+n('owner')}</b><span>Giáo viên</span></div><div class="st"><b>${n('student')}</b><span>Học sinh</span></div><div class="st"><b>${allRooms.length}</b><span>Phòng học</span></div></div>
-${visitCard()}${cityCard()}
+${visitCard()}${cityCard()}${wordsCard()}
  <div class="card"><h3 style="margin:0 0 4px">Phân quyền người dùng</h3><p class="muted" style="margin:0 0 10px">Người mới đăng ký mặc định là <b>Học sinh</b>. Chọn <b>Giáo viên</b> để họ được tạo phòng và mở lớp học trực tiếp.</p>
  <div class="tool"><input id="uq" type="search" placeholder="🔍 Tìm theo tên hoặc email" value="${E(uq)}"><div class="fil">${[['all','Tất cả'],['teacher','Giáo viên'],['student','Học sinh']].map(f=>`<button data-uf="${f[0]}" class="${uf===f[0]?'on':''}">${f[1]}</button>`).join('')}</div></div>
  <div id="ulist">${userRows()}</div></div>
@@ -97,7 +101,7 @@ function render(){const M=$('main');$('who').innerHTML=A.loggedIn?E((A.profile&&
  wire()}
 const on=(id,f)=>{const e=$(id);if(e)e.onclick=f};
 async function load(){try{rooms=(await C.rpc('my_rooms'))||[]}catch(e){err='Chưa tải được danh sách phòng. Bạn đã chạy file phong-hoc.sql trong Supabase chưa? ('+e.message+')'}render()}
-let vstats=null,verr='',cityL=null,cityErr='',cq='';async function loadAdmin(){try{users=await C.rpc('admin_users')||[];allRooms=await C.rpc('admin_rooms')||[]}catch(e){err=e.message}try{vstats=await C.rpc('visit_stats');verr=''}catch(e){vstats=null;verr='Chưa bật đếm lượt truy cập: hãy chạy file luot-truy-cap.sql trong Supabase.'}try{cityL=await C.rpc('admin_city_list')||[];cityErr=''}catch(e){cityL=null;cityErr='Chưa bật quản lý người chơi: hãy chạy file thanh-pho-nguoi-choi.sql trong Supabase.'}render()}
+let vstats=null,verr='',cityL=null,cityErr='',cq='',cityW=null,cityWErr='';async function loadAdmin(){try{users=await C.rpc('admin_users')||[];allRooms=await C.rpc('admin_rooms')||[]}catch(e){err=e.message}try{vstats=await C.rpc('visit_stats');verr=''}catch(e){vstats=null;verr='Chưa bật đếm lượt truy cập: hãy chạy file luot-truy-cap.sql trong Supabase.'}try{cityL=await C.rpc('admin_city_list')||[];cityErr=''}catch(e){cityL=null;cityErr='Chưa bật quản lý người chơi: hãy chạy file thanh-pho-nguoi-choi.sql trong Supabase.'}try{cityW=await C.rpc('admin_city_words')||[];cityWErr=''}catch(e){cityW=null;cityWErr='Chưa bật thống kê từ khó: hãy chạy file thanh-pho-tu-vung.sql trong Supabase.'}render()}
 function wire(){
  if(page==='tools')TT.wire();
  document.querySelectorAll('[data-pg]').forEach(b=>b.onclick=async()=>{page=b.dataset.pg;err='';msg='';render();if(page==='admin')await loadAdmin()});

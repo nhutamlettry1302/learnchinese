@@ -9,7 +9,8 @@ const TAGS={
  qa:{ic:'❓',n:'Trả lời câu hỏi',d:'Chọn câu trả lời đúng'},
  read:{ic:'📖',n:'Đọc hiểu',d:'Nghĩa, từ, điền chỗ trống'},
  order:{ic:'🧩',n:'Sắp xếp câu',d:'Xếp các từ thành câu'},
- mix:{ic:'🎯',n:'Tổng hợp',d:'Trộn nhiều dạng'}};
+ mix:{ic:'🎯',n:'Tổng hợp',d:'Trộn nhiều dạng'},
+ review:{ic:'🔁',n:'Ôn từ yếu hôm nay',d:'Các từ bạn từng sai, đến hạn ôn'}};
 const SET1=['listen','speak','type','write','pic','qa'],SETALL=['listen','speak','type','write','pic','qa','read','order','mix'];
 const tagsFor=()=>(ST.lv==='HSK1'||ST.lv==='city')?SET1:SETALL;
 const R=a=>a[Math.random()*a.length|0];
@@ -43,14 +44,21 @@ const ORD=[['我/喜欢/吃/苹果/。','Tôi thích ăn táo'],['他/在/学校
 const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/ü/g,'v').replace(/[\s\d'’·。，,.!?！？]/g,'').toLowerCase();
 const hz=s=>String(s).replace(/[^一-鿿]/g,'');
 function pool(p){let a;if(ST.lv==='city'||!levelObj())a=(p.words||[]);else{const les=lessonObj(),L=levelObj();a=(les?les.w:L.ls.flatMap(x=>x.w)).map(w=>[w[0],w[1],w[2],'','']);}
- const sc=w=>{const s=ST.ws[w[0]]||{c:0,x:0};return(s.c+s.x===0?2:s.x>s.c?1.5:.3)+Math.random()};
+ const sc=w=>{const s=ST.ws[w[0]]||{c:0,x:0};return(s.c+s.x===0?2:s.x>s.c?1.5:.3)+(isDue(w[0])?3:0)+Math.random()};
  return a.slice().sort((x,y)=>sc(y)-sc(x))}
 function distract(w,from,n,key){const out=[],seen=new Set([w[key]]);for(const x of shuffle(from)){if(out.length>=n)break;if(seen.has(x[key]))continue;seen.add(x[key]);out.push(x)}return out}
 function mcItems(p,kinds,n){const src=pool(p),all=(ST.lv==='city'||!levelObj())?ALL:levelObj().ls.flatMap(x=>x.w).map(w=>[w[0],w[1],w[2],'','']);
  return src.slice(0,n).map((w,i)=>{const type=kinds[i%kinds.length];let t=type;if(t==='cloze'&&!(w[3]&&w[3].includes(w[0])))t='hanzi';
   const pl=t==='mean'?all:src.length>=4?src:all;return{w,type:t,opts:shuffle([w,...distract(w,pl,3,t==='mean'?2:0)])}})}
+/* ---- ôn tập giãn cách đơn giản: hộp 1-4, đúng thì lên hộp, sai về hộp 1 ---- */
+const GAP={1:1,2:2,3:4,4:7},today=()=>new Date(Date.now()+7*36e5).toISOString().slice(0,10),dayN=d=>Math.floor(new Date(d+'T00:00:00Z')/864e5);
+function isDue(k){const s=ST.ws&&ST.ws[k];if(!s||!s.x||!s.last)return false;if(s.box>=4&&s.c>s.x*2)return false;return dayN(today())-dayN(s.last)>=(GAP[s.box||1]||1)}
+function dueWords(){const all=[],seen=new Set(),add=w=>{if(w&&!seen.has(w[0])){seen.add(w[0]);all.push(w)}};
+ (window.__tp&&window.__tp.PLACES||[]).forEach(p=>(p.words||[]).forEach(add));try{const L=levelObj();if(L)L.ls.forEach(l=>l.w.forEach(w=>add([w[0],w[1],w[2],'','']) ))}catch(e){}
+ return all.filter(w=>isDue(w[0])).sort((a,b)=>ST.ws[a[0]].box-ST.ws[b[0]].box)}
 /* ---- tạo đề theo thẻ ---- */
-function build(p,tag){const src=pool(p);
+function build(p,tag){if(tag==='review'){const d=dueWords().slice(0,8),all=d.concat((window.__tp&&window.__tp.PLACES||[]).flatMap(q=>q.words||[]));return d.map((w,i)=>{const t=['mean','hanzi','listen'][i%3];return{w,type:t,opts:shuffle([w,...distract(w,all,3,t==='mean'?2:0)])}})}
+ const src=pool(p);
  if(tag==='listen')return mcItems(p,['listen'],6);
  if(tag==='read')return mcItems(p,shuffle(['mean','hanzi','cloze','mean','hanzi','cloze']),6);
  if(tag==='mix')return buildMix(p);
@@ -66,7 +74,7 @@ function buildMix(p){const t=shuffle(['listen','type','read','qa','speak','order
 /* ---- bảng nhiệm vụ ---- */
 window.openBoard=function(p){const T=tagsFor(),pk=k=>(prog[p.id+'|'+k]||{}).stars||0;
  const npc=roomNames[p.id==='home'?9:(staff[p.id]??10)];
- $('pq').innerHTML=`<h2>${p.zh} · ${esc(p.name)}</h2><div class="sub">${esc(modeTitle())}</div><p style="margin:2px 0 8px"><b>${esc(npc)}</b>：${esc(greet(p))}</p><div class="board">${T.map(k=>`<button class="bd2" data-t="${k}"><span>${TAGS[k].ic}</span><b>${TAGS[k].n}</b><small>${TAGS[k].d}</small><i>${'⭐'.repeat(pk(k))||'—'}</i></button>`).join('')}</div><div class="row"><button class="btn" id="bx">Ra phố</button></div>`;
+ $('pq').innerHTML=`<h2>${p.zh} · ${esc(p.name)}</h2><div class="sub">${esc(modeTitle())}</div><p style="margin:2px 0 8px"><b>${esc(npc)}</b>：${esc(greet(p))}</p><div class="board">${T.map(k=>`<button class="bd2" data-t="${k}"><span>${TAGS[k].ic}</span><b>${TAGS[k].n}</b><small>${TAGS[k].d}</small><i>${'⭐'.repeat(pk(k))||'—'}</i></button>`).join('')}</div>${dueWords().length?`<button class="bd2" data-t="review" style="width:100%;margin-top:8px"><span>🔁</span><b>Ôn từ yếu hôm nay</b><small>${Math.min(8,dueWords().length)} từ đến hạn ôn</small></button>`:''}<div class="row"><button class="btn" id="bx">Ra phố</button></div>`;
  $('ovq').classList.add('on');$('bx').onclick=()=>$('ovq').classList.remove('on');
  $('pq').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>openTag(p,b.dataset.t))};
 const GREET=['你好！欢迎光临！','你好！今天学什么？','欢迎！想做哪个任务？','你好，朋友！'];
@@ -79,7 +87,7 @@ const MC=['mean','hanzi','cloze','listen'];
 const chip=q=>`<span class="tg">${TAGS[Q.tag]?TAGS[Q.tag].ic+' '+TAGS[Q.tag].n:''}</span>`;
 function frame(inner){const p=Q.p;$('pq').innerHTML=`<h2>${p.zh} · ${esc(p.name)} ${chip()}</h2><div class="sub" style="margin-bottom:6px">${esc(modeTitle())}</div><div class="prog">${Q.items.map((_,i)=>`<i class="${i<Q.i?'d':''}"></i>`).join('')}</div>${inner}<button class="btn" id="exitLesson" style="margin:4px">Ra phố</button>`;
  $('exitLesson').onclick=()=>{Q=null;$('ovq').classList.remove('on')}}
-function done(right,pts,coin,w){if(!Q)return;if(right)Q.ok++;Q.pts+=right?(pts||10):0;Q.coin+=right?(coin||4):0;if(w){const s=ST.ws[w[0]]||(ST.ws[w[0]]={c:0,x:0});right?s.c++:s.x++}
+function done(right,pts,coin,w){if(!Q)return;if(right)Q.ok++;Q.pts+=right?(pts||10):0;Q.coin+=right?(coin||4):0;if(w){const s=ST.ws[w[0]]||(ST.ws[w[0]]={c:0,x:0});const wasWrong=s.x>0&&s.c<=s.x;right?s.c++:s.x++;s.box=right?Math.min(4,(s.box||1)+1):1;s.last=today();if(right&&wasWrong&&s.hl!==today()){s.hl=today();Q.hard=(Q.hard||0)+1}if(w[0])ST.wdirty=1}
  const a=Q;setTimeout(()=>{if(Q!==a)return;Q.i++;Q.i<Q.items.length?showQ():endQ()},right?800:1800)}
 function fb(t,ok){const e=$('fb');if(e){e.className='fbk '+(ok?'ok':'no');e.innerHTML=t}}
 window.showQ=function(){const q=Q.items[Q.i];
@@ -154,7 +162,7 @@ window.endQ=function(){happyUntil=performance.now()+4500;const p=Q.p,tag=Q.tag,N
  const D=ST.daily,run=(D.runs[key]=(D.runs[key]||0)+1),mul=run===1?1:run===2?.5:.2;
  let bonus3=0,note='';if(st===3&&!D.b3[key]){D.b3[key]=1;bonus3=1}
  let sx=0;if(!D.day&&n>0){D.day=1;ST.streak=(ST.streak||0)+1;sx=Math.min(30,ST.streak*5)}
- const gx=Math.round(Q.pts*(run>=3?.2:mul))+(bonus3?30:0)+(first?20:0)+sx,gc=Math.round(Q.coin*mul)+(bonus3?15:0);
+ const hb=Math.min(5,Q.hard||0)*8,gx=Math.round(Q.pts*(run>=3?.2:mul))+(bonus3?30:0)+(first?20:0)+sx+hb,gc=Math.round(Q.coin*mul)+(bonus3?15:0);
  if(run===2)note='Lần 2 trong ngày: thưởng giảm còn nửa. Hãy thử nhiệm vụ khác hoặc từ mới nhé!';else if(run>=3)note='Đã luyện nhiều lần hôm nay: thưởng rất ít, bạn hãy chuyển sang nhiệm vụ khác.';
  if(st===3&&!bonus3)note+=(note?' ':'')+'Thưởng 3 sao chỉ nhận một lần mỗi ngày cho mỗi nhiệm vụ.';
  if(score>old.best||st>old.stars)prog[key]={best:Math.max(score,old.best),stars:Math.max(st,old.stars)};
@@ -163,7 +171,7 @@ window.endQ=function(){happyUntil=performance.now()+4500;const p=Q.p,tag=Q.tag,N
  if(L1>L0){ST.tickets=(ST.tickets||0)+(L1-L0);const ns=syncUnlocks();lvTxt=`<p class="sub"><b>Lên cấp ${L1}!</b> Bạn nhận 1 vé vòng quay 🎡${ns.length?' và mở skin mới: <b>'+ns.map(i=>SKINS[i]).join(', ')+'</b> 👗':''}</p>`}
  saveState();
  const rev=Q.items.filter(i=>i.w).map(i=>`<div><b>${esc(i.w[0])}</b> ${esc(i.w[1])} · ${esc(i.w[2])}</div>`).join('');
- $('pq').innerHTML=`<h2>${st?'Hoàn thành nhiệm vụ!':'Thử lại nhé'}</h2><div class="sub">${esc(p.name)} ${p.zh} · ${TAGS[tag].ic} ${TAGS[tag].n} · đúng ${n}/${N}</div><div class="stars">${'⭐'.repeat(st)}${'☆'.repeat(3-st)}</div><p class="reward">+${gx} EXP &nbsp; +${gc} 🪙</p>${sx?`<p class="sub">🔥 Chuỗi ${ST.streak} ngày học liên tiếp: +${sx} EXP</p>`:''}${note?`<p class="sub">${note}</p>`:''}${lvTxt}${rev?'<div class="rev">'+rev+'</div>':''}
+ $('pq').innerHTML=`<h2>${st?'Hoàn thành nhiệm vụ!':'Thử lại nhé'}</h2><div class="sub">${esc(p.name)} ${p.zh} · ${TAGS[tag].ic} ${TAGS[tag].n} · đúng ${n}/${N}</div><div class="stars">${'⭐'.repeat(st)}${'☆'.repeat(3-st)}</div><p class="reward">+${gx} EXP &nbsp; +${gc} 🪙</p>${sx?`<p class="sub">🔥 Chuỗi ${ST.streak} ngày học liên tiếp: +${sx} EXP</p>`:''}${hb?`<p class="sub">💪 Vượt ${Q.hard} từ khó: +${hb} EXP</p>`:''}${note?`<p class="sub">${note}</p>`:''}${lvTxt}${rev?'<div class="rev">'+rev+'</div>':''}
  <div class="row"><button class="btn gold" id="again">Làm lại</button><button class="btn" id="more">Nhiệm vụ khác</button>${ST.tickets?'<button class="btn" id="spin2">🎡 Quay ('+ST.tickets+')</button>':''}<button class="btn" id="back">Về thành phố</button></div>`;
  $('again').onclick=()=>openTag(p,tag);$('more').onclick=()=>openBoard(p);const s2=$('spin2');if(s2)s2.onclick=()=>{$('ovq').classList.remove('on');openWheel()};$('back').onclick=()=>{$('ovq').classList.remove('on');$('hint').textContent='Bấm vào một tòa nhà để đi tiếp'};postScore()};
 /* ---- kiểu dáng ---- */

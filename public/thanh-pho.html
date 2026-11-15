@@ -920,13 +920,16 @@ async function enterAs(name,email){
  try{localStorage.setItem('tp_owner',email)}catch(e){}
  me={name,email};try{localStorage.setItem('tp_acct',JSON.stringify(me))}catch(e){}
  ST.name=name;if(rec&&rec.exp>(ST.exp||0)){ST.exp=rec.exp}
+ if(ON)await pullWords(email);
  syncUnlocks();syncProg();saveState();queueCity(true);
  if(!ST.done)setTimeout(startFlow,300);else toast('Chào mừng '+name+' trở lại! Cấp '+plvl());if(window.__cityErr)setTimeout(()=>toast('Chưa lưu được lên máy chủ, tạm lưu trên máy này'),2500)}
 function logoutM(){modal(`<h2>Đăng xuất?</h2><p class="sub">Đang đăng nhập: <b>${esc(me?me.name:'')}</b><br>${esc(me?me.email:'')}</p><p class="sub">Thành tích đã được lưu. Đăng nhập lại bằng email để chơi tiếp.</p><div class="row"><button class="btn gold" id="lo">Đăng xuất</button><button class="btn" id="cl">Ở lại</button></div>`);$('cl').onclick=closeM;$('lo').onclick=async()=>{await flushCity();try{localStorage.setItem('tp_state:'+me.email,JSON.stringify(ST))}catch(e){}me=null;try{localStorage.removeItem('tp_acct')}catch(e){}closeM();gate()}}
 function cityPayload(){let stars=0,places=0;for(const k in ST.prog){const o=ST.prog[k]||{};for(const id in o){stars+=(o[id]&&o[id].stars)||0;if(k==='city'&&o[id]&&o[id].stars>0)places++}}
  const j=k=>{try{return JSON.parse(localStorage.getItem(k)||'{}')}catch(e){return{}}};const w=j('tp_world'),w2=j('tp_world2'),wq=j('tp_world_quest');
  return{p_email:me.email,p_player:me.name,p_level:plvl(),p_exp:ST.exp||0,p_stars:stars,p_places:places,p_extra:{rank:(RANKS.filter(r=>plvl()>=r[0]).pop()||RANKS[0])[1],passport:Object.keys(w).length,worldZones:Object.values(w2).reduce((a,o)=>a+Object.keys(o||{}).length,0),worldQuests:Object.values(wq).reduce((a,o)=>a+Object.keys(o||{}).length,0),pets:ST.pet||null,skins:((ST.unl&&ST.unl[ST.sex])||[]).length}}}
-let cityT=0;async function flushCity(){if(!ON||!me)return;if(cityT){clearTimeout(cityT);cityT=0}try{await rpc('save_city',cityPayload())}catch(e){}}
+let cityT=0;async function flushCity(){if(!ON||!me)return;if(cityT){clearTimeout(cityT);cityT=0}try{await rpc('save_city',cityPayload())}catch(e){}
+ if(ST.wdirty){const ws=Object.entries(ST.ws||{}).filter(([k,v])=>v&&(v.c||v.x)).map(([k,v])=>({w:k,c:v.c||0,x:v.x||0,b:v.box||1,l:v.last||''})).slice(-600);try{await rpc('save_city_words',{p_email:me.email,p_words:ws});ST.wdirty=0;try{localStorage.setItem('tp_state',JSON.stringify(ST))}catch(e){}}catch(e){}}}
+async function pullWords(email){try{const r=await rpc('load_city_words',{p_email:email});if(!Array.isArray(r))return;for(const x of r){const s=ST.ws[x.w]||(ST.ws[x.w]={c:0,x:0});if((x.c+x.x)>(s.c+s.x)){s.c=x.c;s.x=x.x;s.box=x.b;s.last=x.l}else if(!s.last&&x.l){s.last=x.l;s.box=x.b}}}catch(e){}}
 function queueCity(now){if(!ON||!me||(cityT&&!now))return;if(cityT)clearTimeout(cityT);cityT=setTimeout(()=>{cityT=0;flushCity()},now?200:6000)}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)flushCity()});setInterval(()=>queueCity(),90000);
 async function showLb(){if(!ON)return toast('Bảng xếp hạng chưa được bật');modal(`<h2>Xếp hạng người chơi</h2><p class="sub">Đang tải…</p>`);await flushCity();let r=null;try{r=await rpc('city_board',{p_limit:10})}catch(e){}
@@ -942,4 +945,4 @@ function startFlow(){if(ST.done)return;openProfile(true,()=>openLevel(true,()=>{
 syncUnlocks();syncProg();refreshHud();fit();if(me){if(!owner()){try{localStorage.setItem('tp_owner',me.email)}catch(e){}}setTimeout(startFlow,350);queueCity(true)}else gate();requestAnimationFrame(frame);
 window.__tp={addReward(c,e){ST.coins+=c;ST.exp+=e;saveState();refreshHud()},P,PLACES,walkTo,NODES,openQ,openPlace,enterRoom,NPC,drawPerson,stepNpc,get Q(){return Q},get ST(){return ST},openHome,openWheel,awardWheel,get prog(){return prog},get S(){return S},CAM};
 </script>
-<script src="tasks.js?v=20261115"></script><script src="i18n-zh.js"></script><script src="npc.js"></script><script src="pets.js"></script><script src="home3d.js"></script><script src="rooms3d.js"></script><script src="park2d.js"></script><script src="districts2d.js"></script><script src="office3d.js"></script><script src="world-rooms.js"></script><script src="world.js"></script><script src="world-wardrobe.js"></script><script src="visits.js" defer></script></body></html>
+<script src="tasks.js?v=20261115b"></script><script src="i18n-zh.js"></script><script src="npc.js"></script><script src="pets.js"></script><script src="home3d.js"></script><script src="rooms3d.js"></script><script src="park2d.js"></script><script src="districts2d.js"></script><script src="office3d.js"></script><script src="world-rooms.js"></script><script src="world.js"></script><script src="world-wardrobe.js"></script><script src="visits.js" defer></script></body></html>
