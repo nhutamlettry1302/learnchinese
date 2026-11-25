@@ -34,7 +34,7 @@ function readDate(d){const y=d.getFullYear(),m=d.getMonth()+1,n=d.getDate(),w=d.
 
 /* ---------- trạng thái ---------- */
 const now=new Date();
-const XT=t=>t==='shop'||t==='num'||t==='wheel';
+const XT=t=>t==='shop'||t==='num'||t==='wheel'||t==='roll';
 const S={tool:'clock',quiz:true,reveal:false,clock:{h:now.getHours(),m:now.getMinutes(),snap:1},cal:{y:now.getFullYear(),m:now.getMonth(),sel:day0(now)}};
 let root=null;
 window.TTspeak=t=>speak(t);window.__ttQuiz=()=>S.quiz;
@@ -175,8 +175,8 @@ function calAct(a){const K=S.cal;
 
 /* ---------- khung chung ---------- */
 function inner(){const T=S.tool;
- return`<div class="tt-tabs"><button class="tt-tab ${T==='clock'?'on':''}" data-tt="clock">${whale('clock',44)} Đồng hồ · 时间</button><button class="tt-tab ${T==='cal'?'on':''}" data-tt="cal">${whale('calendar',44)} Lịch · 日期</button><button class="tt-tab ${T==='shop'?'on':''}" data-tt="shop">${whale('cards',44)} Cửa hàng · 商店</button><button class="tt-tab ${T==='num'?'on':''}" data-tt="num">${whale('hanzi',44)} Số đếm · 数字</button><button class="tt-tab ${T==='wheel'?'on':''}" data-tt="wheel">${whale('dice',44)} Vòng xoay · 分组</button></div>
- <div class="card tt-card" id="tt-card"><div class="tt-bar">${T==='wheel'?'<span></span>':`<label class="tt-chk"><input type="checkbox" id="tt-quiz" ${S.quiz?'checked':''}> Ẩn đáp án để học sinh tự đọc</label>`}<button class="btn sm" data-a="fs">⛶ Toàn màn hình</button></div>${T==='clock'?clockHtml():XT(T)?(window.TTX&&TTX[T]?TTX[T].html():'<p>Chưa tải được công cụ này.</p>'):calHtml()}</div>`}
+ return`<div class="tt-tabs"><button class="tt-tab ${T==='clock'?'on':''}" data-tt="clock">${whale('clock',44)} Đồng hồ · 时间</button><button class="tt-tab ${T==='cal'?'on':''}" data-tt="cal">${whale('calendar',44)} Lịch · 日期</button><button class="tt-tab ${T==='shop'?'on':''}" data-tt="shop">${whale('cards',44)} Cửa hàng · 商店</button><button class="tt-tab ${T==='num'?'on':''}" data-tt="num">${whale('hanzi',44)} Số đếm · 数字</button><button class="tt-tab ${T==='wheel'?'on':''}" data-tt="wheel">${whale('dice',44)} Vòng xoay · 分组</button><button class="tt-tab ${T==='roll'?'on':''}" data-tt="roll">${whale('brain',44)} Bảng gọi tên · 点名</button></div>
+ <div class="card tt-card" id="tt-card"><div class="tt-bar">${T==='wheel'||T==='roll'?'<span></span>':`<label class="tt-chk"><input type="checkbox" id="tt-quiz" ${S.quiz?'checked':''}> Ẩn đáp án để học sinh tự đọc</label>`}<button class="btn sm" data-a="fs">⛶ Toàn màn hình</button></div>${T==='clock'?clockHtml():XT(T)?(window.TTX&&TTX[T]?TTX[T].html():'<p>Chưa tải được công cụ này.</p>'):calHtml()}</div>`}
 function paint(){if(!root||!document.body.contains(root))root=document.getElementById('tt-root');if(!root)return;root.innerHTML=inner();after()}
 function after(){if(S.tool==='clock')wireClock();else if(XT(S.tool)){if(window.TTX&&TTX[S.tool])TTX[S.tool].after(()=>paint())}else updCal()}
 function onClick(e){if((XT(S.tool))&&window.TTX&&TTX[S.tool]&&TTX[S.tool].click(e))return;const b=e.target.closest('[data-tt],[data-a],[data-d]');if(!b)return;
