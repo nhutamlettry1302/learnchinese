@@ -35,3 +35,9 @@
 .ans button:nth-child(3){color:#2a2008!important}
 
 .world-item img{zoom:var(--rs,1)}
+
+/* 2026-11-26: đáp án A/B/C/D cùng một kiểu chữ và độ đậm, nền dịu, chữ tối đọc rõ; hiện đáp án đúng sau khi chọn sai */
+.ans button,.ans button.zh,.ans button.right,.ans button.bad,.ans button:nth-child(n){color:#1f2f27!important;font-weight:800!important;text-shadow:none!important;font-family:'Baloo 2','Nunito','Noto Sans SC','PingFang SC','Microsoft YaHei','Noto Sans CJK SC',system-ui,sans-serif!important;letter-spacing:0}
+.ans button:nth-child(1){background:#f6cfd3!important}.ans button:nth-child(2){background:#cfe3f3!important}.ans button:nth-child(3){background:#f6e5ad!important}.ans button:nth-child(4){background:#cde9db!important}
+.ans button.dim{opacity:.4}.ans button.right{outline:4px solid #2c9a73;background:#bfe8d1!important;transform:scale(1.03);opacity:1}.ans button.bad{outline:4px solid #d9534f;background:#f4c2bf!important;opacity:1}
+.fbk{margin:12px 0 0;padding:12px 14px;border-radius:14px;background:#fdecea;border:2px solid #d9534f;color:#7a1f1b;font-size:clamp(16px,4vw,20px);text-align:center;line-height:1.5}.fbk .fa{display:inline-block;margin-left:6px;padding:2px 12px;border-radius:10px;background:#bfe8d1;color:#14432f;font-weight:800;font-size:1.15em}.fbk small{display:block;margin-top:4px;color:#555;font-size:.85em}

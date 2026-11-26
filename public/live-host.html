@@ -2,9 +2,9 @@
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Lớp học trực tiếp – Giáo viên điều khiển</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&family=Noto+Serif+SC:wght@600;800&display=swap">
-<link rel="stylesheet" href="rwlive.css">
+<link rel="stylesheet" href="rwlive.css?v=20261126a">
 <script>try{var t=localStorage.getItem('rw_theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
-<link rel="stylesheet" href="phong-theme.css"><link rel="stylesheet" href="adventure.css?v=20261114b"><link rel="stylesheet" href="snakeboard.css"></head><body class="host-page"><div class="wrap">
+<link rel="stylesheet" href="phong-theme.css"><link rel="stylesheet" href="adventure.css?v=20261126a"><link rel="stylesheet" href="snakeboard.css"></head><body class="host-page"><div class="wrap">
 <div class="top"><a class="btn sm" href="phong.html">← Phòng của giáo viên</a><span class="brand"><i class="lg"></i>Lớp học trực tiếp</span><span class="sp"></span><span class="muted" id="cnt"></span><button type="button" class="btn sm" id="present" aria-pressed="false">⛶ Chế độ máy chiếu</button></div>
 <div id="main"><p class="muted">Đang kết nối…</p></div><div class="solo-shortcut card" style="margin:18px 0 8px;padding:12px 14px"><b>Trò chơi khác cho lớp</b><div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><a class="btn sm" href="thang-va-ran.html?view=teacher" target="_blank" rel="noopener">🎲 Thang và Rắn · Mở bàn chiếu</a><a class="btn sm" href="tro-lop.html" id="tlk" target="_blank" rel="noopener">🎳 Trò chơi cả lớp · Bowling, Bóng chày, Thả sỏi, Gắp thú, Giữ vườn</a><span class="muted">Chơi cùng lớp trên màn hình chung</span></div></div>
 </div>
@@ -15,7 +15,7 @@ const code=(new URLSearchParams(location.search).get('phong')||'').toUpperCase()
 const H={session:Date.now(),room:null,content:null,P:{},mode:'lobby',game:'quiz',ph:'lobby',i:0,n:20,dur:15,qs:[],t0:0,log:[],showAns:false,teams:false,gift:true,gifts:{},goal:25,rdur:240,counts:[],res:{},rank:[],tick:0,link:null};
 const playerUrl=()=>new URL('live.html?phong='+code+(RWL.MOCK?'&mock=1':''),location.href).href;
 const PRESETS=[{k:'snake',n:'🎲 Thang và rắn (cả lớp chung một bàn cờ)',g:'race',sk:'snake',rule:'normal'},{k:'submarine',n:'🤿 Đua tàu ngầm',g:'race',sk:'submarine',rule:'normal'},{k:'balloon',n:'🎈 Khinh khí cầu',g:'race',sk:'balloon',rule:'normal'},{k:'train',n:'🚂 Chuyến tàu tri thức',g:'race',sk:'train',rule:'normal'},{k:'car',n:'🏎️ Đua xe',g:'race',sk:'car',rule:'normal'},{k:'rocket',n:'🚀 Tên lửa lên Mặt Trăng',g:'race',sk:'rocket',rule:'normal'},{k:'climb',n:'⛰️ Leo núi',g:'race',sk:'climb',rule:'normal'},{k:'boat',n:'⛵ Đua thuyền',g:'race',sk:'boat',rule:'normal'},{k:'pen',n:'⚠️ Đua phạt (sai thì lùi 1 bước)',g:'race',sk:'whale',rule:'penalty'},{k:'surv',n:'🛡️ Sinh tồn (sai 3 lần bị loại)',g:'race',sk:'car',rule:'survive'},{k:'boss',n:'🦈 Đánh trùm cá mập (cả lớp hợp sức)',g:'coop',sk:'boss',rule:'normal'},{k:'tower',n:'🏰 Xây tháp (cả lớp hợp sức)',g:'coop',sk:'tower',rule:'normal'}];
-const act=()=>Object.values(H.P).filter(p=>Date.now()-p.seen<16000);
+const act=()=>Object.values(H.P).filter(p=>{const d=Date.now()-p.seen;return d<16000||(d<90000&&(p.steps>0||p.ok>0||p.no>0))});
 const board=()=>act().concat(Object.values(H.P).filter(p=>Date.now()-p.seen>=16000&&p.score>0)).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'vi'));
 function snap(){const s={t:'st',m:H.game,ph:H.ph,np:act().length,tm:{},teams:H.teams,sk:H.skin||'whale',rule:H.rule||'normal',sd:H.sd||0};RWL.skin=H.skin||'whale';act().forEach(p=>{s.tm[p.id]=p.team});
  s.session=H.session;s.ch=Object.fromEntries(Object.values(H.P).map(p=>[p.id,p.pet]));const now=Date.now();
@@ -36,6 +36,9 @@ const teamScores=(k)=>{const t=[0,0];Object.values(H.P).forEach(p=>{t[p.team]+=(
 const livePlayers=()=>act().map(p=>({...p}));
 let conn=null,lastS=0,pendS=null;const send=()=>{if(!conn)return;const n=Date.now(),w=1000-(n-lastS);if(w<=0){lastS=n;conn.send(snap())}else if(!pendS)pendS=setTimeout(()=>{pendS=null;lastS=Date.now();if(conn)conn.send(snap())},w)};
 function onMsg(m){if(!m||!m.id)return;let p=H.P[m.id];
+ if(!p&&m.name&&m.t!=='join'&&m.t!=='ping'){const cnt=[0,0];Object.values(H.P).forEach(x=>cnt[x.team]++);p=H.P[m.id]={id:m.id,name:String(m.name).slice(0,20),team:cnt[0]<=cnt[1]?0:1,score:0,streak:0,a:{},steps:0,ok:0,no:0,seen:Date.now(),pet:AV.norm(m.pet),n:0};p.uid=/^[0-9a-f-]{36}$/.test(m.uid||'')?m.uid:null}
+ if(p&&m.t==='ping'&&m.n!==undefined&&(+m.n>(p.n||0))&&H.ph==='run'&&(H.game==='race'||H.game==='tug'||H.game==='coop')){p.n=+m.n;p.steps=Math.max(0,Math.min(H.game==='race'?H.goal:999,+m.steps||0));p.ok=+m.ok||0;p.no=+m.no||0;p.seen=Date.now();render()}
+ if(p&&m.t==='prog'&&m.n!==undefined)p.n=Math.max(p.n||0,+m.n||0);
  if(m.t==='join'||(m.t==='ping'&&!p&&m.name)){const cnt=[0,0];Object.values(H.P).forEach(x=>cnt[x.team]++);if(!p)p=H.P[m.id]={id:m.id,name:String(m.name||'Bạn').slice(0,20),team:cnt[0]<=cnt[1]?0:1,score:0,streak:0,a:{},steps:0,ok:0,no:0,seen:0,pet:0};p.uid=/^[0-9a-f-]{36}$/.test(m.uid||'')?m.uid:null;p.pet=AV.norm(m.pet);p.name=String(m.name||p.name).slice(0,20);p.seen=Date.now();render();send();return}
  if(!p)return;p.seen=Date.now();if(m.cur!==undefined)p.cur=String(m.cur).slice(0,120);
  if(m.qa&&(H.game==='race'||H.game==='tug'||H.game==='coop')&&H.ph==='run'){H.log.unshift({n:p.name,pet:p.pet,t:p.team,p:String(m.qa.p).slice(0,80),a:String(m.qa.a).slice(0,60),ok:m.qa.ok?1:0});H.log.length=Math.min(H.log.length,8)}
