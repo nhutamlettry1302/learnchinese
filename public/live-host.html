@@ -46,7 +46,12 @@ function onMsg(m){if(!m||!m.id)return;let p=H.P[m.id];
  if(m.t==='ans'&&H.game==='quiz'&&H.ph==='q'&&m.q===H.i&&p.a[H.i]===undefined){p.a[H.i]={c:m.c,ms:Date.now()-H.t0};render();send();if(act().every(x=>x.a[H.i]!==undefined))setTimeout(()=>{if(H.ph==='q'&&H.i===m.q)reveal()},600)}
  if(m.t==='prog'&&H.game==='coop'&&H.ph==='run'){p.steps=Math.max(0,Math.min(999,+m.steps||0));p.ok=+m.ok||0;p.no=+m.no||0;if(act().reduce((a,x)=>a+x.steps,0)>=H.hp)endGame();else{render();send()}}
  else if(m.t==='prog'&&(H.game==='race'||H.game==='tug')&&H.ph==='run'){if(H.game==='tug'){p.steps=Math.max(0,Math.min(999,+m.steps||0));p.ok=+m.ok||0;p.no=+m.no||0;const t=teamScores('steps');if(Math.abs(t[0]-t[1])>=H.goal)endGame();else{render();send()}}else{p.steps=Math.max(0,Math.min(H.goal,+m.steps||0));p.ok=+m.ok||0;p.no=+m.no||0;if(p.steps>=H.goal&&!p.fin)p.fin=Date.now();if(act().length&&act().every(x=>x.steps>=H.goal||(H.rule==='survive'&&x.no>=3)))endGame();else if(H.rule==='survive'&&act().length&&act().every(x=>x.no>=3))endGame();else render()}}}
-function startQuiz(){const qs=[],seen=new Set();let g=0;while(qs.length<H.n&&g++<H.n*30){const q=C.makeQ(H.content);if(q&&!seen.has(q.prompt)){seen.add(q.prompt);qs.push(q)}}
+function startQuiz(){const qs=[],seen=new Set(),seen2=new Set();let g=0;
+ /* Đủ đúng số câu cô đặt: ưu tiên câu khác nhau; hết thì cho lặp lại từ (khác dạng câu), cuối cùng mới lặp hẳn, không đặt hai câu giống nhau liền kề. */
+ for(let pass=0;pass<3&&qs.length<H.n;pass++){g=0;while(qs.length<H.n&&g++<H.n*40){const q=C.makeQ(H.content);if(!q)break;const k1=q.prompt,k2=q.type+'|'+q.prompt+'|'+q.ans,last=qs[qs.length-1];
+  if(last&&last.prompt===q.prompt&&g<H.n*30)continue;
+  if(pass===0&&seen.has(k1))continue;if(pass===1&&seen2.has(k2))continue;
+  seen.add(k1);seen2.add(k2);qs.push(q)}}
  if(!qs.length){alert('Nội dung chưa đủ để ra câu hỏi (cần ít nhất 4 từ). Hãy chọn thêm bài trong phòng nhé.');return}
  H.qs=qs;H.n=qs.length;Object.values(H.P).forEach(p=>{p.score=0;p.streak=0;p.a={}});H.i=0;nextQ()}
 function nextQ(){H.gifts={};H.ph='q';H.t0=Date.now();H.counts=[];H.res={};render();send()}
